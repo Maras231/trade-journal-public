@@ -945,7 +945,52 @@ async function initAuth(){
     }
   });
 }
-initAuth();
+
+let selectedSummaryMonth = null; // 'YYYY-MM'
+let currentImageData = null;
+let selectedDate = null;
+let calDate = new Date();
+calDate.setDate(1);
+let displayMode = 'usd'; // 'usd' | 'rr'
+
+/* ============ THEME (jasny / ciemny) ============ */
+const THEME_KEY = 'tj_theme';
+function cssVar(name){
+  return getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+}
+function applyTheme(theme){
+  document.documentElement.setAttribute('data-theme', theme);
+  localStorage.setItem(THEME_KEY, theme);
+  const meta = document.getElementById('themeColorMeta');
+  if(meta) meta.setAttribute('content', theme==='light' ? '#F4F5F9' : '#0B0E14');
+}
+applyTheme(localStorage.getItem(THEME_KEY) || 'dark');
+document.getElementById('themeToggle').addEventListener('click', ()=>{
+  const current = document.documentElement.getAttribute('data-theme') || 'dark';
+  applyTheme(current === 'dark' ? 'light' : 'dark');
+  renderAll();
+});
+
+document.querySelectorAll('#modeToggle button').forEach(b=>{
+  b.addEventListener('click', ()=>{
+    document.querySelectorAll('#modeToggle button').forEach(x=>x.classList.remove('active'));
+    b.classList.add('active');
+    displayMode = b.dataset.mode;
+    renderAll();
+  });
+});
+
+function fmtValue(val, mode){
+  if(val===null || val===undefined || isNaN(val)) return '—';
+  if(mode==='rr') return (val>=0?'+':'') + val.toFixed(2) + 'R';
+  return fmt(val);
+}
+function tradeValue(t, mode){
+  if(mode==='rr'){
+    return (t.rr!==undefined && t.rr!==null && t.rr!=='' && !isNaN(t.rr)) ? parseFloat(t.rr) : null;
+  }
+  return t.pnl;
+}
 
 const MONTH_NAMES_PL = ['Styczeń','Luty','Marzec','Kwiecień','Maj','Czerwiec','Lipiec','Sierpień','Wrzesień','Październik','Listopad','Grudzień'];
 function uid(){ return 't_' + Date.now() + '_' + Math.floor(Math.random()*10000); }
@@ -1792,6 +1837,8 @@ function renderAll(){
   renderTradesTable();
   renderMonthsSummary();
 }
+
+initAuth();
 
 /* ============ PWA: rejestracja service workera ============ */
 if('serviceWorker' in navigator){
