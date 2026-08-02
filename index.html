@@ -619,9 +619,6 @@ table.tradelist tr:hover td{background:var(--surface2);}
         <button class="icon-btn" id="logoutBtn" title="Wyloguj">✕</button>
       </div>
     </div>
-    <button class="btn" id="exportBtn">⬇ Eksport</button>
-    <button class="btn" id="importBtn">⬆ Import</button>
-    <input type="file" id="importFile" accept=".json" style="display:none">
     <button class="btn primary" id="addTradeBtn">+ Dodaj transakcję</button>
   </div>
 </header>
@@ -1798,34 +1795,6 @@ window.deleteTrade = function(id){
 ['searchInput','filterDirection','sortSelect'].forEach(id=>{
   document.getElementById(id).addEventListener('input', ()=>{ tradesPage = 1; renderTradesTable(); });
   document.getElementById(id).addEventListener('change', ()=>{ tradesPage = 1; renderTradesTable(); });
-});
-
-/* ============ EXPORT / IMPORT ============ */
-document.getElementById('exportBtn').addEventListener('click', ()=>{
-  const blob = new Blob([JSON.stringify(trades,null,2)], {type:'application/json'});
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url; a.download = 'trade-journal-export.json'; a.click();
-  URL.revokeObjectURL(url);
-});
-document.getElementById('importBtn').addEventListener('click', ()=>document.getElementById('importFile').click());
-document.getElementById('importFile').addEventListener('change', e=>{
-  const file = e.target.files[0];
-  if(!file) return;
-  const reader = new FileReader();
-  reader.onload = async ev=>{
-    try{
-      const imported = JSON.parse(ev.target.result);
-      if(Array.isArray(imported)){
-        const valid = imported.filter(t=>t.date && t.symbol).map(t=>({...t, id: uid()}));
-        trades = trades.concat(valid);
-        renderAll();
-        for(const t of valid){ await saveTradeToDb(t); }
-        alert('Zaimportowano ' + valid.length + ' transakcji.');
-      }
-    }catch(err){ alert('Nieprawidłowy plik.'); }
-  };
-  reader.readAsText(file);
 });
 
 /* ============ RENDER ALL ============ */
