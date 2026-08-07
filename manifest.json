@@ -1,6 +1,6 @@
 {
-  "name": "Trade Journal",
-  "short_name": "Trade Journal",
+  "name": "Wick",
+  "short_name": "Wick",
   "description": "Twój dziennik transakcji i analityka",
   "start_url": "./index.html",
   "scope": "./",
