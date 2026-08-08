@@ -611,6 +611,9 @@ table.tradelist tr:hover td{background:var(--surface2);}
 .month-card .m-pnl.pos{color:var(--profit);}
 .month-card .m-pnl.neg{color:var(--loss);}
 .month-card .m-sub{color:var(--muted);font-size:12px;font-family:'JetBrains Mono',monospace;}
+.month-card.year-card{padding:20px 18px;}
+.month-card.year-card .m-name{font-size:20px;letter-spacing:.3px;}
+.month-card.year-card .m-pnl{font-size:22px;}
 
 .month-detail-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;flex-wrap:wrap;gap:10px;}
 .month-notes-field{margin-top:8px;}
@@ -1351,7 +1354,10 @@ table.tradelist tr:hover td{background:var(--surface2);}
 
 <section id="tab-months" style="display:none;">
   <div class="panel" id="monthsPanel">
-    <h2 id="monthsSummaryTitle">Podsumowanie miesięcy</h2>
+    <div class="month-detail-head" style="margin-bottom:14px;justify-content:flex-start;gap:12px;">
+      <button class="btn ghost" id="yearsBackBtn" style="display:none;">‹ <span id="yearsBackBtnText">Wszystkie lata</span></button>
+      <h2 id="monthsSummaryTitle">Podsumowanie miesięcy</h2>
+    </div>
     <div class="months-grid" id="monthsGrid"></div>
   </div>
   <div class="panel" id="monthDetailPanel" style="display:none;margin-top:18px;">
@@ -1871,6 +1877,7 @@ const I18N = {
     runCompact:'Uruchom', noLegacyImages:'Wszystkie zdjęcia są już zoptymalizowane.',
     compactProgress:'Przetworzono {done} z {total} transakcji...', compactDone:'Gotowe. Zoptymalizowano zdjęcia w {n} transakcjach.',
     undoLabel:'Cofnij', tradeDeletedToast:'Transakcja usunięta.',
+    allYears:'Wszystkie lata',
     settingsAboutTitle:'O aplikacji', settingsVersionTitle:'Wersja aplikacji',
     monthsShort:'Miesiące', weekStartMonday:'Poniedziałek', weekStartSunday:'Niedziela',
     profileTotalTradesLabel:'Łącznie zapisanych transakcji',
@@ -1981,6 +1988,7 @@ const I18N = {
     runCompact:'Run', noLegacyImages:'All images are already optimized.',
     compactProgress:'Processed {done} of {total} trades...', compactDone:'Done. Optimized images in {n} trades.',
     undoLabel:'Undo', tradeDeletedToast:'Trade deleted.',
+    allYears:'All years',
     settingsAboutTitle:'About', settingsVersionTitle:'App version',
     monthsShort:'Months', weekStartMonday:'Monday', weekStartSunday:'Sunday',
     profileTotalTradesLabel:'Total trades logged',
@@ -2091,6 +2099,7 @@ const I18N = {
     runCompact:'Starten', noLegacyImages:'Alle Bilder sind bereits optimiert.',
     compactProgress:'{done} von {total} Trades verarbeitet...', compactDone:'Fertig. Bilder in {n} Trades optimiert.',
     undoLabel:'Rückgängig', tradeDeletedToast:'Trade gelöscht.',
+    allYears:'Alle Jahre',
     settingsAboutTitle:'Über die App', settingsVersionTitle:'App-Version',
     monthsShort:'Monate', weekStartMonday:'Montag', weekStartSunday:'Sonntag',
     profileTotalTradesLabel:'Insgesamt erfasste Trades',
@@ -2577,6 +2586,7 @@ async function initAuth(){
 }
 
 let selectedSummaryMonth = null; // 'YYYY-MM'
+let selectedSummaryYear = null; // 'YYYY' - null oznacza widok folderów lat
 let currentImageData = null;
 const MAX_IMAGES = 5;
 let currentImages = [];
@@ -3266,30 +3276,80 @@ function getMonthsWithTrades(){
 
 function renderMonthsSummary(){
   const map = getMonthsWithTrades();
-  const keys = Object.keys(map).sort((a,b)=>a.localeCompare(b));
   const grid = document.getElementById('monthsGrid');
+  const backBtn = document.getElementById('yearsBackBtn');
+  const titleEl = document.getElementById('monthsSummaryTitle');
 
-  if(!keys.length){
+  const yearsMap = {};
+  Object.keys(map).forEach(key=>{
+    const year = key.slice(0,4);
+    (yearsMap[year] = yearsMap[year] || []).push(key);
+  });
+  const years = Object.keys(yearsMap).sort();
+
+  if(!years.length){
     grid.innerHTML = `<div class="empty-state"><div class="big">${t('noData')}</div>${t('noDataMonthsSub')}</div>`;
-  } else {
-    grid.innerHTML = keys.map(key=>{
-      const [y,m] = key.split('-');
-      const name = monthNames()[parseInt(m,10)-1];
-      const s = computeMonthStats(map[key]);
-      return `<div class="month-card ${key===selectedSummaryMonth?'active':''}" data-month="${key}">
-        <div class="m-name">${name} ${y}</div>
+    backBtn.style.display = 'none';
+    titleEl.textContent = t('monthsSummaryTitle');
+    document.getElementById('monthDetailPanel').style.display = 'none';
+    return;
+  }
+
+  // jeśli wybrany rok zniknął (np. usunięto z niego wszystkie transakcje), wracamy do folderów
+  if(selectedSummaryYear && !years.includes(selectedSummaryYear)){
+    selectedSummaryYear = null;
+    selectedSummaryMonth = null;
+  }
+
+  if(!selectedSummaryYear){
+    // ---- widok folderów lat ----
+    backBtn.style.display = 'none';
+    titleEl.textContent = t('monthsSummaryTitle');
+    grid.innerHTML = years.map(year=>{
+      const monthKeys = yearsMap[year];
+      let yearTrades = [];
+      monthKeys.forEach(k=> yearTrades = yearTrades.concat(map[k]));
+      const s = computeMonthStats(yearTrades);
+      return `<div class="month-card year-card" data-year="${year}">
+        <div class="m-name">${year}</div>
         <div class="m-pnl ${s.totalPnl>=0?'pos':'neg'}">${fmt(s.totalPnl)}</div>
-        <div class="m-sub">${s.total} ${t('tradesLower')} · WR ${s.total? s.winRate.toFixed(0):'0'}%</div>
+        <div class="m-sub">${monthKeys.length} ${t('monthsShort').toLowerCase()} · ${s.total} ${t('tradesLower')}</div>
       </div>`;
     }).join('');
-    grid.querySelectorAll('.month-card').forEach(card=>{
+    grid.querySelectorAll('.year-card').forEach(card=>{
       card.addEventListener('click', ()=>{
-        selectedSummaryMonth = card.dataset.month===selectedSummaryMonth ? null : card.dataset.month;
+        selectedSummaryYear = card.dataset.year;
+        selectedSummaryMonth = null;
         renderMonthsSummary();
-        renderMonthDetail();
       });
     });
+    document.getElementById('monthDetailPanel').style.display = 'none';
+    return;
   }
+
+  // ---- widok miesięcy wybranego roku ----
+  backBtn.style.display = '';
+  document.getElementById('yearsBackBtnText').textContent = t('allYears');
+  titleEl.textContent = selectedSummaryYear;
+
+  const monthKeys = yearsMap[selectedSummaryYear].sort();
+  grid.innerHTML = monthKeys.map(key=>{
+    const [,m] = key.split('-');
+    const name = monthNames()[parseInt(m,10)-1];
+    const s = computeMonthStats(map[key]);
+    return `<div class="month-card ${key===selectedSummaryMonth?'active':''}" data-month="${key}">
+      <div class="m-name">${name}</div>
+      <div class="m-pnl ${s.totalPnl>=0?'pos':'neg'}">${fmt(s.totalPnl)}</div>
+      <div class="m-sub">${s.total} ${t('tradesLower')} · WR ${s.total? s.winRate.toFixed(0):'0'}%</div>
+    </div>`;
+  }).join('');
+  grid.querySelectorAll('.month-card[data-month]').forEach(card=>{
+    card.addEventListener('click', ()=>{
+      selectedSummaryMonth = card.dataset.month===selectedSummaryMonth ? null : card.dataset.month;
+      renderMonthsSummary();
+      renderMonthDetail();
+    });
+  });
 
   if(!selectedSummaryMonth || !map[selectedSummaryMonth]){
     document.getElementById('monthDetailPanel').style.display = 'none';
@@ -3297,6 +3357,12 @@ function renderMonthsSummary(){
     renderMonthDetail();
   }
 }
+document.getElementById('yearsBackBtn').addEventListener('click', ()=>{
+  selectedSummaryYear = null;
+  selectedSummaryMonth = null;
+  renderMonthsSummary();
+  document.getElementById('monthDetailPanel').style.display = 'none';
+});
 
 function renderMonthDetail(){
   const panel = document.getElementById('monthDetailPanel');
