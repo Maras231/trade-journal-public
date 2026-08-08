@@ -3897,7 +3897,7 @@ function renderSettingsScreen(){
   });
 
   const wrap = document.getElementById('settingsLangOptions');
-  wrap.innerHTML = LANGS.map(l=>`<button type="button" data-lang="${l.code}" class="${l.code===currentLang?'active':''}">${l.flag} ${l.code.toUpperCase()}</button>`).join('');
+  wrap.innerHTML = LANGS.map(l=>`<button type="button" data-lang="${l.code}" class="${l.code===currentLang?'active':''}">${l.code.toUpperCase()}</button>`).join('');
   wrap.querySelectorAll('button').forEach(b=>{
     b.addEventListener('click', ()=>{
       currentLang = b.dataset.lang;
