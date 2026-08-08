@@ -3187,15 +3187,20 @@ function drawEquityCurve(wrapEl, list){
 }
 
 function animateNumberInto(el, endVal, isPositive, duration){
-  const startTime = performance.now();
   duration = duration || 900;
+  const startTime = performance.now();
+  // budujemy strukturę DOM raz - w animacji zmieniamy tylko tekst, nigdy innerHTML
+  el.innerHTML = `<span class="${isPositive?'pos':'neg'}"></span>`;
+  const span = el.firstElementChild;
+  const myToken = (el._animToken = (el._animToken || 0) + 1);
   function step(now){
+    if(el._animToken !== myToken) return; // nowsza animacja na tym elemencie już wystartowała - porzucamy tę
     const progress = Math.min(1, (now-startTime)/duration);
     const eased = 1 - Math.pow(1-progress, 3);
     const current = endVal * eased;
-    el.innerHTML = `<span class="${isPositive?'pos':'neg'}">${current>=0?'+':''}${fmt(current)}</span>`;
+    span.textContent = (current>=0?'+':'') + fmt(current);
     if(progress<1) requestAnimationFrame(step);
-    else el.innerHTML = `<span class="${isPositive?'pos':'neg'}">${endVal>=0?'+':''}${fmt(endVal)}</span>`;
+    else span.textContent = (endVal>=0?'+':'') + fmt(endVal);
   }
   requestAnimationFrame(step);
 }
