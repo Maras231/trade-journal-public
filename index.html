@@ -768,7 +768,7 @@ table.tradelist tr:hover td{background:var(--surface2);}
   <div class="modal auth-card" style="max-width:400px;padding:36px 30px;">
     <div class="auth-logo"><img src="logo-glyph.png" alt="Wick"></div>
     <h2 id="authTitle" style="text-align:center;margin-bottom:6px;">Witaj w Wick</h2>
-    <p id="authGateDesc" style="color:var(--muted);font-size:12.5px;text-align:center;margin-bottom:20px;line-height:1.4;">Zaloguj się, aby zobaczyć swój dziennik transakcji — Twoje dane są prywatne i widoczne tylko dla Ciebie.</p>
+    <p id="authGateDesc" style="color:var(--muted);font-size:12.5px;text-align:center;margin-bottom:20px;line-height:1.4;">Zaloguj się, aby zobaczyć swój dziennik transakcji. Twoje dane są prywatne i widoczne tylko dla Ciebie.</p>
 
     <div class="auth-tabs" id="authTabs">
       <button type="button" class="active" id="authTabLogin">Zaloguj</button>
@@ -805,7 +805,7 @@ table.tradelist tr:hover td{background:var(--surface2);}
         <label id="authUsernameLabel">Nazwa użytkownika</label>
         <div class="auth-field">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="3.5"/><path d="M5 20c0-3.9 3.1-7 7-7s7 3.1 7 7"/></svg>
-          <input type="text" id="authRegUsername" required placeholder="np. tradermarek" autocomplete="username">
+          <input type="text" id="authRegUsername" required placeholder="np. uzytkownik123" autocomplete="username">
         </div>
       </div>
       <div class="field" style="margin-bottom:12px;">
@@ -989,7 +989,7 @@ table.tradelist tr:hover td{background:var(--surface2);}
     <div class="stats-row" id="monthStatsRow"></div>
     <div class="panel" style="margin-top:14px;padding:16px 18px;max-width:620px;">
       <div class="eq-head">
-        <h2 id="monthEqCurveTitle">Krzywa kapitału — ten miesiąc</h2>
+        <h2 id="monthEqCurveTitle">Krzywa kapitału (ten miesiąc)</h2>
         <div class="eq-total" id="monthEqTotal"></div>
       </div>
       <div id="monthEquityWrap" class="equity-wrap"></div>
@@ -1047,14 +1047,14 @@ table.tradelist tr:hover td{background:var(--surface2);}
 
             <span class="be-toggle-text">
               <span class="be-toggle-title" id="beToggleTitle">Breakeven</span>
-              <span class="be-toggle-sub" id="beToggleSub">Transakcja wyjęta na zero — nie liczy się do Win Rate / Avg RR</span>
+              <span class="be-toggle-sub" id="beToggleSub">Transakcja wyjęta na zero. Nie liczy się do Win Rate / Avg RR</span>
             </span>
           </label>
         </div>
         <div class="field full">
           <div class="confidence-panel">
             <span class="confidence-panel-title" id="confTitle">Pewność transakcji</span>
-            <span class="confidence-panel-sub" id="confSub">Jak mocno wierzyłeś w ten setup przed wejściem — 5 gwiazdek = mega pewność, 1 = strzał na pół gwizdka.</span>
+            <span class="confidence-panel-sub" id="confSub">Jak mocno wierzyłeś w ten setup przed wejściem: 5 gwiazdek = mega pewność, 1 = strzał na pół gwizdka.</span>
             <div class="confidence-stars" id="confidenceStars">
               <button type="button" class="star-btn" data-val="1">★</button>
               <button type="button" class="star-btn" data-val="2">★</button>
@@ -1132,7 +1132,7 @@ const I18N = {
     tabDashboard:'Dashboard', tabTrades:'Baza transakcji', tabMonths:'Podsumowanie Miesiąca',
     equityCurve:'Krzywa kapitału',
     monthsSummaryTitle:'Podsumowanie miesięcy',
-    monthEquityCurveTitle:'Krzywa kapitału — ten miesiąc',
+    monthEquityCurveTitle:'Krzywa kapitału (ten miesiąc)',
     monthNotesLabel:'Notatki i uwagi do miesiąca',
     monthNotesPlaceholder:'Co poszło dobrze w tym miesiącu, co poprawić, wnioski na przyszłość...',
     savedCheck:'Zapisano ✓', close:'Zamknij',
@@ -1142,9 +1142,9 @@ const I18N = {
     date:'Data', symbolLabel:'Symbol / instrument', symbolPlaceholder:'np. EURUSD, BTC, AAPL',
     direction:'Kierunek', pnlLabel:'Wynik P/L ($)', pnlPlaceholder:'np. 250 lub -100',
     rrLabel:'RR (risk/reward, np. 2 lub -1)', rrPlaceholder:'opcjonalnie',
-    breakevenTitle:'Breakeven', breakevenSub:'Transakcja wyjęta na zero — nie liczy się do Win Rate / Avg RR',
+    breakevenTitle:'Breakeven', breakevenSub:'Transakcja wyjęta na zero. Nie liczy się do Win Rate / Avg RR',
     confidenceTitle:'Pewność transakcji',
-    confidenceSub:'Jak mocno wierzyłeś w ten setup przed wejściem — 5 gwiazdek = mega pewność, 1 = strzał na pół gwizdka.',
+    confidenceSub:'Jak mocno wierzyłeś w ten setup przed wejściem: 5 gwiazdek = mega pewność, 1 = strzał na pół gwizdka.',
     notesLabel:'Opis / notatki', notesPlaceholder:'Co zadziałało, co poprawić, emocje podczas transakcji...',
     imageLabel:'Zrzut ekranu / wykres',
     dropzoneText:'Kliknij lub przeciągnij obrazek tutaj', dropzoneChange:'Kliknij, aby zmienić obrazek',
@@ -1168,7 +1168,7 @@ const I18N = {
     splashSub:'Dziennik transakcji',
     logoutTooltip:'Wyloguj', themeTooltip:'Zmień motyw', langTooltip:'Zmień język',
     authLoginTitle:'Witaj w Wick', authRegisterTitle:'Rejestracja',
-    authGateDesc:'Zaloguj się, aby zobaczyć swój dziennik transakcji — Twoje dane są prywatne i widoczne tylko dla Ciebie.',
+    authGateDesc:'Zaloguj się, aby zobaczyć swój dziennik transakcji. Twoje dane są prywatne i widoczne tylko dla Ciebie.',
     authGateDescRegister:'Załóż konto, aby zacząć prowadzić swój dziennik transakcji.',
     authNewUser:'Nowy?', authHaveAccount:'Masz już konto?',
     authGoRegister:'Zarejestruj się', authGoLogin:'Zaloguj się',
@@ -1184,20 +1184,20 @@ const I18N = {
     authEmailNotConfirmed:'Potwierdź swój adres e-mail przed zalogowaniem.',
     authUserExists:'Konto z tym adresem e-mail już istnieje.',
     authRateLimit:'Za dużo prób wysyłki maila w krótkim czasie. Spróbuj ponownie za chwilę.',
-    authEmailPlaceholder:'ty@przyklad.pl', authPasswordPlaceholder:'••••••••', authUsernamePlaceholder:'np. tradermarek',
+    authEmailPlaceholder:'ty@przyklad.pl', authPasswordPlaceholder:'••••••••', authUsernamePlaceholder:'np. uzytkownik123',
     resetTitle:'Ustaw nowe hasło', resetDesc:'Wpisz nowe hasło do swojego konta.',
     resetPassword1Label:'Nowe hasło', resetPassword2Label:'Powtórz nowe hasło',
     resetSubmitBtn:'Zapisz nowe hasło', authPasswordUpdated:'Hasło zostało zaktualizowane.'
   },
   en: {
     tagline:'Your trade journal & analytics',
-    authGateDesc:'Sign in to see your trade journal — your data is private and visible only to you.',
+    authGateDesc:'Sign in to see your trade journal. Your data is private and visible only to you.',
     googleLogin:'Sign in with Google',
     addTrade:'Add Trade',
     tabDashboard:'Dashboard', tabTrades:'Trade Log', tabMonths:'Monthly Summary',
     equityCurve:'Equity Curve',
     monthsSummaryTitle:'Monthly Summaries',
-    monthEquityCurveTitle:'Equity Curve — this month',
+    monthEquityCurveTitle:'Equity Curve (this month)',
     monthNotesLabel:'Notes for this month',
     monthNotesPlaceholder:'What went well this month, what to improve, takeaways for next time...',
     savedCheck:'Saved ✓', close:'Close',
@@ -1207,9 +1207,9 @@ const I18N = {
     date:'Date', symbolLabel:'Symbol / instrument', symbolPlaceholder:'e.g. EURUSD, BTC, AAPL',
     direction:'Direction', pnlLabel:'Result P/L ($)', pnlPlaceholder:'e.g. 250 or -100',
     rrLabel:'RR (risk/reward, e.g. 2 or -1)', rrPlaceholder:'optional',
-    breakevenTitle:'Breakeven', breakevenSub:'Trade closed at zero — excluded from Win Rate / Avg RR',
+    breakevenTitle:'Breakeven', breakevenSub:'Trade closed at zero. Excluded from Win Rate / Avg RR',
     confidenceTitle:'Trade confidence',
-    confidenceSub:'How strongly you believed in this setup before entering — 5 stars = fully convinced, 1 = a coin-flip shot.',
+    confidenceSub:'How strongly you believed in this setup before entering: 5 stars = fully convinced, 1 = a coin-flip shot.',
     notesLabel:'Description / notes', notesPlaceholder:'What worked, what to improve, emotions during the trade...',
     imageLabel:'Screenshot / chart',
     dropzoneText:'Click or drag an image here', dropzoneChange:'Click to change the image',
@@ -1248,20 +1248,20 @@ const I18N = {
     authEmailNotConfirmed:'Please confirm your email before logging in.',
     authUserExists:'An account with this email already exists.',
     authRateLimit:'Too many email attempts in a short time. Please try again shortly.',
-    authEmailPlaceholder:'you@example.com', authPasswordPlaceholder:'••••••••', authUsernamePlaceholder:'e.g. trader_mike',
+    authEmailPlaceholder:'you@example.com', authPasswordPlaceholder:'••••••••', authUsernamePlaceholder:'e.g. user123',
     resetTitle:'Set a new password', resetDesc:'Enter a new password for your account.',
     resetPassword1Label:'New password', resetPassword2Label:'Confirm new password',
     resetSubmitBtn:'Save new password', authPasswordUpdated:'Password updated.'
   },
   de: {
     tagline:'Dein Handelstagebuch & Analysen',
-    authGateDesc:'Melde dich an, um dein Handelstagebuch zu sehen — deine Daten sind privat und nur für dich sichtbar.',
+    authGateDesc:'Melde dich an, um dein Handelstagebuch zu sehen. Deine Daten sind privat und nur für dich sichtbar.',
     googleLogin:'Mit Google anmelden',
     addTrade:'Trade hinzufügen',
     tabDashboard:'Dashboard', tabTrades:'Handelsprotokoll', tabMonths:'Monatsübersicht',
     equityCurve:'Eigenkapitalkurve',
     monthsSummaryTitle:'Monatsübersichten',
-    monthEquityCurveTitle:'Eigenkapitalkurve — dieser Monat',
+    monthEquityCurveTitle:'Eigenkapitalkurve (dieser Monat)',
     monthNotesLabel:'Notizen zum Monat',
     monthNotesPlaceholder:'Was lief diesen Monat gut, was verbessern, Erkenntnisse für nächstes Mal...',
     savedCheck:'Gespeichert ✓', close:'Schließen',
@@ -1271,9 +1271,9 @@ const I18N = {
     date:'Datum', symbolLabel:'Symbol / Instrument', symbolPlaceholder:'z. B. EURUSD, BTC, AAPL',
     direction:'Richtung', pnlLabel:'Ergebnis G/V ($)', pnlPlaceholder:'z. B. 250 oder -100',
     rrLabel:'RR (Risk/Reward, z. B. 2 oder -1)', rrPlaceholder:'optional',
-    breakevenTitle:'Breakeven', breakevenSub:'Trade bei null geschlossen — zählt nicht zur Win Rate / Ø RR',
+    breakevenTitle:'Breakeven', breakevenSub:'Trade bei null geschlossen. Zählt nicht zur Win Rate / Ø RR',
     confidenceTitle:'Trade-Sicherheit',
-    confidenceSub:'Wie sehr du vor dem Einstieg von diesem Setup überzeugt warst — 5 Sterne = volle Überzeugung, 1 = reiner Zufallstreffer.',
+    confidenceSub:'Wie sehr du vor dem Einstieg von diesem Setup überzeugt warst: 5 Sterne = volle Überzeugung, 1 = reiner Zufallstreffer.',
     notesLabel:'Beschreibung / Notizen', notesPlaceholder:'Was hat funktioniert, was verbessern, Emotionen während des Trades...',
     imageLabel:'Screenshot / Chart',
     dropzoneText:'Klicken oder Bild hierher ziehen', dropzoneChange:'Klicken, um das Bild zu ändern',
@@ -1312,7 +1312,7 @@ const I18N = {
     authEmailNotConfirmed:'Bitte bestätige deine E-Mail, bevor du dich anmeldest.',
     authUserExists:'Ein Konto mit dieser E-Mail existiert bereits.',
     authRateLimit:'Zu viele E-Mail-Versuche in kurzer Zeit. Bitte versuche es gleich noch einmal.',
-    authEmailPlaceholder:'du@beispiel.de', authPasswordPlaceholder:'••••••••', authUsernamePlaceholder:'z. B. tradermax',
+    authEmailPlaceholder:'du@beispiel.de', authPasswordPlaceholder:'••••••••', authUsernamePlaceholder:'z. B. nutzer123',
     resetTitle:'Neues Passwort festlegen', resetDesc:'Gib ein neues Passwort für dein Konto ein.',
     resetPassword1Label:'Neues Passwort', resetPassword2Label:'Neues Passwort wiederholen',
     resetSubmitBtn:'Neues Passwort speichern', authPasswordUpdated:'Passwort aktualisiert.'
@@ -2390,7 +2390,7 @@ function renderDayDetail(){
   if(!selectedDate){ box.innerHTML=''; return; }
   const dayTrades = trades.filter(t=>t.date===selectedDate);
   if(!dayTrades.length){ box.innerHTML = `<div class="dd-title">${t('noTradesOn')} ${selectedDate}</div>`; return; }
-  box.innerHTML = `<div class="dd-title">${t('tradesLabel')} — ${selectedDate}</div>` +
+  box.innerHTML = `<div class="dd-title">${t('tradesLabel')} · ${selectedDate}</div>` +
     dayTrades.map(t2=>`
       <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-top:1px solid var(--border);">
         <div>
