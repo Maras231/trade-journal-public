@@ -735,6 +735,27 @@ table.tradelist tr:hover td{background:var(--surface2);}
   </div>
 </div>
 
+<div class="modal-overlay" id="resetGate" style="z-index:400;">
+  <div class="modal" style="max-width:400px;padding:34px 30px;">
+    <div class="mark" style="width:52px;height:52px;border-radius:14px;font-size:22px;margin:0 auto 14px;"><img src="icon-192.png" alt="Wick"></div>
+    <h2 id="resetTitle" style="text-align:center;margin-bottom:6px;">Ustaw nowe hasło</h2>
+    <p id="resetDesc" style="color:var(--muted);font-size:12.5px;text-align:center;margin-bottom:22px;line-height:1.4;">Wpisz nowe hasło do swojego konta.</p>
+    <form id="resetForm">
+      <div class="field" style="margin-bottom:12px;">
+        <label id="resetPassword1Label">Nowe hasło</label>
+        <input type="password" id="resetPassword1" required minlength="6" placeholder="••••••••" autocomplete="new-password">
+      </div>
+      <div class="field" style="margin-bottom:18px;">
+        <label id="resetPassword2Label">Powtórz nowe hasło</label>
+        <input type="password" id="resetPassword2" required minlength="6" placeholder="••••••••" autocomplete="new-password">
+      </div>
+      <button type="submit" class="btn primary" id="resetSubmitBtn" style="width:100%;justify-content:center;padding:12px;">Zapisz nowe hasło</button>
+    </form>
+    <div id="resetError" style="color:var(--loss);font-size:12.5px;margin-top:14px;display:none;text-align:center;"></div>
+    <div id="resetSuccess" style="color:var(--profit);font-size:12.5px;margin-top:14px;display:none;text-align:center;"></div>
+  </div>
+</div>
+
 <div id="appRoot" style="display:none;">
 
 <header class="top">
@@ -1038,7 +1059,11 @@ const I18N = {
     authInvalidCredentials:'Nieprawidłowy e-mail lub hasło.',
     authEmailNotConfirmed:'Potwierdź swój adres e-mail przed zalogowaniem.',
     authUserExists:'Konto z tym adresem e-mail już istnieje.',
-    authEmailPlaceholder:'ty@przyklad.pl', authPasswordPlaceholder:'••••••••', authUsernamePlaceholder:'np. tradermarek'
+    authRateLimit:'Za dużo prób wysyłki maila w krótkim czasie. Spróbuj ponownie za chwilę.',
+    authEmailPlaceholder:'ty@przyklad.pl', authPasswordPlaceholder:'••••••••', authUsernamePlaceholder:'np. tradermarek',
+    resetTitle:'Ustaw nowe hasło', resetDesc:'Wpisz nowe hasło do swojego konta.',
+    resetPassword1Label:'Nowe hasło', resetPassword2Label:'Powtórz nowe hasło',
+    resetSubmitBtn:'Zapisz nowe hasło', authPasswordUpdated:'Hasło zostało zaktualizowane.'
   },
   en: {
     tagline:'Your trade journal & analytics',
@@ -1098,7 +1123,11 @@ const I18N = {
     authInvalidCredentials:'Invalid email or password.',
     authEmailNotConfirmed:'Please confirm your email before logging in.',
     authUserExists:'An account with this email already exists.',
-    authEmailPlaceholder:'you@example.com', authPasswordPlaceholder:'••••••••', authUsernamePlaceholder:'e.g. trader_mike'
+    authRateLimit:'Too many email attempts in a short time. Please try again shortly.',
+    authEmailPlaceholder:'you@example.com', authPasswordPlaceholder:'••••••••', authUsernamePlaceholder:'e.g. trader_mike',
+    resetTitle:'Set a new password', resetDesc:'Enter a new password for your account.',
+    resetPassword1Label:'New password', resetPassword2Label:'Confirm new password',
+    resetSubmitBtn:'Save new password', authPasswordUpdated:'Password updated.'
   },
   de: {
     tagline:'Dein Handelstagebuch & Analysen',
@@ -1158,7 +1187,11 @@ const I18N = {
     authInvalidCredentials:'Ungültige E-Mail oder ungültiges Passwort.',
     authEmailNotConfirmed:'Bitte bestätige deine E-Mail, bevor du dich anmeldest.',
     authUserExists:'Ein Konto mit dieser E-Mail existiert bereits.',
-    authEmailPlaceholder:'du@beispiel.de', authPasswordPlaceholder:'••••••••', authUsernamePlaceholder:'z. B. tradermax'
+    authRateLimit:'Zu viele E-Mail-Versuche in kurzer Zeit. Bitte versuche es gleich noch einmal.',
+    authEmailPlaceholder:'du@beispiel.de', authPasswordPlaceholder:'••••••••', authUsernamePlaceholder:'z. B. tradermax',
+    resetTitle:'Neues Passwort festlegen', resetDesc:'Gib ein neues Passwort für dein Konto ein.',
+    resetPassword1Label:'Neues Passwort', resetPassword2Label:'Neues Passwort wiederholen',
+    resetSubmitBtn:'Neues Passwort speichern', authPasswordUpdated:'Passwort aktualisiert.'
   }
 };
 
@@ -1311,6 +1344,7 @@ function mapAuthError(msg){
   if(m.includes('email not confirmed')) return t('authEmailNotConfirmed');
   if(m.includes('already registered') || m.includes('already exists') || m.includes('user already registered')) return t('authUserExists');
   if(m.includes('password should be at least') || m.includes('at least 6')) return t('authPasswordTooShort');
+  if(m.includes('rate limit')) return t('authRateLimit');
   return msg;
 }
 
@@ -1402,9 +1436,62 @@ document.getElementById('logoutBtn').addEventListener('click', (e)=>{
   if(confirm(t('confirmLogout'))) handleLogout();
 });
 
+function isRecoveryUrl(){
+  const hash = window.location.hash || '';
+  const search = window.location.search || '';
+  return hash.includes('type=recovery') || search.includes('type=recovery');
+}
+function clearResetMessages(){
+  const errEl = document.getElementById('resetError');
+  const okEl = document.getElementById('resetSuccess');
+  errEl.style.display = 'none'; errEl.textContent = '';
+  okEl.style.display = 'none'; okEl.textContent = '';
+}
+function showResetError(msg){
+  clearResetMessages();
+  const el = document.getElementById('resetError');
+  el.textContent = msg; el.style.display = 'block';
+}
+function showResetSuccess(msg){
+  clearResetMessages();
+  const el = document.getElementById('resetSuccess');
+  el.textContent = msg; el.style.display = 'block';
+}
+function showResetGate(show){
+  document.getElementById('resetGate').classList.toggle('open', show);
+}
+document.getElementById('resetForm').addEventListener('submit', async (e)=>{
+  e.preventDefault();
+  clearResetMessages();
+  const pw1 = document.getElementById('resetPassword1').value;
+  const pw2 = document.getElementById('resetPassword2').value;
+  if(pw1 !== pw2){ showResetError(t('authPasswordMismatch')); return; }
+  if(pw1.length < 6){ showResetError(t('authPasswordTooShort')); return; }
+  const btn = document.getElementById('resetSubmitBtn');
+  btn.disabled = true;
+  const { error } = await sb.auth.updateUser({ password: pw1 });
+  btn.disabled = false;
+  if(error){ showResetError(mapAuthError(error.message)); return; }
+  showResetSuccess(t('authPasswordUpdated'));
+  window.history.replaceState({}, document.title, window.location.pathname);
+  setTimeout(async ()=>{
+    showResetGate(false);
+    updateUserWidget();
+    showAuthGate(false);
+    if(!dataLoaded){
+      await loadAllData();
+      renderAll();
+    }
+  }, 1200);
+});
+
 async function initAuth(){
   const sessionPromise = sb.auth.getSession();
   sessionPromise.then(async ({ data: { session } })=>{
+    if(isRecoveryUrl()){
+      authCheckDone();
+      return;
+    }
     if(session && session.user){
       currentUser = session.user;
       updateUserWidget();
@@ -1415,19 +1502,28 @@ async function initAuth(){
       showAuthGate(true);
     }
     authCheckDone();
-  }).catch(()=>{ showAuthGate(true); authCheckDone(); });
+  }).catch(()=>{ if(!isRecoveryUrl()) showAuthGate(true); authCheckDone(); });
 
   sb.auth.onAuthStateChange(async (event, session)=>{
+    if(event === 'PASSWORD_RECOVERY'){
+      currentUser = session.user;
+      showAuthGate(false);
+      showResetGate(true);
+      return;
+    }
     if(session && session.user){
       currentUser = session.user;
       updateUserWidget();
-      showAuthGate(false);
+      if(!document.getElementById('resetGate').classList.contains('open')){
+        showAuthGate(false);
+      }
       if(!dataLoaded){
         await loadAllData();
         renderAll();
       }
     } else if(event === 'SIGNED_OUT'){
       currentUser = null;
+      showResetGate(false);
       showAuthGate(true);
     }
   });
@@ -2366,6 +2462,13 @@ function applyStaticTexts(){
   document.getElementById('authRegPassword').placeholder = t('authPasswordPlaceholder');
   document.getElementById('authRegPassword2').placeholder = t('authPasswordPlaceholder');
   document.getElementById('authRegUsername').placeholder = t('authUsernamePlaceholder');
+  document.getElementById('resetTitle').textContent = t('resetTitle');
+  document.getElementById('resetDesc').textContent = t('resetDesc');
+  document.getElementById('resetPassword1Label').textContent = t('resetPassword1Label');
+  document.getElementById('resetPassword2Label').textContent = t('resetPassword2Label');
+  document.getElementById('resetSubmitBtn').textContent = t('resetSubmitBtn');
+  document.getElementById('resetPassword1').placeholder = t('authPasswordPlaceholder');
+  document.getElementById('resetPassword2').placeholder = t('authPasswordPlaceholder');
   const curLangObj = LANGS.find(l=>l.code===currentLang) || LANGS[0];
   document.getElementById('langSwitchBtn').textContent = curLangObj.flag + ' ' + currentLang.toUpperCase();
   document.getElementById('langSwitchBtn').title = t('langTooltip');
