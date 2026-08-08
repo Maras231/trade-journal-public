@@ -871,20 +871,72 @@ table.tradelist tr:hover td{background:var(--surface2);}
 }
 .profile-row:last-child{border-bottom:none;}
 .profile-row-label{font-size:13.5px;color:var(--muted);font-weight:600;}
+.profile-row-value{font-size:13.5px;color:var(--text);}
+.profile-input{
+  background:var(--surface2);border:1px solid var(--border);color:var(--text);
+  padding:9px 12px;border-radius:8px;font-size:13.5px;font-family:'Inter';width:180px;
+  transition:border-color .18s var(--ease),box-shadow .18s var(--ease);
+}
+.profile-input:focus{outline:none;border-color:var(--gold);box-shadow:0 0 0 3px rgba(232,184,75,.12);}
+
+.panel-subtitle{
+  font-family:'Space Grotesk',sans-serif;font-size:13px;font-weight:700;
+  color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px;
+}
+.panel-subtitle.danger{color:var(--loss);}
+
+.profile-hero{
+  display:flex;align-items:center;gap:16px;
+  background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);
+  padding:20px;margin-bottom:16px;max-width:520px;box-shadow:var(--shadow-sm);
+  position:relative;overflow:hidden;
+}
+.profile-hero::before{
+  content:'';position:absolute;top:0;left:0;right:0;height:2px;
+  background:linear-gradient(90deg,var(--gold),transparent);
+}
+.avatar-circle{
+  width:56px;height:56px;border-radius:50%;flex:none;
+  background:linear-gradient(135deg,var(--gold),#c98f2b);
+  display:flex;align-items:center;justify-content:center;
+  font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:22px;color:#151102;
+  box-shadow:var(--shadow-gold);
+}
+.profile-hero-text{min-width:0;}
+.profile-hero-name{font-family:'Space Grotesk',sans-serif;font-size:18px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.profile-hero-email{color:var(--muted);font-size:12.5px;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.profile-hero-since{color:var(--muted);font-size:11px;margin-top:4px;font-family:'JetBrains Mono',monospace;}
+
+.danger-zone{border-color:rgba(255,107,107,0.28) !important;}
+
 .settings-row{
   display:flex;align-items:center;justify-content:space-between;gap:14px;
-  padding:16px 18px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);
-  margin-bottom:12px;
+  padding:16px 0;border-bottom:1px solid var(--border);
 }
+.settings-row:last-child{border-bottom:none;}
 .settings-row-title{font-size:14px;font-weight:600;}
 .settings-row-sub{font-size:12px;color:var(--muted);margin-top:2px;}
 .settings-lang-options{display:flex;gap:6px;}
 .settings-lang-options button{
   background:var(--surface2);border:1px solid var(--border);color:var(--muted);
   padding:7px 12px;border-radius:8px;font-size:12.5px;font-weight:700;cursor:pointer;
-  transition:border-color .18s var(--ease),color .18s var(--ease);
+  transition:border-color .18s var(--ease),color .18s var(--ease),background .18s var(--ease);
 }
 .settings-lang-options button.active{border-color:var(--gold);color:var(--gold);background:var(--gold-dim);}
+.settings-lang-options button:hover:not(.active){border-color:#3a4258;color:var(--text);}
+.settings-footer{
+  max-width:520px;margin-top:22px;padding-top:18px;border-top:1px solid var(--border);
+  text-align:center;color:var(--muted);font-size:11.5px;line-height:1.6;
+}
+.settings-footer .mark-mini{
+  width:26px;height:26px;margin:0 auto 8px;box-sizing:border-box;
+  background:var(--surface2);border:1px solid var(--border);border-radius:8px;
+  display:flex;align-items:center;justify-content:center;padding:5px;
+}
+.settings-footer .mark-mini img{width:100%;height:100%;object-fit:contain;display:block;}
+
+.accounts-summary{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-bottom:18px;max-width:520px;}
+
 .privacy-text{color:var(--muted);font-size:13.5px;line-height:1.7;max-width:640px;}
 .privacy-text h3{color:var(--text);font-family:'Space Grotesk',sans-serif;font-size:15px;margin:20px 0 8px;}
 .privacy-text p{margin-bottom:10px;}
@@ -1272,28 +1324,48 @@ table.tradelist tr:hover td{background:var(--surface2);}
     <button class="screen-back" id="profileBackBtn" type="button">‹</button>
     <h2 class="screen-title" id="profileScreenTitle">Profil</h2>
   </div>
+
+  <div class="profile-hero">
+    <div class="avatar-circle" id="profileAvatar">?</div>
+    <div class="profile-hero-text">
+      <div class="profile-hero-name" id="profileHeroName">—</div>
+      <div class="profile-hero-email" id="profileHeroEmail">—</div>
+      <div class="profile-hero-since" id="profileHeroSince"></div>
+    </div>
+  </div>
+
   <div class="panel" style="max-width:520px;">
+    <div class="panel-subtitle" id="profileInfoTitle">Informacje o koncie</div>
     <div class="profile-row">
       <span class="profile-row-label" id="profileUsernameLabel">Nazwa użytkownika</span>
       <div style="display:flex;gap:8px;align-items:center;">
-        <input type="text" id="profileUsernameInput" style="background:var(--surface2);border:1px solid var(--border);color:var(--text);padding:8px 12px;border-radius:8px;font-size:13.5px;font-family:'Inter';width:170px;">
-        <button class="btn" id="profileUsernameSaveBtn" style="padding:8px 14px;">✓</button>
+        <input type="text" id="profileUsernameInput" class="profile-input">
+        <button class="btn primary" id="profileUsernameSaveBtn" style="padding:9px 14px;">✓</button>
       </div>
     </div>
     <div class="profile-row">
       <span class="profile-row-label" id="profileEmailLabel">Adres e-mail</span>
-      <span id="profileEmailValue" style="font-size:13.5px;color:var(--muted);"></span>
+      <span id="profileEmailValue" class="profile-row-value"></span>
     </div>
+  </div>
+
+  <div class="panel" style="max-width:520px;margin-top:14px;">
+    <div class="panel-subtitle" id="profileSessionTitle">Sesja</div>
     <div class="profile-row">
       <span class="profile-row-label" id="profileLogoutLabel">Wyloguj się z tego urządzenia</span>
       <button class="btn" id="profileLogoutBtn">Wyloguj</button>
     </div>
+  </div>
+
+  <div class="panel danger-zone" style="max-width:520px;margin-top:14px;">
+    <div class="panel-subtitle danger" id="profileDangerTitle">Strefa niebezpieczna</div>
     <div class="profile-row">
       <span class="profile-row-label" id="profileDeleteLabel">Usuń wszystkie dane i konto</span>
       <button class="btn danger" id="profileDeleteBtn">Usuń konto</button>
     </div>
   </div>
-  <div id="profileMsg" style="margin-top:14px;font-size:12.5px;display:none;"></div>
+
+  <div id="profileMsg" style="max-width:520px;margin-top:14px;font-size:12.5px;display:none;"></div>
 </div>
 
 <!-- ============ SCREEN: KONTA ============ -->
@@ -1302,6 +1374,7 @@ table.tradelist tr:hover td{background:var(--surface2);}
     <button class="screen-back" id="accountsBackBtn" type="button">‹</button>
     <h2 class="screen-title" id="accountsScreenTitle">Konta</h2>
   </div>
+  <div class="accounts-summary" id="accountsSummary"></div>
   <div class="accounts-grid" id="accountsGrid"></div>
 </div>
 
@@ -1311,16 +1384,13 @@ table.tradelist tr:hover td{background:var(--surface2);}
     <button class="screen-back" id="settingsBackBtn" type="button">‹</button>
     <h2 class="screen-title" id="settingsScreenTitle">Ustawienia</h2>
   </div>
-  <div style="max-width:520px;">
+  <div class="panel" style="max-width:520px;">
     <div class="settings-row">
       <div>
         <div class="settings-row-title" id="settingsThemeTitle">Motyw</div>
         <div class="settings-row-sub" id="settingsThemeSub">Jasny lub ciemny wygląd appki</div>
       </div>
-      <button class="theme-toggle" id="settingsThemeToggle" type="button">
-        <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
-        <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.8A9 9 0 1 1 11.2 3 7 7 0 0 0 21 12.8Z"/></svg>
-      </button>
+      <div class="settings-lang-options" id="settingsThemeOptions"></div>
     </div>
     <div class="settings-row">
       <div>
@@ -1329,6 +1399,10 @@ table.tradelist tr:hover td{background:var(--surface2);}
       </div>
       <div class="settings-lang-options" id="settingsLangOptions"></div>
     </div>
+  </div>
+  <div class="settings-footer">
+    <div class="mark-mini"><img src="icon-192.png" alt="Wick"></div>
+    <div id="settingsFooterText">Wick — Twój dziennik transakcji</div>
   </div>
 </div>
 
@@ -1598,6 +1672,10 @@ const I18N = {
     settingsLangTitle:'Język', settingsLangSub:'Język interfejsu appki',
     privacyContent:'<h3>Jakie dane zbieramy</h3><p>Wick przechowuje wyłącznie dane, które sam wprowadzasz: transakcje, konta, notatki miesięczne oraz podstawowe dane konta logowania (e-mail, opcjonalnie nazwa użytkownika).</p><h3>Jak wykorzystujemy dane</h3><p>Twoje dane służą wyłącznie do wyświetlania Twojego dziennika transakcji. Nie są sprzedawane ani udostępniane osobom trzecim.</p><h3>Przechowywanie</h3><p>Dane są przechowywane w bazie Supabase, zabezpieczonej regułami dostępu ograniczającymi widoczność wyłącznie do Twojego konta.</p><h3>Usuwanie danych</h3><p>Możesz usunąć swoje dane w każdej chwili w zakładce Profil.</p><p style="margin-top:16px;color:var(--muted);font-size:11.5px;">To jest treść przykładowa. Zastąp ją właściwą polityką prywatności przed publicznym udostępnieniem appki.</p>',
     editLabel:'Edytuj', deleteLabel:'Usuń',
+    profileInfoTitle:'Informacje o koncie', profileSessionTitle:'Sesja', profileDangerTitle:'Strefa niebezpieczna',
+    memberSince:'Dołączył(a)', themeDark:'Ciemny', themeLight:'Jasny',
+    accountsCount:'Liczba kont', combinedBalance:'Łączny kapitał',
+    settingsFooterText:'Wick · Twój dziennik transakcji',
   },
   en: {
     tagline:'Your trade journal & analytics',
@@ -1680,6 +1758,10 @@ const I18N = {
     settingsLangTitle:'Language', settingsLangSub:'App interface language',
     privacyContent:'<h3>What data we collect</h3><p>Wick only stores data you enter yourself: trades, accounts, monthly notes, and basic login account details (email, optionally a username).</p><h3>How we use your data</h3><p>Your data is used solely to display your trade journal. It is never sold or shared with third parties.</p><h3>Storage</h3><p>Data is stored in a Supabase database, secured by access rules that restrict visibility to your account only.</p><h3>Deleting your data</h3><p>You can delete your data at any time from the Profile tab.</p><p style="margin-top:16px;color:var(--muted);font-size:11.5px;">This is placeholder content. Replace it with your actual privacy policy before making the app public.</p>',
     editLabel:'Edit', deleteLabel:'Delete',
+    profileInfoTitle:'Account information', profileSessionTitle:'Session', profileDangerTitle:'Danger zone',
+    memberSince:'Member since', themeDark:'Dark', themeLight:'Light',
+    accountsCount:'Number of accounts', combinedBalance:'Combined balance',
+    settingsFooterText:'Wick · Your trade journal',
   },
   de: {
     tagline:'Dein Handelstagebuch & Analysen',
@@ -1762,6 +1844,10 @@ const I18N = {
     settingsLangTitle:'Sprache', settingsLangSub:'Sprache der App-Oberfläche',
     privacyContent:'<h3>Welche Daten wir erheben</h3><p>Wick speichert ausschließlich Daten, die du selbst eingibst: Trades, Konten, Monatsnotizen sowie grundlegende Zugangsdaten (E-Mail, optional ein Benutzername).</p><h3>Wie wir deine Daten nutzen</h3><p>Deine Daten dienen ausschließlich der Anzeige deines Handelstagebuchs. Sie werden niemals verkauft oder an Dritte weitergegeben.</p><h3>Speicherung</h3><p>Die Daten werden in einer Supabase-Datenbank gespeichert, abgesichert durch Zugriffsregeln, die die Sichtbarkeit auf dein Konto beschränken.</p><h3>Daten löschen</h3><p>Du kannst deine Daten jederzeit im Bereich Profil löschen.</p><p style="margin-top:16px;color:var(--muted);font-size:11.5px;">Dies ist ein Platzhaltertext. Ersetze ihn vor der Veröffentlichung durch deine tatsächliche Datenschutzerklärung.</p>',
     editLabel:'Bearbeiten', deleteLabel:'Löschen',
+    profileInfoTitle:'Kontoinformationen', profileSessionTitle:'Sitzung', profileDangerTitle:'Gefahrenzone',
+    memberSince:'Mitglied seit', themeDark:'Dunkel', themeLight:'Hell',
+    accountsCount:'Anzahl Konten', combinedBalance:'Gesamtkapital',
+    settingsFooterText:'Wick · Dein Handelstagebuch',
   }
 };
 
@@ -3358,6 +3444,21 @@ function showScreen(name){
 
 /* ============ SCREEN: KONTA ============ */
 function renderAccountsScreen(){
+  const summary = document.getElementById('accountsSummary');
+  const totalBalance = accounts.reduce((s,a)=>{
+    const pnl = allTrades.filter(tr=>tr.accountId===a.id).reduce((s2,tr)=>s2+tr.pnl,0);
+    return s + a.balance + pnl;
+  }, 0);
+  summary.innerHTML = `
+    <div class="stat-card">
+      <div class="label">${t('accountsCount')}</div>
+      <div class="value">${accounts.length}</div>
+    </div>
+    <div class="stat-card">
+      <div class="label">${t('combinedBalance')}</div>
+      <div class="value ${totalBalance>=0?'pos':'neg'}">${fmt(totalBalance)}</div>
+    </div>`;
+
   const grid = document.getElementById('accountsGrid');
   const tiles = accounts.map(a=>{
     const accTrades = allTrades.filter(tr=>tr.accountId===a.id);
@@ -3457,8 +3558,22 @@ document.getElementById('accountForm').addEventListener('submit', async (e)=>{
 
 /* ============ SCREEN: PROFIL ============ */
 function renderProfileScreen(){
-  document.getElementById('profileUsernameInput').value = (currentUser.user_metadata && currentUser.user_metadata.username) || '';
+  const username = (currentUser.user_metadata && currentUser.user_metadata.username) || '';
+  document.getElementById('profileUsernameInput').value = username;
   document.getElementById('profileEmailValue').textContent = currentUser.email || '';
+
+  const displayName = username || (currentUser.email ? currentUser.email.split('@')[0] : '');
+  document.getElementById('profileHeroName').textContent = displayName || '—';
+  document.getElementById('profileHeroEmail').textContent = currentUser.email || '';
+  document.getElementById('profileAvatar').textContent = (displayName || '?').charAt(0).toUpperCase();
+
+  const sinceEl = document.getElementById('profileHeroSince');
+  if(currentUser.created_at){
+    const d = new Date(currentUser.created_at);
+    sinceEl.textContent = t('memberSince') + ' ' + d.toLocaleDateString(currentLang==='pl'?'pl-PL':(currentLang==='de'?'de-DE':'en-US'), {year:'numeric', month:'long', day:'numeric'});
+  } else {
+    sinceEl.textContent = '';
+  }
 }
 function showProfileMsg(msg, ok){
   const el = document.getElementById('profileMsg');
@@ -3473,6 +3588,7 @@ document.getElementById('profileUsernameSaveBtn').addEventListener('click', asyn
   if(error){ showProfileMsg(error.message, false); return; }
   currentUser.user_metadata = Object.assign({}, currentUser.user_metadata, { username });
   updateUserWidget();
+  renderProfileScreen();
   showProfileMsg(t('profileSaved'), true);
 });
 document.getElementById('profileLogoutBtn').addEventListener('click', ()=>{
@@ -3513,6 +3629,20 @@ document.getElementById('profileDeleteBtn').addEventListener('click', async ()=>
 
 /* ============ SCREEN: USTAWIENIA ============ */
 function renderSettingsScreen(){
+  const currentTheme = document.documentElement.getAttribute('data-theme') || 'dark';
+  const themeWrap = document.getElementById('settingsThemeOptions');
+  themeWrap.innerHTML = [
+    {key:'dark', label:t('themeDark')},
+    {key:'light', label:t('themeLight')}
+  ].map(o=>`<button type="button" data-theme-choice="${o.key}" class="${o.key===currentTheme?'active':''}">${o.label}</button>`).join('');
+  themeWrap.querySelectorAll('button').forEach(b=>{
+    b.addEventListener('click', ()=>{
+      applyTheme(b.dataset.themeChoice);
+      renderAll();
+      renderSettingsScreen();
+    });
+  });
+
   const wrap = document.getElementById('settingsLangOptions');
   wrap.innerHTML = LANGS.map(l=>`<button type="button" data-lang="${l.code}" class="${l.code===currentLang?'active':''}">${l.flag} ${l.code.toUpperCase()}</button>`).join('');
   wrap.querySelectorAll('button').forEach(b=>{
@@ -3524,11 +3654,6 @@ function renderSettingsScreen(){
     });
   });
 }
-document.getElementById('settingsThemeToggle').addEventListener('click', ()=>{
-  const current = document.documentElement.getAttribute('data-theme') || 'dark';
-  applyTheme(current==='dark' ? 'light' : 'dark');
-  renderAll();
-});
 
 /* ============ SCREEN: PRIVACY POLICY ============ */
 function renderPrivacyScreen(){
@@ -3637,6 +3762,10 @@ function applyStaticTexts(){
   document.getElementById('settingsThemeSub').textContent = t('settingsThemeSub');
   document.getElementById('settingsLangTitle').textContent = t('settingsLangTitle');
   document.getElementById('settingsLangSub').textContent = t('settingsLangSub');
+  document.getElementById('profileInfoTitle').textContent = t('profileInfoTitle');
+  document.getElementById('profileSessionTitle').textContent = t('profileSessionTitle');
+  document.getElementById('profileDangerTitle').textContent = t('profileDangerTitle');
+  document.getElementById('settingsFooterText').textContent = t('settingsFooterText');
   updateDrawerAccountInfo();
   renderImageGrid();
 }
@@ -3648,6 +3777,7 @@ function applyLanguage(){
     if(document.getElementById('screenAccounts').style.display !== 'none') renderAccountsScreen();
     if(document.getElementById('screenPrivacy').style.display !== 'none') renderPrivacyScreen();
     if(document.getElementById('screenSettings').style.display !== 'none') renderSettingsScreen();
+    if(document.getElementById('screenProfile').style.display !== 'none') renderProfileScreen();
   }
 }
 
