@@ -3388,6 +3388,23 @@ document.getElementById('profileUsernameSaveBtn').addEventListener('click', asyn
 document.getElementById('profileLogoutBtn').addEventListener('click', ()=>{
   if(confirm(t('confirmLogout'))) handleLogout();
 });
+async function hardResetLocalState(){
+  try{ localStorage.clear(); }catch(e){}
+  try{ sessionStorage.clear(); }catch(e){}
+  try{
+    if('serviceWorker' in navigator){
+      const regs = await navigator.serviceWorker.getRegistrations();
+      await Promise.all(regs.map(reg => reg.unregister()));
+    }
+  }catch(e){}
+  try{
+    if('caches' in window){
+      const keys = await caches.keys();
+      await Promise.all(keys.map(k => caches.delete(k)));
+    }
+  }catch(e){}
+}
+
 document.getElementById('profileDeleteBtn').addEventListener('click', async ()=>{
   if(!confirm(t('confirmDeleteAccount1'))) return;
   if(!confirm(t('confirmDeleteAccount2'))) return;
@@ -3398,8 +3415,10 @@ document.getElementById('profileDeleteBtn').addEventListener('click', async ()=>
   }catch(e){
     console.error('Nie udało się wywołać funkcji usuwania konta:', e);
   }
+  try{ await sb.auth.signOut(); }catch(e){}
   alert(t('accountDataDeleted'));
-  await handleLogout();
+  await hardResetLocalState();
+  window.location.reload();
 });
 
 /* ============ SCREEN: USTAWIENIA ============ */
