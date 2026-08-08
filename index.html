@@ -486,6 +486,23 @@ table.tradelist tr:hover td{background:var(--surface2);}
   position:absolute;bottom:24px;left:50%;transform:translateX(-50%);
   color:rgba(255,255,255,0.7);font-size:12.5px;font-family:'JetBrains Mono',monospace;
 }
+
+.dialog-overlay{z-index:700;}
+.dialog-modal{
+  max-width:380px;text-align:center;padding:30px 26px 26px;
+}
+.dialog-icon{
+  width:44px;height:44px;margin:0 auto 16px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:20px;
+  background:var(--gold-dim);color:var(--gold);
+}
+.dialog-icon.danger{background:rgba(255,107,107,0.14);color:var(--loss);}
+.dialog-message{
+  font-size:14px;line-height:1.55;color:var(--text);margin-bottom:24px;white-space:pre-line;
+}
+.dialog-actions{display:flex;gap:10px;justify-content:center;}
+.dialog-actions .btn{flex:1;justify-content:center;padding:11px;}
 .trade-row-clickable{cursor:pointer;}
 
 .modal-actions{display:flex;justify-content:flex-end;gap:10px;margin-top:20px;}
@@ -1001,6 +1018,8 @@ table.tradelist tr:hover td{background:var(--surface2);}
   .modal h2{font-size:16px;margin-bottom:14px;}
   .modal-actions{flex-direction:column-reverse;gap:8px;}
   .modal-actions .btn{width:100%;justify-content:center;}
+  .dialog-actions{flex-direction:column-reverse;gap:8px;}
+  .dialog-modal{padding:26px 20px 22px;}
 
   #dayDetail > div{flex-wrap:wrap !important;gap:6px !important;}
   .dropzone img{max-height:110px;}
@@ -1634,6 +1653,18 @@ table.tradelist tr:hover td{background:var(--surface2);}
   <div class="lightbox-counter" id="lightboxCounter" style="display:none;"></div>
 </div>
 
+<!-- CUSTOM DIALOG (replaces native confirm/alert) -->
+<div class="modal-overlay dialog-overlay" id="customDialogOverlay">
+  <div class="modal dialog-modal">
+    <div class="dialog-icon" id="customDialogIcon">!</div>
+    <div class="dialog-message" id="customDialogMessage"></div>
+    <div class="dialog-actions" id="customDialogActions">
+      <button class="btn ghost" id="customDialogCancelBtn">Anuluj</button>
+      <button class="btn primary" id="customDialogConfirmBtn">OK</button>
+    </div>
+  </div>
+</div>
+
 </div><!-- /appRoot -->
 
 <script>
@@ -2129,11 +2160,11 @@ async function loadAllData(){
 
 async function saveTradeToDb(tr){
   const { error } = await sb.from('trades').upsert(tradeToRow(tr));
-  if(error){ console.error('Błąd zapisu transakcji:', error); alert(t('alertSaveFail')); }
+  if(error){ console.error('Błąd zapisu transakcji:', error); customAlert(t('alertSaveFail'), {danger:true}); }
 }
 async function deleteTradeFromDb(id){
   const { error } = await sb.from('trades').delete().eq('id', id).eq('user_id', currentUser.id);
-  if(error){ console.error('Błąd usuwania transakcji:', error); alert(t('alertDeleteFail')); }
+  if(error){ console.error('Błąd usuwania transakcji:', error); customAlert(t('alertDeleteFail'), {danger:true}); }
 }
 async function saveMonthNoteToDb(accountId, month, text){
   const { error } = await sb.from('month_notes').upsert({
@@ -2143,11 +2174,11 @@ async function saveMonthNoteToDb(accountId, month, text){
 }
 async function saveAccountToDb(a){
   const { error } = await sb.from('accounts').upsert(accountToRow(a));
-  if(error){ console.error('Błąd zapisu konta:', error); alert(t('alertAccountSaveFail')); }
+  if(error){ console.error('Błąd zapisu konta:', error); customAlert(t('alertAccountSaveFail'), {danger:true}); }
 }
 async function deleteAccountFromDb(id){
   const { error } = await sb.from('accounts').delete().eq('id', id).eq('user_id', currentUser.id);
-  if(error){ console.error('Błąd usuwania konta:', error); alert(t('alertAccountDeleteFail')); }
+  if(error){ console.error('Błąd usuwania konta:', error); customAlert(t('alertAccountDeleteFail'), {danger:true}); }
 }
 
 /* ---------- AUTH ---------- */
@@ -3263,6 +3294,58 @@ function renderStarsReadonly(val){
   for(let i=1;i<=5;i++) out += `<span class="${i<=val?'filled':''}">★</span>`;
   return out + '</span>';
 }
+/* ============ CUSTOM DIALOG (replaces native confirm/alert) ============ */
+function showDialog({message, cancelText, confirmText, danger}){
+  return new Promise((resolve)=>{
+    const overlay = document.getElementById('customDialogOverlay');
+    document.getElementById('customDialogMessage').textContent = message || '';
+    const iconEl = document.getElementById('customDialogIcon');
+    iconEl.textContent = danger ? '!' : 'i';
+    iconEl.classList.toggle('danger', !!danger);
+    const confirmBtn = document.getElementById('customDialogConfirmBtn');
+    const cancelBtn = document.getElementById('customDialogCancelBtn');
+    confirmBtn.textContent = confirmText || 'OK';
+    confirmBtn.className = 'btn ' + (danger ? 'danger' : 'primary');
+    if(cancelText === null){
+      cancelBtn.style.display = 'none';
+    } else {
+      cancelBtn.style.display = '';
+      cancelBtn.textContent = cancelText;
+    }
+
+    function cleanup(result){
+      overlay.classList.remove('open');
+      confirmBtn.removeEventListener('click', onConfirm);
+      cancelBtn.removeEventListener('click', onCancel);
+      overlay.removeEventListener('click', onOverlay);
+      document.removeEventListener('keydown', onKey);
+      resolve(result);
+    }
+    function onConfirm(){ cleanup(true); }
+    function onCancel(){ cleanup(false); }
+    function onOverlay(e){ if(e.target===overlay) cleanup(false); }
+    function onKey(e){
+      if(e.key==='Escape') cleanup(false);
+      if(e.key==='Enter') cleanup(true);
+    }
+
+    confirmBtn.addEventListener('click', onConfirm);
+    cancelBtn.addEventListener('click', onCancel);
+    overlay.addEventListener('click', onOverlay);
+    document.addEventListener('keydown', onKey);
+    overlay.classList.add('open');
+    confirmBtn.focus();
+  });
+}
+function customConfirm(message, opts){
+  opts = opts || {};
+  return showDialog({message, cancelText: t('cancel'), confirmText: opts.confirmText || 'OK', danger: !!opts.danger});
+}
+function customAlert(message, opts){
+  opts = opts || {};
+  return showDialog({message, cancelText: null, confirmText: opts.confirmText || 'OK', danger: !!opts.danger});
+}
+
 function escapeHtml(str){
   const div = document.createElement('div'); div.textContent = str; return div.innerHTML;
 }
@@ -3352,8 +3435,8 @@ window.editTrade = function(id){
   const tr = trades.find(x=>x.id===id);
   if(tr) openModal(tr);
 };
-window.deleteTrade = function(id){
-  if(confirm(t('confirmDeleteTrade'))){
+window.deleteTrade = async function(id){
+  if(await customConfirm(t('confirmDeleteTrade'), {danger:true})){
     allTrades = allTrades.filter(t=>t.id!==id);
     refreshScopedTrades();
     renderAll();
@@ -3631,8 +3714,8 @@ function selectAccount(id){
   activateTab('dashboard');
 }
 async function deleteAccount(id){
-  if(accounts.length <= 1){ alert(t('cannotDeleteLastAccount')); return; }
-  if(!confirm(t('confirmDeleteAccount'))) return;
+  if(accounts.length <= 1){ customAlert(t('cannotDeleteLastAccount')); return; }
+  if(!await customConfirm(t('confirmDeleteAccount'), {danger:true})) return;
   accounts = accounts.filter(a=>a.id!==id);
   allTrades = allTrades.filter(tr=>tr.accountId!==id);
   await deleteAccountFromDb(id);
@@ -3721,8 +3804,8 @@ document.getElementById('profileUsernameSaveBtn').addEventListener('click', asyn
   renderProfileScreen();
   showProfileMsg(t('profileSaved'), true);
 });
-document.getElementById('profileLogoutBtn').addEventListener('click', ()=>{
-  if(confirm(t('confirmLogout'))) handleLogout();
+document.getElementById('profileLogoutBtn').addEventListener('click', async ()=>{
+  if(await customConfirm(t('confirmLogout'))) handleLogout();
 });
 document.getElementById('profilePasswordForm').addEventListener('submit', async (e)=>{
   e.preventDefault();
@@ -3756,8 +3839,8 @@ async function hardResetLocalState(){
 }
 
 document.getElementById('profileDeleteBtn').addEventListener('click', async ()=>{
-  if(!confirm(t('confirmDeleteAccount1'))) return;
-  if(!confirm(t('confirmDeleteAccount2'))) return;
+  if(!await customConfirm(t('confirmDeleteAccount1'), {danger:true})) return;
+  if(!await customConfirm(t('confirmDeleteAccount2'), {danger:true, confirmText: t('deleteLabel')})) return;
   for(const acc of accounts.slice()){ await deleteAccountFromDb(acc.id); }
   try{
     const { error } = await sb.functions.invoke('delete-account', { method: 'POST' });
@@ -3766,7 +3849,7 @@ document.getElementById('profileDeleteBtn').addEventListener('click', async ()=>
     console.error('Nie udało się wywołać funkcji usuwania konta:', e);
   }
   try{ await sb.auth.signOut(); }catch(e){}
-  alert(t('accountDataDeleted'));
+  await customAlert(t('accountDataDeleted'));
   await hardResetLocalState();
   window.location.reload();
 });
