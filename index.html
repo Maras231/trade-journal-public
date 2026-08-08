@@ -671,6 +671,125 @@ table.tradelist tr:hover td{background:var(--surface2);}
 .auth-remember-row a{transition:color .15s var(--ease);}
 .auth-remember-row a:hover{color:var(--gold) !important;}
 
+/* ================= SIDE DRAWER ================= */
+.menu-btn{
+  background:transparent;border:none;padding:0;cursor:pointer;display:block;
+  border-radius:11px;transition:transform .15s var(--ease),opacity .15s var(--ease);
+}
+.menu-btn:hover{opacity:.85;transform:translateY(-1px);}
+.menu-btn:active{transform:translateY(0) scale(.96);}
+
+.drawer-overlay{
+  position:fixed;inset:0;background:rgba(2,3,7,0.6);backdrop-filter:blur(2px);
+  z-index:499;opacity:0;pointer-events:none;transition:opacity .28s var(--ease);
+}
+.drawer-overlay.open{opacity:1;pointer-events:auto;}
+
+.side-drawer{
+  position:fixed;top:0;left:0;height:100%;width:84%;max-width:320px;
+  background:linear-gradient(180deg, var(--surface), var(--bg));
+  border-right:1px solid var(--border);
+  box-shadow:24px 0 60px -20px rgba(0,0,0,0.6);
+  z-index:500;transform:translateX(-100%);
+  transition:transform .3s var(--ease);
+  display:flex;flex-direction:column;
+  padding:22px 0 18px;
+}
+.side-drawer.open{transform:translateX(0);}
+.side-drawer.dragging{transition:none;}
+
+.drawer-header{
+  padding:4px 20px 18px;margin:0 16px 14px;border-bottom:1px solid var(--border);
+  display:flex;align-items:center;gap:12px;cursor:pointer;
+}
+.drawer-header .mark{flex:none;}
+.drawer-header-text{min-width:0;}
+.drawer-account-name{
+  font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:14.5px;color:var(--text);
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+}
+.drawer-account-balance{
+  font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--gold);font-weight:600;margin-top:1px;
+}
+.drawer-account-empty{color:var(--muted);font-size:12.5px;}
+
+.drawer-nav{display:flex;flex-direction:column;padding:6px 12px;gap:2px;}
+.drawer-nav button{
+  display:flex;align-items:center;justify-content:space-between;gap:10px;
+  background:transparent;border:none;color:var(--text);text-align:left;
+  padding:12px 12px;border-radius:10px;font-size:15px;font-weight:600;font-family:'Inter',sans-serif;
+  cursor:pointer;transition:background .15s var(--ease),color .15s var(--ease);
+}
+.drawer-nav button svg{width:19px;height:19px;color:var(--muted);flex:none;transition:color .15s var(--ease);}
+.drawer-nav button:hover{background:var(--surface2);}
+.drawer-nav button.active{background:var(--gold-dim);color:var(--gold);}
+.drawer-nav button.active svg{color:var(--gold);}
+.drawer-spacer{flex:1;}
+.drawer-nav-bottom{border-top:1px solid var(--border);padding-top:10px;margin-top:auto;}
+.drawer-nav-bottom button{font-size:13.5px;font-weight:600;}
+
+/* ================= SCREENS (Profil / Konta / Ustawienia / Privacy) ================= */
+.screen-head{display:flex;align-items:center;gap:12px;margin-bottom:22px;}
+.screen-back{
+  background:var(--surface2);border:1px solid var(--border);color:var(--text);
+  width:34px;height:34px;border-radius:9px;cursor:pointer;flex:none;
+  display:flex;align-items:center;justify-content:center;font-size:18px;
+  transition:border-color .18s var(--ease),color .18s var(--ease);
+}
+.screen-back:hover{border-color:var(--gold);color:var(--gold);}
+.screen-title{font-family:'Space Grotesk',sans-serif;font-size:20px;font-weight:700;}
+
+.accounts-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:14px;margin-bottom:20px;}
+.account-tile{
+  background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);
+  padding:16px 18px;cursor:pointer;position:relative;
+  transition:border-color .2s var(--ease),transform .2s var(--ease),box-shadow .2s var(--ease);
+  box-shadow:var(--shadow-sm);
+}
+.account-tile:hover{border-color:var(--gold);transform:translateY(-2px);box-shadow:var(--shadow-md);}
+.account-tile.active{border-color:var(--gold);background:var(--gold-dim);box-shadow:var(--shadow-gold);}
+.account-tile .a-name{font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:15.5px;margin-bottom:8px;padding-right:56px;overflow-wrap:anywhere;}
+.account-tile .a-balance{font-family:'JetBrains Mono',monospace;font-weight:700;font-size:19px;margin-bottom:4px;}
+.account-tile .a-balance.pos{color:var(--profit);}
+.account-tile .a-balance.neg{color:var(--loss);}
+.account-tile .a-sub{color:var(--muted);font-size:11.5px;font-family:'JetBrains Mono',monospace;}
+.account-tile .a-badge{
+  position:absolute;top:14px;right:14px;font-size:10px;font-weight:700;text-transform:uppercase;
+  letter-spacing:.4px;color:var(--gold);background:var(--gold-dim);padding:3px 8px;border-radius:20px;
+}
+.account-tile .a-actions{position:absolute;top:44px;right:14px;display:flex;gap:6px;}
+.account-tile-add{
+  background:var(--surface2);border:1.5px dashed var(--border);border-radius:var(--radius);
+  padding:16px 18px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;
+  color:var(--muted);font-weight:600;font-size:14px;min-height:96px;
+  transition:border-color .18s var(--ease),color .18s var(--ease);
+}
+.account-tile-add:hover{border-color:var(--gold);color:var(--gold);}
+
+.profile-row{
+  display:flex;align-items:center;justify-content:space-between;gap:14px;
+  padding:16px 0;border-bottom:1px solid var(--border);
+}
+.profile-row:last-child{border-bottom:none;}
+.profile-row-label{font-size:13.5px;color:var(--muted);font-weight:600;}
+.settings-row{
+  display:flex;align-items:center;justify-content:space-between;gap:14px;
+  padding:16px 18px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);
+  margin-bottom:12px;
+}
+.settings-row-title{font-size:14px;font-weight:600;}
+.settings-row-sub{font-size:12px;color:var(--muted);margin-top:2px;}
+.settings-lang-options{display:flex;gap:6px;}
+.settings-lang-options button{
+  background:var(--surface2);border:1px solid var(--border);color:var(--muted);
+  padding:7px 12px;border-radius:8px;font-size:12.5px;font-weight:700;cursor:pointer;
+  transition:border-color .18s var(--ease),color .18s var(--ease);
+}
+.settings-lang-options button.active{border-color:var(--gold);color:var(--gold);background:var(--gold-dim);}
+.privacy-text{color:var(--muted);font-size:13.5px;line-height:1.7;max-width:640px;}
+.privacy-text h3{color:var(--text);font-family:'Space Grotesk',sans-serif;font-size:15px;margin:20px 0 8px;}
+.privacy-text p{margin-bottom:10px;}
+
 /* ================= RESPONSIVE ================= */
 @media(max-width:900px){
   .form-grid{grid-template-columns:1fr;}
@@ -882,9 +1001,51 @@ table.tradelist tr:hover td{background:var(--surface2);}
 
 <div id="appRoot" style="display:none;">
 
+<div class="drawer-overlay" id="drawerOverlay"></div>
+<nav class="side-drawer" id="sideDrawer">
+  <div class="drawer-header" id="drawerHeader">
+    <div class="mark" style="width:38px;height:38px;font-size:16px;border-radius:10px;"><img src="icon-192.png" alt="Wick"></div>
+    <div class="drawer-header-text">
+      <div class="drawer-account-name" id="drawerAccountName">Wick</div>
+      <div class="drawer-account-balance" id="drawerAccountBalance"></div>
+    </div>
+  </div>
+  <div class="drawer-nav">
+    <button type="button" data-screen="profile">
+      <span id="drawerNavProfile">Profil</span>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="3.5"/><path d="M5 20c0-3.9 3.1-7 7-7s7 3.1 7 7"/></svg>
+    </button>
+    <button type="button" data-screen="accounts">
+      <span id="drawerNavAccounts">Konta</span>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="6" width="18" height="13" rx="2.5"/><path d="M3 10h18"/><circle cx="16.5" cy="14.5" r="1.6"/></svg>
+    </button>
+    <button type="button" data-screen="stats" class="active">
+      <span id="drawerNavStats">Statystyki</span>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20V10M12 20V4M20 20v-7"/></svg>
+    </button>
+    <button type="button" data-screen="trades">
+      <span id="drawerNavTrades">Transakcje</span>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5M6 11l6-6 6 6"/></svg>
+    </button>
+  </div>
+  <div class="drawer-spacer"></div>
+  <div class="drawer-nav drawer-nav-bottom">
+    <button type="button" data-screen="privacy">
+      <span id="drawerNavPrivacy">Privacy Policy</span>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="10.5" width="14" height="9.5" rx="2"/><path d="M8 10.5V7a4 4 0 0 1 8 0v3.5"/></svg>
+    </button>
+    <button type="button" data-screen="settings">
+      <span id="drawerNavSettings">Ustawienia</span>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .34 1.87l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.7 1.7 0 0 0-1.87-.34 1.7 1.7 0 0 0-1 1.55V21a2 2 0 0 1-4 0v-.09A1.7 1.7 0 0 0 9 19.4a1.7 1.7 0 0 0-1.87.34l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.7 1.7 0 0 0 4.6 15a1.7 1.7 0 0 0-1.55-1H3a2 2 0 0 1 0-4h.09A1.7 1.7 0 0 0 4.6 9a1.7 1.7 0 0 0-.34-1.87l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.7 1.7 0 0 0 9 4.6a1.7 1.7 0 0 0 1-1.55V3a2 2 0 0 1 4 0v.09a1.7 1.7 0 0 0 1 1.55 1.7 1.7 0 0 0 1.87-.34l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.7 1.7 0 0 0 19.4 9a1.7 1.7 0 0 0 1.55 1H21a2 2 0 0 1 0 4h-.09a1.7 1.7 0 0 0-1.51 1z"/></svg>
+    </button>
+  </div>
+</nav>
+
 <header class="top">
   <div class="brand">
-    <div class="mark"><img src="icon-192.png" alt="Wick"></div>
+    <button class="menu-btn" id="menuBtn" type="button" title="Menu">
+      <div class="mark"><img src="icon-192.png" alt="Wick"></div>
+    </button>
     <div>
       <div style="display:flex;align-items:center;gap:9px;">
         <h1>Wick</h1>
@@ -916,6 +1077,8 @@ table.tradelist tr:hover td{background:var(--surface2);}
   </div>
 </header>
 
+<div id="mainScreen">
+
 <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;margin-bottom:22px;">
 <nav class="tabs" id="tabNav" style="margin-bottom:0;">
   <button class="active" data-tab="dashboard" id="tabDashboardBtn"> Dashboard</button>
@@ -929,6 +1092,7 @@ table.tradelist tr:hover td{background:var(--surface2);}
 </div>
 
 <div class="stats-row" id="statsRow"></div>
+
 
 <section id="tab-dashboard">
   <div class="grid">
@@ -1001,6 +1165,85 @@ table.tradelist tr:hover td{background:var(--surface2);}
     </div>
   </div>
 </section>
+
+</div><!-- /mainScreen -->
+
+<!-- ============ SCREEN: PROFIL ============ -->
+<div id="screenProfile" style="display:none;">
+  <div class="screen-head">
+    <button class="screen-back" id="profileBackBtn" type="button">‹</button>
+    <h2 class="screen-title" id="profileScreenTitle">Profil</h2>
+  </div>
+  <div class="panel" style="max-width:520px;">
+    <div class="profile-row">
+      <span class="profile-row-label" id="profileUsernameLabel">Nazwa użytkownika</span>
+      <div style="display:flex;gap:8px;align-items:center;">
+        <input type="text" id="profileUsernameInput" style="background:var(--surface2);border:1px solid var(--border);color:var(--text);padding:8px 12px;border-radius:8px;font-size:13.5px;font-family:'Inter';width:170px;">
+        <button class="btn" id="profileUsernameSaveBtn" style="padding:8px 14px;">✓</button>
+      </div>
+    </div>
+    <div class="profile-row">
+      <span class="profile-row-label" id="profileEmailLabel">Adres e-mail</span>
+      <span id="profileEmailValue" style="font-size:13.5px;color:var(--muted);"></span>
+    </div>
+    <div class="profile-row">
+      <span class="profile-row-label" id="profileLogoutLabel">Wyloguj się z tego urządzenia</span>
+      <button class="btn" id="profileLogoutBtn">Wyloguj</button>
+    </div>
+    <div class="profile-row">
+      <span class="profile-row-label" id="profileDeleteLabel">Usuń wszystkie dane i konto</span>
+      <button class="btn danger" id="profileDeleteBtn">Usuń konto</button>
+    </div>
+  </div>
+  <div id="profileMsg" style="margin-top:14px;font-size:12.5px;display:none;"></div>
+</div>
+
+<!-- ============ SCREEN: KONTA ============ -->
+<div id="screenAccounts" style="display:none;">
+  <div class="screen-head">
+    <button class="screen-back" id="accountsBackBtn" type="button">‹</button>
+    <h2 class="screen-title" id="accountsScreenTitle">Konta</h2>
+  </div>
+  <div class="accounts-grid" id="accountsGrid"></div>
+</div>
+
+<!-- ============ SCREEN: USTAWIENIA ============ -->
+<div id="screenSettings" style="display:none;">
+  <div class="screen-head">
+    <button class="screen-back" id="settingsBackBtn" type="button">‹</button>
+    <h2 class="screen-title" id="settingsScreenTitle">Ustawienia</h2>
+  </div>
+  <div style="max-width:520px;">
+    <div class="settings-row">
+      <div>
+        <div class="settings-row-title" id="settingsThemeTitle">Motyw</div>
+        <div class="settings-row-sub" id="settingsThemeSub">Jasny lub ciemny wygląd appki</div>
+      </div>
+      <button class="theme-toggle" id="settingsThemeToggle" type="button">
+        <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+        <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.8A9 9 0 1 1 11.2 3 7 7 0 0 0 21 12.8Z"/></svg>
+      </button>
+    </div>
+    <div class="settings-row">
+      <div>
+        <div class="settings-row-title" id="settingsLangTitle">Język</div>
+        <div class="settings-row-sub" id="settingsLangSub">Język interfejsu appki</div>
+      </div>
+      <div class="settings-lang-options" id="settingsLangOptions"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ============ SCREEN: PRIVACY POLICY ============ -->
+<div id="screenPrivacy" style="display:none;">
+  <div class="screen-head">
+    <button class="screen-back" id="privacyBackBtn" type="button">‹</button>
+    <h2 class="screen-title" id="privacyScreenTitle">Privacy Policy</h2>
+  </div>
+  <div class="panel">
+    <div class="privacy-text" id="privacyText"></div>
+  </div>
+</div>
 
 <!-- MODAL -->
 <div class="modal-overlay" id="modalOverlay">
@@ -1077,6 +1320,29 @@ table.tradelist tr:hover td{background:var(--surface2);}
       <div class="modal-actions">
         <button type="button" class="btn ghost" id="cancelBtn">Anuluj</button>
         <button type="submit" class="btn primary" id="saveTradeBtn">Zapisz transakcję</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- ACCOUNT MODAL -->
+<div class="modal-overlay" id="accountModalOverlay">
+  <div class="modal" style="max-width:420px;">
+    <button class="close-x" id="closeAccountModal">✕</button>
+    <h2 id="accountModalTitle">Nowe konto</h2>
+    <form id="accountForm">
+      <input type="hidden" id="accId">
+      <div class="field" style="margin-bottom:14px;">
+        <label id="accNameLabel">Nazwa konta (maks. 20 znaków)</label>
+        <input type="text" id="accName" maxlength="20" required placeholder="np. Konto Główne">
+      </div>
+      <div class="field" style="margin-bottom:18px;">
+        <label id="accBalanceLabel">Kapitał początkowy ($)</label>
+        <input type="number" step="0.01" id="accBalance" required placeholder="np. 50000" value="0">
+      </div>
+      <div class="modal-actions">
+        <button type="button" class="btn ghost" id="accCancelBtn">Anuluj</button>
+        <button type="submit" class="btn primary" id="accSaveBtn">Zapisz</button>
       </div>
     </form>
   </div>
@@ -1187,7 +1453,24 @@ const I18N = {
     authEmailPlaceholder:'ty@przyklad.pl', authPasswordPlaceholder:'••••••••', authUsernamePlaceholder:'np. uzytkownik123',
     resetTitle:'Ustaw nowe hasło', resetDesc:'Wpisz nowe hasło do swojego konta.',
     resetPassword1Label:'Nowe hasło', resetPassword2Label:'Powtórz nowe hasło',
-    resetSubmitBtn:'Zapisz nowe hasło', authPasswordUpdated:'Hasło zostało zaktualizowane.'
+    resetSubmitBtn:'Zapisz nowe hasło', authPasswordUpdated:'Hasło zostało zaktualizowane.',
+    drawerNavProfile:'Profil', drawerNavAccounts:'Konta', drawerNavStats:'Statystyki', drawerNavTrades:'Transakcje',
+    drawerNavPrivacy:'Privacy Policy', drawerNavSettings:'Ustawienia',
+    profileScreenTitle:'Profil', accountsScreenTitle:'Konta', settingsScreenTitle:'Ustawienia', privacyScreenTitle:'Privacy Policy',
+    profileUsernameLabel:'Nazwa użytkownika', profileEmailLabel:'Adres e-mail',
+    profileLogoutLabel:'Wyloguj się z tego urządzenia', profileDeleteLabel:'Usuń wszystkie dane i konto',
+    profileLogoutBtn:'Wyloguj', profileDeleteBtn:'Usuń konto', profileSaved:'Zapisano nazwę użytkownika.',
+    confirmDeleteAccount1:'Na pewno chcesz usunąć wszystkie swoje dane (konta, transakcje, notatki)? Tej operacji nie da się cofnąć.',
+    confirmDeleteAccount2:'Ostatnie potwierdzenie: wszystkie dane zostaną trwale usunięte. Kontynuować?',
+    accountDataDeleted:'Twoje dane zostały usunięte. Zostałeś wylogowany.',
+    defaultAccountName:'Konto Główne', activeAccount:'Aktywne', startingBalance:'Kapitał początkowy',
+    addAccount:'Dodaj konto', newAccountTitle:'Nowe konto', editAccountTitle:'Edytuj konto',
+    accNameLabel:'Nazwa konta (maks. 20 znaków)', accBalanceLabel:'Kapitał początkowy ($)',
+    cannotDeleteLastAccount:'Nie możesz usunąć jedynego konta.', confirmDeleteAccount:'Usunąć to konto wraz z jego transakcjami?',
+    alertAccountSaveFail:'Nie udało się zapisać konta w bazie danych.', alertAccountDeleteFail:'Nie udało się usunąć konta z bazy danych.',
+    settingsThemeTitle:'Motyw', settingsThemeSub:'Jasny lub ciemny wygląd appki',
+    settingsLangTitle:'Język', settingsLangSub:'Język interfejsu appki',
+    privacyContent:'<h3>Jakie dane zbieramy</h3><p>Wick przechowuje wyłącznie dane, które sam wprowadzasz: transakcje, konta, notatki miesięczne oraz podstawowe dane konta logowania (e-mail, opcjonalnie nazwa użytkownika).</p><h3>Jak wykorzystujemy dane</h3><p>Twoje dane służą wyłącznie do wyświetlania Twojego dziennika transakcji. Nie są sprzedawane ani udostępniane osobom trzecim.</p><h3>Przechowywanie</h3><p>Dane są przechowywane w bazie Supabase, zabezpieczonej regułami dostępu ograniczającymi widoczność wyłącznie do Twojego konta.</p><h3>Usuwanie danych</h3><p>Możesz usunąć swoje dane w każdej chwili w zakładce Profil.</p><p style="margin-top:16px;color:var(--muted);font-size:11.5px;">To jest treść przykładowa. Zastąp ją właściwą polityką prywatności przed publicznym udostępnieniem appki.</p>',
   },
   en: {
     tagline:'Your trade journal & analytics',
@@ -1251,7 +1534,24 @@ const I18N = {
     authEmailPlaceholder:'you@example.com', authPasswordPlaceholder:'••••••••', authUsernamePlaceholder:'e.g. user123',
     resetTitle:'Set a new password', resetDesc:'Enter a new password for your account.',
     resetPassword1Label:'New password', resetPassword2Label:'Confirm new password',
-    resetSubmitBtn:'Save new password', authPasswordUpdated:'Password updated.'
+    resetSubmitBtn:'Save new password', authPasswordUpdated:'Password updated.',
+    drawerNavProfile:'Profile', drawerNavAccounts:'Accounts', drawerNavStats:'Statistics', drawerNavTrades:'Trades',
+    drawerNavPrivacy:'Privacy Policy', drawerNavSettings:'Settings',
+    profileScreenTitle:'Profile', accountsScreenTitle:'Accounts', settingsScreenTitle:'Settings', privacyScreenTitle:'Privacy Policy',
+    profileUsernameLabel:'Username', profileEmailLabel:'Email address',
+    profileLogoutLabel:'Log out of this device', profileDeleteLabel:'Delete all data and account',
+    profileLogoutBtn:'Log out', profileDeleteBtn:'Delete account', profileSaved:'Username saved.',
+    confirmDeleteAccount1:'Are you sure you want to delete all your data (accounts, trades, notes)? This cannot be undone.',
+    confirmDeleteAccount2:'Final confirmation: all data will be permanently deleted. Continue?',
+    accountDataDeleted:'Your data has been deleted. You have been logged out.',
+    defaultAccountName:'Main Account', activeAccount:'Active', startingBalance:'Starting balance',
+    addAccount:'Add account', newAccountTitle:'New account', editAccountTitle:'Edit account',
+    accNameLabel:'Account name (max 20 characters)', accBalanceLabel:'Starting balance ($)',
+    cannotDeleteLastAccount:'You cannot delete your only account.', confirmDeleteAccount:'Delete this account along with its trades?',
+    alertAccountSaveFail:'Failed to save the account to the database.', alertAccountDeleteFail:'Failed to delete the account from the database.',
+    settingsThemeTitle:'Theme', settingsThemeSub:'Light or dark app appearance',
+    settingsLangTitle:'Language', settingsLangSub:'App interface language',
+    privacyContent:'<h3>What data we collect</h3><p>Wick only stores data you enter yourself: trades, accounts, monthly notes, and basic login account details (email, optionally a username).</p><h3>How we use your data</h3><p>Your data is used solely to display your trade journal. It is never sold or shared with third parties.</p><h3>Storage</h3><p>Data is stored in a Supabase database, secured by access rules that restrict visibility to your account only.</p><h3>Deleting your data</h3><p>You can delete your data at any time from the Profile tab.</p><p style="margin-top:16px;color:var(--muted);font-size:11.5px;">This is placeholder content. Replace it with your actual privacy policy before making the app public.</p>',
   },
   de: {
     tagline:'Dein Handelstagebuch & Analysen',
@@ -1315,7 +1615,24 @@ const I18N = {
     authEmailPlaceholder:'du@beispiel.de', authPasswordPlaceholder:'••••••••', authUsernamePlaceholder:'z. B. nutzer123',
     resetTitle:'Neues Passwort festlegen', resetDesc:'Gib ein neues Passwort für dein Konto ein.',
     resetPassword1Label:'Neues Passwort', resetPassword2Label:'Neues Passwort wiederholen',
-    resetSubmitBtn:'Neues Passwort speichern', authPasswordUpdated:'Passwort aktualisiert.'
+    resetSubmitBtn:'Neues Passwort speichern', authPasswordUpdated:'Passwort aktualisiert.',
+    drawerNavProfile:'Profil', drawerNavAccounts:'Konten', drawerNavStats:'Statistiken', drawerNavTrades:'Trades',
+    drawerNavPrivacy:'Datenschutz', drawerNavSettings:'Einstellungen',
+    profileScreenTitle:'Profil', accountsScreenTitle:'Konten', settingsScreenTitle:'Einstellungen', privacyScreenTitle:'Datenschutz',
+    profileUsernameLabel:'Benutzername', profileEmailLabel:'E-Mail-Adresse',
+    profileLogoutLabel:'Von diesem Gerät abmelden', profileDeleteLabel:'Alle Daten und Konto löschen',
+    profileLogoutBtn:'Abmelden', profileDeleteBtn:'Konto löschen', profileSaved:'Benutzername gespeichert.',
+    confirmDeleteAccount1:'Möchtest du wirklich alle deine Daten löschen (Konten, Trades, Notizen)? Das kann nicht rückgängig gemacht werden.',
+    confirmDeleteAccount2:'Letzte Bestätigung: Alle Daten werden endgültig gelöscht. Fortfahren?',
+    accountDataDeleted:'Deine Daten wurden gelöscht. Du wurdest abgemeldet.',
+    defaultAccountName:'Hauptkonto', activeAccount:'Aktiv', startingBalance:'Startkapital',
+    addAccount:'Konto hinzufügen', newAccountTitle:'Neues Konto', editAccountTitle:'Konto bearbeiten',
+    accNameLabel:'Kontoname (max. 20 Zeichen)', accBalanceLabel:'Startkapital ($)',
+    cannotDeleteLastAccount:'Du kannst dein einziges Konto nicht löschen.', confirmDeleteAccount:'Dieses Konto samt seiner Trades löschen?',
+    alertAccountSaveFail:'Das Konto konnte nicht in der Datenbank gespeichert werden.', alertAccountDeleteFail:'Das Konto konnte nicht aus der Datenbank gelöscht werden.',
+    settingsThemeTitle:'Theme', settingsThemeSub:'Helles oder dunkles Erscheinungsbild',
+    settingsLangTitle:'Sprache', settingsLangSub:'Sprache der App-Oberfläche',
+    privacyContent:'<h3>Welche Daten wir erheben</h3><p>Wick speichert ausschließlich Daten, die du selbst eingibst: Trades, Konten, Monatsnotizen sowie grundlegende Zugangsdaten (E-Mail, optional ein Benutzername).</p><h3>Wie wir deine Daten nutzen</h3><p>Deine Daten dienen ausschließlich der Anzeige deines Handelstagebuchs. Sie werden niemals verkauft oder an Dritte weitergegeben.</p><h3>Speicherung</h3><p>Die Daten werden in einer Supabase-Datenbank gespeichert, abgesichert durch Zugriffsregeln, die die Sichtbarkeit auf dein Konto beschränken.</p><h3>Daten löschen</h3><p>Du kannst deine Daten jederzeit im Bereich Profil löschen.</p><p style="margin-top:16px;color:var(--muted);font-size:11.5px;">Dies ist ein Platzhaltertext. Ersetze ihn vor der Veröffentlichung durch deine tatsächliche Datenschutzerklärung.</p>',
   }
 };
 
@@ -1353,7 +1670,11 @@ function dpWeekdayLetters(){
   }[currentLang] || ['M','T','W','T','F','S','S'];
 }
 
-let trades = [];
+let trades = []; // trades scoped to the CURRENTLY SELECTED account (derived from allTrades)
+let allTrades = []; // every trade across all of the user's accounts
+let accounts = [];
+let currentAccountId = null;
+const ACCOUNT_KEY = 'tj_current_account';
 let monthNotes = {};
 let currentUser = null;
 let dataLoaded = false;
@@ -1363,6 +1684,7 @@ let dataLoaded = false;
 function rowToTrade(row){
   return {
     id: row.id,
+    accountId: row.account_id || null,
     date: row.date,
     symbol: row.symbol,
     direction: row.direction,
@@ -1379,6 +1701,7 @@ function tradeToRow(t){
   return {
     id: t.id,
     user_id: currentUser.id,
+    account_id: t.accountId,
     date: t.date,
     symbol: t.symbol,
     direction: t.direction,
@@ -1391,20 +1714,67 @@ function tradeToRow(t){
     updated_at: new Date().toISOString()
   };
 }
+function rowToAccount(row){
+  return {
+    id: row.id,
+    name: row.name,
+    balance: Number(row.balance) || 0,
+    createdAt: row.created_at ? new Date(row.created_at).getTime() : Date.now(),
+    updatedAt: row.updated_at ? new Date(row.updated_at).getTime() : Date.now()
+  };
+}
+function accountToRow(a){
+  return {
+    id: a.id,
+    user_id: currentUser.id,
+    name: a.name,
+    balance: a.balance,
+    updated_at: new Date().toISOString()
+  };
+}
+function monthNoteKey(accountId, month){ return accountId + '::' + month; }
+function refreshScopedTrades(){
+  trades = allTrades.filter(tr=>tr.accountId === currentAccountId);
+}
+async function ensureDefaultAccount(){
+  if(accounts.length) return;
+  const acc = { id: uid(), name: t('defaultAccountName'), balance: 0, createdAt: Date.now(), updatedAt: Date.now() };
+  accounts.push(acc);
+  await saveAccountToDb(acc);
+  const orphans = allTrades.filter(tr=>!tr.accountId);
+  if(orphans.length){
+    orphans.forEach(tr=> tr.accountId = acc.id);
+    await Promise.all(orphans.map(tr=> saveTradeToDb(tr)));
+  }
+}
+function restoreCurrentAccount(){
+  const saved = localStorage.getItem(ACCOUNT_KEY);
+  currentAccountId = (saved && accounts.some(a=>a.id===saved)) ? saved : (accounts[0] ? accounts[0].id : null);
+  if(currentAccountId) localStorage.setItem(ACCOUNT_KEY, currentAccountId);
+}
 
 async function loadAllData(){
-  const [tradesRes, notesRes] = await Promise.all([
+  const [tradesRes, notesRes, accountsRes] = await Promise.all([
     sb.from('trades').select('*').eq('user_id', currentUser.id),
-    sb.from('month_notes').select('*').eq('user_id', currentUser.id)
+    sb.from('month_notes').select('*').eq('user_id', currentUser.id),
+    sb.from('accounts').select('*').eq('user_id', currentUser.id)
   ]);
-  if(tradesRes.error){ console.error(tradesRes.error); trades = []; }
-  else trades = tradesRes.data.map(rowToTrade);
+  if(tradesRes.error){ console.error(tradesRes.error); allTrades = []; }
+  else allTrades = tradesRes.data.map(rowToTrade);
 
   monthNotes = {};
   if(notesRes.error){ console.error(notesRes.error); }
   else notesRes.data.forEach(r=>{
-    monthNotes[r.month] = { text: r.text || '', updatedAt: r.updated_at ? new Date(r.updated_at).getTime() : 0 };
+    monthNotes[monthNoteKey(r.account_id, r.month)] = { text: r.text || '', updatedAt: r.updated_at ? new Date(r.updated_at).getTime() : 0 };
   });
+
+  if(accountsRes.error){ console.error(accountsRes.error); accounts = []; }
+  else accounts = accountsRes.data.map(rowToAccount).sort((a,b)=>a.createdAt-b.createdAt);
+
+  await ensureDefaultAccount();
+  restoreCurrentAccount();
+  refreshScopedTrades();
+  updateDrawerAccountInfo();
 
   dataLoaded = true;
 }
@@ -1417,11 +1787,19 @@ async function deleteTradeFromDb(id){
   const { error } = await sb.from('trades').delete().eq('id', id).eq('user_id', currentUser.id);
   if(error){ console.error('Błąd usuwania transakcji:', error); alert(t('alertDeleteFail')); }
 }
-async function saveMonthNoteToDb(month, text){
+async function saveMonthNoteToDb(accountId, month, text){
   const { error } = await sb.from('month_notes').upsert({
-    user_id: currentUser.id, month, text, updated_at: new Date().toISOString()
+    user_id: currentUser.id, account_id: accountId, month, text, updated_at: new Date().toISOString()
   });
   if(error){ console.error('Błąd zapisu notatki:', error); }
+}
+async function saveAccountToDb(a){
+  const { error } = await sb.from('accounts').upsert(accountToRow(a));
+  if(error){ console.error('Błąd zapisu konta:', error); alert(t('alertAccountSaveFail')); }
+}
+async function deleteAccountFromDb(id){
+  const { error } = await sb.from('accounts').delete().eq('id', id).eq('user_id', currentUser.id);
+  if(error){ console.error('Błąd usuwania konta:', error); alert(t('alertAccountDeleteFail')); }
 }
 
 /* ---------- AUTH ---------- */
@@ -1905,6 +2283,7 @@ document.getElementById('tradeForm').addEventListener('submit', async e=>{
   const id = document.getElementById('tradeId').value;
   const data = {
     id: id || uid(),
+    accountId: id ? (allTrades.find(t=>t.id===id)?.accountId || currentAccountId) : currentAccountId,
     date: document.getElementById('f-date').value,
     symbol: document.getElementById('f-symbol').value.trim().toUpperCase(),
     direction: document.getElementById('f-direction').value,
@@ -1917,13 +2296,15 @@ document.getElementById('tradeForm').addEventListener('submit', async e=>{
     updatedAt: Date.now()
   };
   if(id){
-    const idx = trades.findIndex(t=>t.id===id);
-    if(idx>-1) trades[idx] = data;
+    const idx = allTrades.findIndex(t=>t.id===id);
+    if(idx>-1) allTrades[idx] = data;
   } else {
-    trades.push(data);
+    allTrades.push(data);
   }
+  refreshScopedTrades();
   closeModal();
   renderAll();
+  updateDrawerAccountInfo();
   await saveTradeToDb(data);
 });
 
@@ -2220,7 +2601,7 @@ function renderMonthDetail(){
 
   renderMonthEquityCurve(list);
 
-  const existingNote = monthNotes[selectedSummaryMonth];
+  const existingNote = monthNotes[monthNoteKey(currentAccountId, selectedSummaryMonth)];
   document.getElementById('monthNotes').value = (typeof existingNote === 'string' ? existingNote : existingNote?.text) || '';
 }
 
@@ -2228,11 +2609,12 @@ let notesSaveTimeout = null;
 document.getElementById('monthNotes').addEventListener('input', ()=>{
   if(!selectedSummaryMonth) return;
   const month = selectedSummaryMonth;
+  const accId = currentAccountId;
   const text = document.getElementById('monthNotes').value;
-  monthNotes[month] = { text, updatedAt: Date.now() };
+  monthNotes[monthNoteKey(accId, month)] = { text, updatedAt: Date.now() };
   clearTimeout(notesSaveTimeout);
   notesSaveTimeout = setTimeout(async ()=>{
-    await saveMonthNoteToDb(month, text);
+    await saveMonthNoteToDb(accId, month, text);
     const el = document.getElementById('monthNotesSaved');
     el.classList.add('show');
     setTimeout(()=>el.classList.remove('show'), 1500);
@@ -2491,8 +2873,10 @@ window.editTrade = function(id){
 };
 window.deleteTrade = function(id){
   if(confirm(t('confirmDeleteTrade'))){
-    trades = trades.filter(t=>t.id!==id);
+    allTrades = allTrades.filter(t=>t.id!==id);
+    refreshScopedTrades();
     renderAll();
+    updateDrawerAccountInfo();
     deleteTradeFromDb(id);
   }
 };
@@ -2510,6 +2894,254 @@ function renderAll(){
   renderDayDetail();
   renderTradesTable();
   renderMonthsSummary();
+  updateDrawerAccountInfo();
+}
+
+/* ============ SIDE DRAWER ============ */
+function openDrawer(){
+  document.getElementById('sideDrawer').classList.add('open');
+  document.getElementById('drawerOverlay').classList.add('open');
+}
+function closeDrawer(){
+  document.getElementById('sideDrawer').classList.remove('open');
+  document.getElementById('drawerOverlay').classList.remove('open');
+}
+document.getElementById('menuBtn').addEventListener('click', openDrawer);
+document.getElementById('drawerOverlay').addEventListener('click', closeDrawer);
+document.getElementById('drawerHeader').addEventListener('click', ()=>{
+  closeDrawer();
+  showScreen('accounts');
+  setActiveDrawerNav('accounts');
+});
+
+function setActiveDrawerNav(screenKey){
+  document.querySelectorAll('.drawer-nav button[data-screen]').forEach(b=>{
+    b.classList.toggle('active', b.dataset.screen===screenKey);
+  });
+}
+document.querySelectorAll('.drawer-nav button[data-screen]').forEach(btn=>{
+  btn.addEventListener('click', ()=>{
+    const screen = btn.dataset.screen;
+    closeDrawer();
+    setActiveDrawerNav(screen);
+    if(screen==='stats'){ showScreen('main'); document.getElementById('tabDashboardBtn').click(); }
+    else if(screen==='trades'){ showScreen('main'); document.getElementById('tabTradesBtn').click(); }
+    else showScreen(screen);
+  });
+});
+
+function updateDrawerAccountInfo(){
+  const acc = accounts.find(a=>a.id===currentAccountId);
+  const nameEl = document.getElementById('drawerAccountName');
+  const balEl = document.getElementById('drawerAccountBalance');
+  if(!nameEl || !balEl) return;
+  if(acc){
+    const pnl = allTrades.filter(tr=>tr.accountId===acc.id).reduce((s,tr)=>s+tr.pnl,0);
+    nameEl.textContent = acc.name;
+    balEl.textContent = fmt(acc.balance + pnl);
+  } else {
+    nameEl.textContent = 'Wick';
+    balEl.textContent = '';
+  }
+}
+
+/* swipe-from-edge to open, swipe-left inside drawer to close */
+let touchStartX = null, touchStartY = null;
+document.addEventListener('touchstart', (e)=>{
+  if(document.getElementById('appRoot').style.display === 'none'){ touchStartX = null; return; }
+  const p = e.touches[0];
+  const drawerOpen = document.getElementById('sideDrawer').classList.contains('open');
+  if(drawerOpen || p.clientX < 24){
+    touchStartX = p.clientX; touchStartY = p.clientY;
+  } else {
+    touchStartX = null;
+  }
+}, {passive:true});
+document.addEventListener('touchmove', (e)=>{
+  if(touchStartX===null) return;
+  const p = e.touches[0];
+  if(Math.abs(p.clientY - touchStartY) > 70) touchStartX = null;
+}, {passive:true});
+document.addEventListener('touchend', (e)=>{
+  if(touchStartX===null) return;
+  const p = e.changedTouches[0];
+  const dx = p.clientX - touchStartX;
+  const drawerOpen = document.getElementById('sideDrawer').classList.contains('open');
+  if(!drawerOpen && dx > 55) openDrawer();
+  else if(drawerOpen && dx < -55) closeDrawer();
+  touchStartX = null;
+}, {passive:true});
+
+/* ============ SCREEN NAVIGATION ============ */
+function showScreen(name){
+  document.getElementById('mainScreen').style.display = name==='main' ? '' : 'none';
+  document.getElementById('screenProfile').style.display = name==='profile' ? '' : 'none';
+  document.getElementById('screenAccounts').style.display = name==='accounts' ? '' : 'none';
+  document.getElementById('screenSettings').style.display = name==='settings' ? '' : 'none';
+  document.getElementById('screenPrivacy').style.display = name==='privacy' ? '' : 'none';
+  window.scrollTo({top:0});
+  if(name==='accounts') renderAccountsScreen();
+  if(name==='profile') renderProfileScreen();
+  if(name==='settings') renderSettingsScreen();
+  if(name==='privacy') renderPrivacyScreen();
+  if(name==='main') setActiveDrawerNav(document.getElementById('tab-trades').style.display==='none' ? 'stats' : 'trades');
+}
+['profileBackBtn','accountsBackBtn','settingsBackBtn','privacyBackBtn'].forEach(id=>{
+  document.getElementById(id).addEventListener('click', ()=> showScreen('main'));
+});
+
+/* ============ SCREEN: KONTA ============ */
+function renderAccountsScreen(){
+  const grid = document.getElementById('accountsGrid');
+  const tiles = accounts.map(a=>{
+    const accTrades = allTrades.filter(tr=>tr.accountId===a.id);
+    const pnl = accTrades.reduce((s,tr)=>s+tr.pnl,0);
+    const live = a.balance + pnl;
+    return `<div class="account-tile ${a.id===currentAccountId?'active':''}" data-account="${a.id}">
+      ${a.id===currentAccountId ? `<span class="a-badge">${t('activeAccount')}</span>` : ''}
+      <div class="a-name">${escapeHtml(a.name)}</div>
+      <div class="a-balance ${live>=a.balance?'pos':'neg'}">${fmt(live)}</div>
+      <div class="a-sub">${accTrades.length} ${t('tradesLower')} · ${t('startingBalance')}: ${fmt(a.balance)}</div>
+      <div class="a-actions">
+        <button class="icon-btn" data-edit="${a.id}">✎</button>
+        <button class="icon-btn" data-del="${a.id}">🗑</button>
+      </div>
+    </div>`;
+  }).join('');
+  grid.innerHTML = tiles + `<div class="account-tile-add" id="addAccountTile">+ <span id="addAccountLabel" style="margin-left:6px;">${t('addAccount')}</span></div>`;
+
+  grid.querySelectorAll('.account-tile[data-account]').forEach(tile=>{
+    tile.addEventListener('click', (e)=>{
+      if(e.target.closest('[data-edit]') || e.target.closest('[data-del]')) return;
+      selectAccount(tile.dataset.account);
+    });
+  });
+  grid.querySelectorAll('[data-edit]').forEach(btn=>{
+    btn.addEventListener('click', (e)=>{ e.stopPropagation(); const acc = accounts.find(a=>a.id===btn.dataset.edit); if(acc) openAccountModal(acc); });
+  });
+  grid.querySelectorAll('[data-del]').forEach(btn=>{
+    btn.addEventListener('click', (e)=>{ e.stopPropagation(); deleteAccount(btn.dataset.del); });
+  });
+  const addTile = document.getElementById('addAccountTile');
+  if(addTile) addTile.addEventListener('click', ()=> openAccountModal(null));
+}
+function selectAccount(id){
+  if(id === currentAccountId){ showScreen('main'); setActiveDrawerNav('stats'); document.getElementById('tabDashboardBtn').click(); return; }
+  currentAccountId = id;
+  localStorage.setItem(ACCOUNT_KEY, id);
+  refreshScopedTrades();
+  updateDrawerAccountInfo();
+  renderAll();
+  showScreen('main');
+  setActiveDrawerNav('stats');
+  document.getElementById('tabDashboardBtn').click();
+}
+async function deleteAccount(id){
+  if(accounts.length <= 1){ alert(t('cannotDeleteLastAccount')); return; }
+  if(!confirm(t('confirmDeleteAccount'))) return;
+  accounts = accounts.filter(a=>a.id!==id);
+  allTrades = allTrades.filter(tr=>tr.accountId!==id);
+  await deleteAccountFromDb(id);
+  if(currentAccountId === id){
+    currentAccountId = accounts[0] ? accounts[0].id : null;
+    localStorage.setItem(ACCOUNT_KEY, currentAccountId || '');
+  }
+  refreshScopedTrades();
+  updateDrawerAccountInfo();
+  renderAccountsScreen();
+  renderAll();
+}
+function openAccountModal(edit){
+  document.getElementById('accountModalOverlay').classList.add('open');
+  if(edit){
+    document.getElementById('accountModalTitle').textContent = t('editAccountTitle');
+    document.getElementById('accId').value = edit.id;
+    document.getElementById('accName').value = edit.name;
+    document.getElementById('accBalance').value = edit.balance;
+  } else {
+    document.getElementById('accountModalTitle').textContent = t('newAccountTitle');
+    document.getElementById('accountForm').reset();
+    document.getElementById('accId').value = '';
+    document.getElementById('accBalance').value = 0;
+  }
+}
+function closeAccountModal(){ document.getElementById('accountModalOverlay').classList.remove('open'); }
+document.getElementById('closeAccountModal').addEventListener('click', closeAccountModal);
+document.getElementById('accCancelBtn').addEventListener('click', closeAccountModal);
+document.getElementById('accountModalOverlay').addEventListener('click', e=>{ if(e.target.id==='accountModalOverlay') closeAccountModal(); });
+document.getElementById('accountForm').addEventListener('submit', async (e)=>{
+  e.preventDefault();
+  const id = document.getElementById('accId').value;
+  const name = document.getElementById('accName').value.trim().slice(0,20);
+  const balance = parseFloat(document.getElementById('accBalance').value) || 0;
+  if(id){
+    const acc = accounts.find(a=>a.id===id);
+    if(acc){ acc.name = name; acc.balance = balance; acc.updatedAt = Date.now(); await saveAccountToDb(acc); }
+  } else {
+    const acc = { id: uid(), name, balance, createdAt: Date.now(), updatedAt: Date.now() };
+    accounts.push(acc);
+    if(!currentAccountId){ currentAccountId = acc.id; localStorage.setItem(ACCOUNT_KEY, acc.id); refreshScopedTrades(); }
+    await saveAccountToDb(acc);
+  }
+  closeAccountModal();
+  updateDrawerAccountInfo();
+  renderAccountsScreen();
+  renderAll();
+});
+
+/* ============ SCREEN: PROFIL ============ */
+function renderProfileScreen(){
+  document.getElementById('profileUsernameInput').value = (currentUser.user_metadata && currentUser.user_metadata.username) || '';
+  document.getElementById('profileEmailValue').textContent = currentUser.email || '';
+}
+function showProfileMsg(msg, ok){
+  const el = document.getElementById('profileMsg');
+  el.style.color = ok ? 'var(--profit)' : 'var(--loss)';
+  el.textContent = msg;
+  el.style.display = 'block';
+  setTimeout(()=>{ el.style.display='none'; }, 2200);
+}
+document.getElementById('profileUsernameSaveBtn').addEventListener('click', async ()=>{
+  const username = document.getElementById('profileUsernameInput').value.trim();
+  const { error } = await sb.auth.updateUser({ data: { username } });
+  if(error){ showProfileMsg(error.message, false); return; }
+  currentUser.user_metadata = Object.assign({}, currentUser.user_metadata, { username });
+  updateUserWidget();
+  showProfileMsg(t('profileSaved'), true);
+});
+document.getElementById('profileLogoutBtn').addEventListener('click', ()=>{
+  if(confirm(t('confirmLogout'))) handleLogout();
+});
+document.getElementById('profileDeleteBtn').addEventListener('click', async ()=>{
+  if(!confirm(t('confirmDeleteAccount1'))) return;
+  if(!confirm(t('confirmDeleteAccount2'))) return;
+  for(const acc of accounts.slice()){ await deleteAccountFromDb(acc.id); }
+  alert(t('accountDataDeleted'));
+  await handleLogout();
+});
+
+/* ============ SCREEN: USTAWIENIA ============ */
+function renderSettingsScreen(){
+  const wrap = document.getElementById('settingsLangOptions');
+  wrap.innerHTML = LANGS.map(l=>`<button type="button" data-lang="${l.code}" class="${l.code===currentLang?'active':''}">${l.flag} ${l.code.toUpperCase()}</button>`).join('');
+  wrap.querySelectorAll('button').forEach(b=>{
+    b.addEventListener('click', ()=>{
+      currentLang = b.dataset.lang;
+      localStorage.setItem(LANG_KEY, currentLang);
+      applyLanguage();
+      renderSettingsScreen();
+    });
+  });
+}
+document.getElementById('settingsThemeToggle').addEventListener('click', ()=>{
+  const current = document.documentElement.getAttribute('data-theme') || 'dark';
+  applyTheme(current==='dark' ? 'light' : 'dark');
+  renderAll();
+});
+
+/* ============ SCREEN: PRIVACY POLICY ============ */
+function renderPrivacyScreen(){
+  document.getElementById('privacyText').innerHTML = t('privacyContent');
 }
 
 /* ============ STATIC TEXT / LANGUAGE APPLICATION ============ */
@@ -2596,6 +3228,32 @@ function applyStaticTexts(){
   document.getElementById('langSwitchBtn').title = t('langTooltip');
   document.getElementById('logoutBtn').title = t('logoutTooltip');
   document.getElementById('themeToggle').title = t('themeTooltip');
+
+  document.getElementById('drawerNavProfile').textContent = t('drawerNavProfile');
+  document.getElementById('drawerNavAccounts').textContent = t('drawerNavAccounts');
+  document.getElementById('drawerNavStats').textContent = t('drawerNavStats');
+  document.getElementById('drawerNavTrades').textContent = t('drawerNavTrades');
+  document.getElementById('drawerNavPrivacy').textContent = t('drawerNavPrivacy');
+  document.getElementById('drawerNavSettings').textContent = t('drawerNavSettings');
+  document.getElementById('profileScreenTitle').textContent = t('profileScreenTitle');
+  document.getElementById('accountsScreenTitle').textContent = t('accountsScreenTitle');
+  document.getElementById('settingsScreenTitle').textContent = t('settingsScreenTitle');
+  document.getElementById('privacyScreenTitle').textContent = t('privacyScreenTitle');
+  document.getElementById('profileUsernameLabel').textContent = t('profileUsernameLabel');
+  document.getElementById('profileEmailLabel').textContent = t('profileEmailLabel');
+  document.getElementById('profileLogoutLabel').textContent = t('profileLogoutLabel');
+  document.getElementById('profileDeleteLabel').textContent = t('profileDeleteLabel');
+  document.getElementById('profileLogoutBtn').textContent = t('profileLogoutBtn');
+  document.getElementById('profileDeleteBtn').textContent = t('profileDeleteBtn');
+  document.getElementById('accNameLabel').textContent = t('accNameLabel');
+  document.getElementById('accBalanceLabel').textContent = t('accBalanceLabel');
+  document.getElementById('accCancelBtn').textContent = t('cancel');
+  document.getElementById('accSaveBtn').textContent = t('saveTrade');
+  document.getElementById('settingsThemeTitle').textContent = t('settingsThemeTitle');
+  document.getElementById('settingsThemeSub').textContent = t('settingsThemeSub');
+  document.getElementById('settingsLangTitle').textContent = t('settingsLangTitle');
+  document.getElementById('settingsLangSub').textContent = t('settingsLangSub');
+  updateDrawerAccountInfo();
   updateDropzonePreview();
 }
 
@@ -2603,6 +3261,9 @@ function applyLanguage(){
   applyStaticTexts();
   if(document.getElementById('appRoot').style.display !== 'none'){
     renderAll();
+    if(document.getElementById('screenAccounts').style.display !== 'none') renderAccountsScreen();
+    if(document.getElementById('screenPrivacy').style.display !== 'none') renderPrivacyScreen();
+    if(document.getElementById('screenSettings').style.display !== 'none') renderSettingsScreen();
   }
 }
 
