@@ -2648,6 +2648,7 @@ function activateTab(tabName){
   document.getElementById('statsSubNav').style.display = tabName==='trades' ? 'none' : '';
   document.getElementById('addTradeBtn').style.display = tabName==='trades' ? '' : 'none';
   document.querySelectorAll('#statsSubNav button').forEach(b=> b.classList.toggle('active', b.dataset.tab===tabName));
+  setActiveDrawerNav(tabName==='trades' ? 'trades' : 'stats');
   if(tabName==='trades') renderTradesTable();
   if(tabName==='months') renderMonthsSummary();
 }
@@ -3938,10 +3939,9 @@ document.querySelectorAll('.drawer-nav button[data-screen]').forEach(btn=>{
   btn.addEventListener('click', ()=>{
     const screen = btn.dataset.screen;
     closeDrawer();
-    setActiveDrawerNav(screen);
     if(screen==='stats'){ showScreen('main'); activateTab('dashboard'); }
     else if(screen==='trades'){ showScreen('main'); activateTab('trades'); }
-    else showScreen(screen);
+    else { showScreen(screen); setActiveDrawerNav(screen); }
   });
 });
 
