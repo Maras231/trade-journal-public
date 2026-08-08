@@ -1004,6 +1004,29 @@ table.tradelist tr:hover td{background:var(--surface2);}
 .privacy-text h3{color:var(--text);font-family:'Space Grotesk',sans-serif;font-size:15px;margin:20px 0 8px;}
 .privacy-text p{margin-bottom:10px;}
 
+/* ================= DESKTOP: wyśrodkuj Profil / Konta / Ustawienia / Privacy ================= */
+/* Te ekrany to wąska kolumna, która na szerokim ekranie wyglądała jak przyklejona
+   do lewej krawędzi z ogromną pustą przestrzenią obok. Dotyczy tylko desktopu (min-width:769px) -
+   telefon (poniżej 768px) ma już dobrze dopasowane style i pozostaje bez zmian. */
+@media(min-width:769px){
+  #screenProfile,
+  #screenSettings,
+  #screenPrivacy{
+    max-width:640px;
+    margin-left:auto;
+    margin-right:auto;
+  }
+  #screenAccounts{
+    max-width:860px;
+    margin-left:auto;
+    margin-right:auto;
+  }
+  #screenAccounts .accounts-summary{
+    margin-left:0;
+    margin-right:0;
+  }
+}
+
 /* ================= RESPONSIVE ================= */
 @media(max-width:900px){
   .form-grid{grid-template-columns:1fr;}
