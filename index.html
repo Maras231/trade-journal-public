@@ -764,10 +764,19 @@ table.tradelist tr:hover td{background:var(--surface2);}
 /* ================= SIDE DRAWER ================= */
 .menu-btn{
   background:transparent;border:none;padding:0;cursor:pointer;display:block;
-  border-radius:11px;transition:transform .15s var(--ease),opacity .15s var(--ease);
+  border-radius:11px;
 }
-.menu-btn:hover{opacity:.85;transform:translateY(-1px);}
-.menu-btn:active{transform:translateY(0) scale(.96);}
+.menu-btn .mark{
+  box-sizing:border-box;
+  background:var(--surface2);
+  border:1.5px solid var(--border);
+  border-radius:11px;
+  padding:8px;
+  box-shadow:var(--shadow-sm);
+  transition:border-color .18s var(--ease), background .18s var(--ease), transform .15s var(--ease), box-shadow .18s var(--ease);
+}
+.menu-btn:hover .mark{border-color:var(--gold); background:var(--gold-dim); transform:translateY(-1px); box-shadow:var(--shadow-md);}
+.menu-btn:active .mark{transform:translateY(0) scale(.92);}
 
 .drawer-overlay{
   position:fixed;inset:0;background:rgba(2,3,7,0.6);backdrop-filter:blur(2px);
