@@ -1518,6 +1518,18 @@ table.tradelist tr:hover td{background:var(--surface2);}
   </div>
 
   <div class="panel" style="max-width:520px;margin-top:14px;">
+    <div class="panel-subtitle" id="settingsStorageTitle">Przechowywanie</div>
+    <div class="settings-row">
+      <div>
+        <div class="settings-row-title" id="settingsCompactTitle">Skompresuj stare zdjęcia</div>
+        <div class="settings-row-sub" id="settingsCompactSub">Przenosi zdjęcia zapisane w starym formacie do wydzielonego magazynu, żeby oszczędzić miejsce w bazie</div>
+      </div>
+      <button class="btn" id="settingsCompactBtn">Uruchom</button>
+    </div>
+    <div id="settingsCompactStatus" style="font-size:12px;color:var(--muted);display:none;margin-top:10px;"></div>
+  </div>
+
+  <div class="panel" style="max-width:520px;margin-top:14px;">
     <div class="panel-subtitle" id="settingsAboutTitle">O aplikacji</div>
     <div class="settings-row">
       <div class="settings-row-title" id="settingsVersionTitle">Wersja aplikacji</div>
@@ -1825,6 +1837,11 @@ const I18N = {
     notifyReminderTitle:'Uzupełnij dziennik', notifyReminderBody:'Nie dodałeś dziś żadnej transakcji. Uzupełnij dziennik, zanim zapomnisz szczegóły.',
     notifyTestTitle:'Powiadomienia działają', notifyTestBody:'Tak będzie wyglądać Twoje codzienne przypomnienie.',
     notifyUnsupported:'Twoja przeglądarka nie obsługuje powiadomień.',
+    alertImageUploadFail:'Nie udało się wysłać zdjęcia. Sprawdź połączenie z internetem.',
+    settingsStorageTitle:'Przechowywanie', settingsCompactTitle:'Skompresuj stare zdjęcia',
+    settingsCompactSub:'Przenosi zdjęcia zapisane w starym formacie do wydzielonego magazynu, żeby oszczędzić miejsce w bazie',
+    runCompact:'Uruchom', noLegacyImages:'Wszystkie zdjęcia są już zoptymalizowane.',
+    compactProgress:'Przetworzono {done} z {total} transakcji...', compactDone:'Gotowe. Zoptymalizowano zdjęcia w {n} transakcjach.',
     settingsAboutTitle:'O aplikacji', settingsVersionTitle:'Wersja aplikacji',
     monthsShort:'Miesiące', weekStartMonday:'Poniedziałek', weekStartSunday:'Niedziela',
     profileTotalTradesLabel:'Łącznie zapisanych transakcji',
@@ -1929,6 +1946,11 @@ const I18N = {
     notifyReminderTitle:'Update your journal', notifyReminderBody:'You have not logged any trades today. Update your journal before you forget the details.',
     notifyTestTitle:'Notifications are working', notifyTestBody:'This is what your daily reminder will look like.',
     notifyUnsupported:'Your browser does not support notifications.',
+    alertImageUploadFail:'Failed to upload the image. Check your internet connection.',
+    settingsStorageTitle:'Storage', settingsCompactTitle:'Compact old images',
+    settingsCompactSub:'Moves images stored in the old format into dedicated storage to save space in the database',
+    runCompact:'Run', noLegacyImages:'All images are already optimized.',
+    compactProgress:'Processed {done} of {total} trades...', compactDone:'Done. Optimized images in {n} trades.',
     settingsAboutTitle:'About', settingsVersionTitle:'App version',
     monthsShort:'Months', weekStartMonday:'Monday', weekStartSunday:'Sunday',
     profileTotalTradesLabel:'Total trades logged',
@@ -2033,6 +2055,11 @@ const I18N = {
     notifyReminderTitle:'Tagebuch aktualisieren', notifyReminderBody:'Du hast heute noch keinen Trade erfasst. Aktualisiere dein Tagebuch, bevor du die Details vergisst.',
     notifyTestTitle:'Benachrichtigungen funktionieren', notifyTestBody:'So sieht deine tägliche Erinnerung aus.',
     notifyUnsupported:'Dein Browser unterstützt keine Benachrichtigungen.',
+    alertImageUploadFail:'Das Bild konnte nicht hochgeladen werden. Prüfe deine Internetverbindung.',
+    settingsStorageTitle:'Speicher', settingsCompactTitle:'Alte Bilder komprimieren',
+    settingsCompactSub:'Verschiebt im alten Format gespeicherte Bilder in einen eigenen Speicher, um Platz in der Datenbank zu sparen',
+    runCompact:'Starten', noLegacyImages:'Alle Bilder sind bereits optimiert.',
+    compactProgress:'{done} von {total} Trades verarbeitet...', compactDone:'Fertig. Bilder in {n} Trades optimiert.',
     settingsAboutTitle:'Über die App', settingsVersionTitle:'App-Version',
     monthsShort:'Monate', weekStartMonday:'Montag', weekStartSunday:'Sonntag',
     profileTotalTradesLabel:'Insgesamt erfasste Trades',
@@ -2685,9 +2712,12 @@ const overlay = document.getElementById('modalOverlay');
 function openModal(edit){
   overlay.classList.add('open');
   document.getElementById('f-rr').classList.remove('invalid');
+  pendingUploadedPaths = [];
+  pendingRemovedPaths = [];
   if(edit){
     document.getElementById('modalTitle').textContent = t('editTradeTitle');
     document.getElementById('tradeId').value = edit.id;
+    pendingTradeId = edit.id;
     setDpDate(edit.date);
     document.getElementById('f-symbol').value = edit.symbol;
     document.getElementById('f-direction').value = edit.direction;
@@ -2703,6 +2733,7 @@ function openModal(edit){
     document.getElementById('modalTitle').textContent = t('newTradeTitle');
     document.getElementById('tradeForm').reset();
     document.getElementById('tradeId').value = '';
+    pendingTradeId = uid();
     dpViewDate = new Date();
     setDpDate(new Date().toISOString().slice(0,10));
     document.getElementById('f-breakeven').checked = false;
@@ -2737,15 +2768,39 @@ function updateBeToggleVisual(){
   document.getElementById('beToggleLabel').classList.toggle('checked', document.getElementById('f-breakeven').checked);
 }
 document.getElementById('f-breakeven').addEventListener('change', updateBeToggleVisual);
-function closeModal(){ overlay.classList.remove('open'); closeDpPanel(); }
+function closeModal(){
+  overlay.classList.remove('open');
+  closeDpPanel();
+  // zdjęcia wgrane w tej sesji, które nigdy nie zostały zapisane do transakcji - do skasowania
+  if(pendingUploadedPaths.length){
+    sb.storage.from(IMAGES_BUCKET).remove(pendingUploadedPaths).catch(()=>{});
+  }
+  pendingUploadedPaths = [];
+  pendingRemovedPaths = [];
+}
 document.getElementById('addTradeBtn').addEventListener('click', ()=>openModal(null));
 document.getElementById('closeModal').addEventListener('click', closeModal);
 document.getElementById('cancelBtn').addEventListener('click', closeModal);
 overlay.addEventListener('click', e=>{ if(e.target===overlay) closeModal(); });
 
-/* image upload */
+/* ============ image upload (Supabase Storage) ============ */
+const IMAGES_BUCKET = 'trade-images';
+let pendingTradeId = null;       // id transakcji używane jako ścieżka w Storage
+let pendingUploadedPaths = [];   // świeżo wgrane w tej sesji - kasowane przy Anuluj
+let pendingRemovedPaths = [];    // usunięte istniejące zdjęcia - kasowane dopiero po Zapisz
+
+function imageUrl(value){
+  if(!value) return '';
+  if(value.startsWith('data:') || value.startsWith('http://') || value.startsWith('https://')) return value;
+  const { data } = sb.storage.from(IMAGES_BUCKET).getPublicUrl(value);
+  return data ? data.publicUrl : '';
+}
+function isStoragePath(value){
+  return !!value && !value.startsWith('data:') && !value.startsWith('http://') && !value.startsWith('https://');
+}
+
 const fImage = document.getElementById('f-image');
-function resizeImageFile(file, maxDim, quality){
+function resizeImageToBlob(file, maxDim, quality){
   return new Promise((resolve)=>{
     const reader = new FileReader();
     reader.onload = ev=>{
@@ -2759,9 +2814,9 @@ function resizeImageFile(file, maxDim, quality){
         const canvas = document.createElement('canvas');
         canvas.width = w; canvas.height = h;
         canvas.getContext('2d').drawImage(img, 0, 0, w, h);
-        resolve(canvas.toDataURL('image/jpeg', quality));
+        canvas.toBlob((blob)=> resolve(blob), 'image/jpeg', quality);
       };
-      img.onerror = ()=> resolve(ev.target.result);
+      img.onerror = ()=> resolve(null);
       img.src = ev.target.result;
     };
     reader.readAsDataURL(file);
@@ -2770,10 +2825,15 @@ function resizeImageFile(file, maxDim, quality){
 async function handleImageFiles(fileList){
   const files = Array.from(fileList).slice(0, MAX_IMAGES - currentImages.length);
   for(const file of files){
-    const dataUrl = await resizeImageFile(file, 1280, 0.82);
-    currentImages.push(dataUrl);
+    const blob = await resizeImageToBlob(file, 1280, 0.78);
+    if(!blob) continue;
+    const path = `${currentUser.id}/${pendingTradeId}/${Date.now()}_${Math.random().toString(36).slice(2,8)}.jpg`;
+    const { error } = await sb.storage.from(IMAGES_BUCKET).upload(path, blob, { contentType: 'image/jpeg', upsert: false });
+    if(error){ console.error('Błąd wysyłania zdjęcia:', error); customAlert(t('alertImageUploadFail'), {danger:true}); continue; }
+    currentImages.push(path);
+    pendingUploadedPaths.push(path);
+    renderImageGrid();
   }
-  renderImageGrid();
 }
 fImage.addEventListener('change', e=>{
   if(e.target.files && e.target.files.length) handleImageFiles(e.target.files);
@@ -2786,9 +2846,9 @@ function getTradeImages(tr){
 }
 function renderImageGrid(){
   const grid = document.getElementById('imageGrid');
-  let html = currentImages.map((src, i)=>`
+  let html = currentImages.map((path, i)=>`
     <div class="image-slot">
-      <img src="${src}">
+      <img src="${imageUrl(path)}">
       <button type="button" class="img-remove" data-idx="${i}">✕</button>
     </div>`).join('');
   if(currentImages.length < MAX_IMAGES){
@@ -2802,10 +2862,27 @@ function renderImageGrid(){
   if(addTile) addTile.addEventListener('click', ()=> fImage.click());
   grid.querySelectorAll('.img-remove').forEach(btn=>{
     btn.addEventListener('click', ()=>{
-      currentImages.splice(Number(btn.dataset.idx), 1);
+      const idx = Number(btn.dataset.idx);
+      const path = currentImages[idx];
+      currentImages.splice(idx, 1);
       renderImageGrid();
+      if(isStoragePath(path)){
+        const freshIdx = pendingUploadedPaths.indexOf(path);
+        if(freshIdx > -1){
+          // nigdy nie zostało zapisane do żadnej transakcji - można od razu skasować
+          pendingUploadedPaths.splice(freshIdx, 1);
+          sb.storage.from(IMAGES_BUCKET).remove([path]).catch(()=>{});
+        } else {
+          // zdjęcie należało do zapisanej transakcji - kasujemy dopiero po potwierdzeniu zapisu
+          pendingRemovedPaths.push(path);
+        }
+      }
     });
   });
+}
+function deleteTradeImages(tr){
+  const paths = getTradeImages(tr).filter(isStoragePath);
+  if(paths.length) sb.storage.from(IMAGES_BUCKET).remove(paths).catch(()=>{});
 }
 
 /* form submit */
@@ -2834,7 +2911,7 @@ document.getElementById('tradeForm').addEventListener('submit', async e=>{
   }
   const id = document.getElementById('tradeId').value;
   const data = {
-    id: id || uid(),
+    id: id || pendingTradeId || uid(),
     accountId: id ? (allTrades.find(t=>t.id===id)?.accountId || currentAccountId) : currentAccountId,
     date: document.getElementById('f-date').value,
     symbol: document.getElementById('f-symbol').value.trim().toUpperCase(),
@@ -2854,10 +2931,15 @@ document.getElementById('tradeForm').addEventListener('submit', async e=>{
     allTrades.push(data);
   }
   refreshScopedTrades();
+  // zapis potwierdzony - teraz bezpiecznie kasujemy zdjęcia usunięte podczas edycji
+  const toDelete = pendingRemovedPaths.slice();
+  pendingUploadedPaths = [];
+  pendingRemovedPaths = [];
   closeModal();
   renderAll();
   updateDrawerAccountInfo();
   await saveTradeToDb(data);
+  if(toDelete.length) sb.storage.from(IMAGES_BUCKET).remove(toDelete).catch(()=>{});
 });
 
 /* ============ STATS ============ */
@@ -3501,7 +3583,7 @@ function renderTradesTable(){
     <tbody>
       ${pageList.map(t2=>`
         <tr class="trade-row-clickable" data-tradeid="${t2.id}">
-          <td>${getTradeImages(t2)[0] ? `<img class="thumb" src="${getTradeImages(t2)[0]}">` : ''}</td>
+          <td>${getTradeImages(t2)[0] ? `<img class="thumb" src="${imageUrl(getTradeImages(t2)[0])}">` : ''}</td>
           <td style="font-family:'Inter',sans-serif;">${fmtDateWords(t2.date)}</td>
           <td><strong>${t2.symbol}</strong></td>
           <td><span class="tag ${t2.direction}">${t2.direction}</span>${t2.breakeven?' <span class="tag be">BE</span>':''}</td>
@@ -3549,11 +3631,13 @@ window.editTrade = function(id){
 };
 window.deleteTrade = async function(id){
   if(await customConfirm(t('confirmDeleteTrade'), {danger:true})){
+    const tr = allTrades.find(x=>x.id===id);
     allTrades = allTrades.filter(t=>t.id!==id);
     refreshScopedTrades();
     renderAll();
     updateDrawerAccountInfo();
     deleteTradeFromDb(id);
+    if(tr) deleteTradeImages(tr);
   }
 };
 
@@ -3566,7 +3650,7 @@ function openTradeDetail(id){
   const tr = allTrades.find(x=>x.id===id);
   if(!tr) return;
   detailTradeId = id;
-  const imgs = getTradeImages(tr);
+  const imgs = getTradeImages(tr).map(imageUrl);
 
   document.getElementById('tradeDetailTitle').innerHTML =
     `${escapeHtml(tr.symbol)} <span class="tag ${tr.direction}" style="margin-left:8px;vertical-align:middle;">${tr.direction}</span>${tr.breakeven?' <span class="tag be" style="vertical-align:middle;">BE</span>':''}`;
@@ -4036,7 +4120,49 @@ function renderSettingsScreen(){
   document.getElementById('settingsNotifyTimeInput').value = getNotifyTime();
   updateNotifyRowsVisibility();
   document.getElementById('settingsVersionValue').textContent = 'v' + APP_VERSION;
+  const legacyCount = allTrades.filter(tr=> getTradeImages(tr).some(p=>p && p.startsWith('data:'))).length;
+  const compactBtn = document.getElementById('settingsCompactBtn');
+  compactBtn.textContent = legacyCount ? `${t('runCompact')} (${legacyCount})` : t('runCompact');
+  compactBtn.disabled = legacyCount === 0;
 }
+async function compactLegacyImages(){
+  const legacyTrades = allTrades.filter(tr=> getTradeImages(tr).some(p=>p && p.startsWith('data:')));
+  if(!legacyTrades.length){ await customAlert(t('noLegacyImages')); return; }
+  const statusEl = document.getElementById('settingsCompactStatus');
+  const btn = document.getElementById('settingsCompactBtn');
+  btn.disabled = true;
+  statusEl.style.display = 'block';
+  let done = 0;
+  for(const tr of legacyTrades){
+    statusEl.textContent = t('compactProgress').replace('{done}', done).replace('{total}', legacyTrades.length);
+    const imgs = getTradeImages(tr);
+    const newImgs = [];
+    for(let i=0;i<imgs.length;i++){
+      const val = imgs[i];
+      if(val && val.startsWith('data:')){
+        try{
+          const blob = await (await fetch(val)).blob();
+          const path = `${currentUser.id}/${tr.id}/${Date.now()}_${i}_${Math.random().toString(36).slice(2,6)}.jpg`;
+          const { error } = await sb.storage.from(IMAGES_BUCKET).upload(path, blob, { contentType: 'image/jpeg', upsert: true });
+          newImgs.push(error ? val : path);
+        }catch(e){ newImgs.push(val); }
+      } else {
+        newImgs.push(val);
+      }
+    }
+    tr.images = newImgs;
+    tr.image = newImgs[0] || null;
+    await saveTradeToDb(tr);
+    done++;
+  }
+  refreshScopedTrades();
+  renderAll();
+  statusEl.style.display = 'none';
+  btn.disabled = false;
+  renderSettingsScreen();
+  await customAlert(t('compactDone').replace('{n}', done));
+}
+document.getElementById('settingsCompactBtn').addEventListener('click', compactLegacyImages);
 document.getElementById('settingsNotifyToggle').addEventListener('change', async (e)=>{
   const enabled = e.target.checked;
   if(enabled && 'Notification' in window){
@@ -4192,6 +4318,9 @@ function applyStaticTexts(){
   document.getElementById('settingsNotifyTestBtn').textContent = t('settingsNotifyTestBtn');
   document.getElementById('settingsAboutTitle').textContent = t('settingsAboutTitle');
   document.getElementById('settingsVersionTitle').textContent = t('settingsVersionTitle');
+  document.getElementById('settingsStorageTitle').textContent = t('settingsStorageTitle');
+  document.getElementById('settingsCompactTitle').textContent = t('settingsCompactTitle');
+  document.getElementById('settingsCompactSub').textContent = t('settingsCompactSub');
   document.getElementById('profileTotalTradesLabel').textContent = t('profileTotalTradesLabel');
   document.getElementById('profilePasswordTitle').textContent = t('profilePasswordTitle');
   document.getElementById('profileNewPasswordLabel').textContent = t('profileNewPasswordLabel');
