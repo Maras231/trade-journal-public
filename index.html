@@ -376,6 +376,7 @@ table.tradelist tr:hover td{background:var(--surface2);}
 .dp-input.open{border-color:var(--gold);box-shadow:0 0 0 3px rgba(232,184,75,.12);}
 .dp-input svg{color:var(--muted);flex:none;}
 .dp-input.invalid{border-color:var(--loss);}
+.field input.invalid{border-color:var(--loss) !important;box-shadow:0 0 0 3px rgba(255,107,107,.12) !important;}
 .dp-panel{
   position:absolute;top:calc(100% + 8px);left:0;z-index:50;width:280px;max-width:calc(100vw - 60px);
   background:var(--surface);border:1px solid var(--border);border-radius:12px;
@@ -1803,6 +1804,7 @@ const I18N = {
     profileTotalTradesLabel:'Łącznie zapisanych transakcji',
     profilePasswordTitle:'Zmiana hasła', profileNewPasswordLabel:'Nowe hasło', profileConfirmPasswordLabel:'Powtórz nowe hasło',
     profileChangePasswordBtn:'Zmień hasło',
+    rrSignMismatch:'Znak RR musi zgadzać się ze znakiem P/L. Jeśli P/L jest ujemne, RR też musi być ujemne (i odwrotnie dla dodatniego).',
   },
   en: {
     tagline:'Your trade journal & analytics',
@@ -1899,6 +1901,7 @@ const I18N = {
     profileTotalTradesLabel:'Total trades logged',
     profilePasswordTitle:'Change password', profileNewPasswordLabel:'New password', profileConfirmPasswordLabel:'Confirm new password',
     profileChangePasswordBtn:'Change password',
+    rrSignMismatch:'The RR sign must match the P/L sign. If P/L is negative, RR must be negative too (and vice versa for positive).',
   },
   de: {
     tagline:'Dein Handelstagebuch & Analysen',
@@ -1995,6 +1998,7 @@ const I18N = {
     profileTotalTradesLabel:'Insgesamt erfasste Trades',
     profilePasswordTitle:'Passwort ändern', profileNewPasswordLabel:'Neues Passwort', profileConfirmPasswordLabel:'Neues Passwort wiederholen',
     profileChangePasswordBtn:'Passwort ändern',
+    rrSignMismatch:'Das Vorzeichen von RR muss zum Vorzeichen von P/L passen. Bei negativem P/L muss auch RR negativ sein (und umgekehrt bei positivem).',
   }
 };
 
@@ -2589,6 +2593,7 @@ document.addEventListener('click', ()=>closeDpPanel());
 const overlay = document.getElementById('modalOverlay');
 function openModal(edit){
   overlay.classList.add('open');
+  document.getElementById('f-rr').classList.remove('invalid');
   if(edit){
     document.getElementById('modalTitle').textContent = t('editTradeTitle');
     document.getElementById('tradeId').value = edit.id;
@@ -2623,6 +2628,12 @@ function setConfidence(val){
   });
   if(val > 0) document.getElementById('confidencePanel').classList.remove('invalid');
 }
+document.getElementById('f-pnl').addEventListener('input', ()=>{
+  document.getElementById('f-rr').classList.remove('invalid');
+});
+document.getElementById('f-rr').addEventListener('input', ()=>{
+  document.getElementById('f-rr').classList.remove('invalid');
+});
 document.getElementById('confidenceStars').addEventListener('click', (e)=>{
   const btn = e.target.closest('.star-btn');
   if(!btn) return;
@@ -2718,6 +2729,16 @@ document.getElementById('tradeForm').addEventListener('submit', async e=>{
     const panel = document.getElementById('confidencePanel');
     panel.classList.add('invalid');
     panel.scrollIntoView({behavior:'smooth', block:'center'});
+    return;
+  }
+  const pnlVal = parseFloat(document.getElementById('f-pnl').value) || 0;
+  const rrInput = document.getElementById('f-rr');
+  const rrVal = rrInput.value !== '' ? parseFloat(rrInput.value) : null;
+  const isBreakeven = document.getElementById('f-breakeven').checked;
+  if(!isBreakeven && rrVal !== null && ((pnlVal > 0 && rrVal <= 0) || (pnlVal < 0 && rrVal >= 0))){
+    rrInput.classList.add('invalid');
+    rrInput.focus();
+    await customAlert(t('rrSignMismatch'), {danger:true});
     return;
   }
   const id = document.getElementById('tradeId').value;
