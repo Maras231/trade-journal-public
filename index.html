@@ -1535,25 +1535,6 @@ table.tradelist tr:hover td{background:var(--surface2);}
       </div>
       <input type="time" id="settingsNotifyTimeInput" class="profile-input" style="width:110px;">
     </div>
-    <div class="settings-row" id="settingsNotifyTestRow" style="display:none;">
-      <div>
-        <div class="settings-row-title" id="settingsNotifyTestTitle">Sprawdź, czy działa</div>
-        <div class="settings-row-sub" id="settingsNotifyTestSub">Wyślij testowe powiadomienie od razu</div>
-      </div>
-      <button class="btn" id="settingsNotifyTestBtn">Wyślij test</button>
-    </div>
-  </div>
-
-  <div class="panel" style="max-width:520px;margin-top:14px;">
-    <div class="panel-subtitle" id="settingsStorageTitle">Przechowywanie</div>
-    <div class="settings-row">
-      <div>
-        <div class="settings-row-title" id="settingsCompactTitle">Skompresuj stare zdjęcia</div>
-        <div class="settings-row-sub" id="settingsCompactSub">Przenosi zdjęcia zapisane w starym formacie do wydzielonego magazynu, żeby oszczędzić miejsce w bazie</div>
-      </div>
-      <button class="btn" id="settingsCompactBtn">Uruchom</button>
-    </div>
-    <div id="settingsCompactStatus" style="font-size:12px;color:var(--muted);display:none;margin-top:10px;"></div>
   </div>
 
   <div class="panel" style="max-width:520px;margin-top:14px;">
@@ -1561,6 +1542,10 @@ table.tradelist tr:hover td{background:var(--surface2);}
     <div class="settings-row">
       <div class="settings-row-title" id="settingsVersionTitle">Wersja aplikacji</div>
       <span class="profile-row-value" id="settingsVersionValue"></span>
+    </div>
+    <div class="settings-row">
+      <div class="settings-row-title" id="settingsContactTitle">Kontakt</div>
+      <a href="mailto:wickjournalapp@gmail.com" class="profile-row-value" style="color:var(--gold);text-decoration:none;">wickjournalapp@gmail.com</a>
     </div>
   </div>
 
@@ -1866,16 +1851,11 @@ const I18N = {
     settingsNotifTitle:'Powiadomienia', settingsNotifyTitle:'Przypomnienia o dzienniku',
     settingsNotifySub:'Powiadomienia przeglądarki, gdy appka jest otwarta',
     settingsNotifyTimeTitle:'Godzina przypomnienia', settingsNotifyTimeSub:'Jeśli nie dodasz transakcji tego dnia',
-    settingsNotifyTestTitle:'Sprawdź, czy działa', settingsNotifyTestSub:'Wyślij testowe powiadomienie od razu',
-    settingsNotifyTestBtn:'Wyślij test',
     notifyReminderTitle:'Uzupełnij dziennik', notifyReminderBody:'Nie dodałeś dziś żadnej transakcji. Uzupełnij dziennik, zanim zapomnisz szczegóły.',
     notifyTestTitle:'Powiadomienia działają', notifyTestBody:'Tak będzie wyglądać Twoje codzienne przypomnienie.',
     notifyUnsupported:'Twoja przeglądarka nie obsługuje powiadomień.',
     alertImageUploadFail:'Nie udało się wysłać zdjęcia. Sprawdź połączenie z internetem.',
-    settingsStorageTitle:'Przechowywanie', settingsCompactTitle:'Skompresuj stare zdjęcia',
-    settingsCompactSub:'Przenosi zdjęcia zapisane w starym formacie do wydzielonego magazynu, żeby oszczędzić miejsce w bazie',
-    runCompact:'Uruchom', noLegacyImages:'Wszystkie zdjęcia są już zoptymalizowane.',
-    compactProgress:'Przetworzono {done} z {total} transakcji...', compactDone:'Gotowe. Zoptymalizowano zdjęcia w {n} transakcjach.',
+    settingsContactTitle:'Kontakt',
     undoLabel:'Cofnij', tradeDeletedToast:'Transakcja usunięta.',
     allYears:'Wszystkie lata',
     settingsAboutTitle:'O aplikacji', settingsVersionTitle:'Wersja aplikacji',
@@ -1977,16 +1957,11 @@ const I18N = {
     settingsNotifTitle:'Notifications', settingsNotifyTitle:'Journal reminders',
     settingsNotifySub:'Browser notifications while the app is open',
     settingsNotifyTimeTitle:'Reminder time', settingsNotifyTimeSub:'If you have not logged a trade that day',
-    settingsNotifyTestTitle:'Check it works', settingsNotifyTestSub:'Send a test notification right now',
-    settingsNotifyTestBtn:'Send test',
     notifyReminderTitle:'Update your journal', notifyReminderBody:'You have not logged any trades today. Update your journal before you forget the details.',
     notifyTestTitle:'Notifications are working', notifyTestBody:'This is what your daily reminder will look like.',
     notifyUnsupported:'Your browser does not support notifications.',
     alertImageUploadFail:'Failed to upload the image. Check your internet connection.',
-    settingsStorageTitle:'Storage', settingsCompactTitle:'Compact old images',
-    settingsCompactSub:'Moves images stored in the old format into dedicated storage to save space in the database',
-    runCompact:'Run', noLegacyImages:'All images are already optimized.',
-    compactProgress:'Processed {done} of {total} trades...', compactDone:'Done. Optimized images in {n} trades.',
+    settingsContactTitle:'Contact',
     undoLabel:'Undo', tradeDeletedToast:'Trade deleted.',
     allYears:'All years',
     settingsAboutTitle:'About', settingsVersionTitle:'App version',
@@ -2088,16 +2063,11 @@ const I18N = {
     settingsNotifTitle:'Benachrichtigungen', settingsNotifyTitle:'Tagebuch-Erinnerungen',
     settingsNotifySub:'Browser-Benachrichtigungen, während die App geöffnet ist',
     settingsNotifyTimeTitle:'Erinnerungszeit', settingsNotifyTimeSub:'Falls du diesen Tag keinen Trade erfasst hast',
-    settingsNotifyTestTitle:'Funktion prüfen', settingsNotifyTestSub:'Sende jetzt eine Testbenachrichtigung',
-    settingsNotifyTestBtn:'Test senden',
     notifyReminderTitle:'Tagebuch aktualisieren', notifyReminderBody:'Du hast heute noch keinen Trade erfasst. Aktualisiere dein Tagebuch, bevor du die Details vergisst.',
     notifyTestTitle:'Benachrichtigungen funktionieren', notifyTestBody:'So sieht deine tägliche Erinnerung aus.',
     notifyUnsupported:'Dein Browser unterstützt keine Benachrichtigungen.',
     alertImageUploadFail:'Das Bild konnte nicht hochgeladen werden. Prüfe deine Internetverbindung.',
-    settingsStorageTitle:'Speicher', settingsCompactTitle:'Alte Bilder komprimieren',
-    settingsCompactSub:'Verschiebt im alten Format gespeicherte Bilder in einen eigenen Speicher, um Platz in der Datenbank zu sparen',
-    runCompact:'Starten', noLegacyImages:'Alle Bilder sind bereits optimiert.',
-    compactProgress:'{done} von {total} Trades verarbeitet...', compactDone:'Fertig. Bilder in {n} Trades optimiert.',
+    settingsContactTitle:'Kontakt',
     undoLabel:'Rückgängig', tradeDeletedToast:'Trade gelöscht.',
     allYears:'Alle Jahre',
     settingsAboutTitle:'Über die App', settingsVersionTitle:'App-Version',
@@ -2157,6 +2127,15 @@ const NOTIFY_TIME_KEY = 'tj_notify_time';
 const NOTIFY_LAST_SHOWN_KEY = 'tj_notify_last_shown';
 const APP_VERSION = '1.0.0';
 function getDefaultView(){ return localStorage.getItem(DEFAULT_VIEW_KEY) || 'dashboard'; }
+function applyDefaultView(){
+  const view = getDefaultView();
+  if(view === 'accounts'){
+    showScreen('accounts');
+    setActiveDrawerNav('accounts');
+  } else {
+    activateTab(view === 'trades' ? 'trades' : 'dashboard');
+  }
+}
 function getWeekStart(){ return localStorage.getItem(WEEK_START_KEY) || 'monday'; }
 function getNotifyEnabled(){ return localStorage.getItem(NOTIFY_KEY) === '1'; }
 function getNotifyTime(){ return localStorage.getItem(NOTIFY_TIME_KEY) || '20:00'; }
@@ -2516,7 +2495,7 @@ document.getElementById('resetForm').addEventListener('submit', async (e)=>{
     if(!dataLoaded){
       await loadAllData();
       renderAll();
-      activateTab(getDefaultView());
+      applyDefaultView();
     }
   }, 1200);
 });
@@ -2551,7 +2530,7 @@ async function initAuth(){
       await ensureUsername();
       await loadAllData();
       renderAll();
-      activateTab(getDefaultView());
+      applyDefaultView();
     } else {
       showAuthGate(true);
     }
@@ -2575,7 +2554,7 @@ async function initAuth(){
       if(!dataLoaded){
         await loadAllData();
         renderAll();
-        activateTab(getDefaultView());
+        applyDefaultView();
       }
     } else if(event === 'SIGNED_OUT'){
       currentUser = null;
@@ -4244,7 +4223,7 @@ function renderSettingsScreen(){
   const currentView = getDefaultView();
   const viewOptions = [
     {key:'dashboard', label:t('tabDashboard')},
-    {key:'months', label:t('monthsShort')},
+    {key:'accounts', label:t('drawerNavAccounts')},
     {key:'trades', label:t('drawerNavTrades')}
   ];
   viewWrap.innerHTML = viewOptions.map(o=>`<button type="button" data-view="${o.key}" class="${o.key===currentView?'active':''}">${o.label}</button>`).join('');
@@ -4274,49 +4253,7 @@ function renderSettingsScreen(){
   document.getElementById('settingsNotifyTimeInput').value = getNotifyTime();
   updateNotifyRowsVisibility();
   document.getElementById('settingsVersionValue').textContent = 'v' + APP_VERSION;
-  const legacyCount = allTrades.filter(tr=> getTradeImages(tr).some(p=>p && p.startsWith('data:'))).length;
-  const compactBtn = document.getElementById('settingsCompactBtn');
-  compactBtn.textContent = legacyCount ? `${t('runCompact')} (${legacyCount})` : t('runCompact');
-  compactBtn.disabled = legacyCount === 0;
 }
-async function compactLegacyImages(){
-  const legacyTrades = allTrades.filter(tr=> getTradeImages(tr).some(p=>p && p.startsWith('data:')));
-  if(!legacyTrades.length){ await customAlert(t('noLegacyImages')); return; }
-  const statusEl = document.getElementById('settingsCompactStatus');
-  const btn = document.getElementById('settingsCompactBtn');
-  btn.disabled = true;
-  statusEl.style.display = 'block';
-  let done = 0;
-  for(const tr of legacyTrades){
-    statusEl.textContent = t('compactProgress').replace('{done}', done).replace('{total}', legacyTrades.length);
-    const imgs = getTradeImages(tr);
-    const newImgs = [];
-    for(let i=0;i<imgs.length;i++){
-      const val = imgs[i];
-      if(val && val.startsWith('data:')){
-        try{
-          const blob = await (await fetch(val)).blob();
-          const path = `${currentUser.id}/${tr.id}/${Date.now()}_${i}_${Math.random().toString(36).slice(2,6)}.jpg`;
-          const { error } = await sb.storage.from(IMAGES_BUCKET).upload(path, blob, { contentType: 'image/jpeg', upsert: true });
-          newImgs.push(error ? val : path);
-        }catch(e){ newImgs.push(val); }
-      } else {
-        newImgs.push(val);
-      }
-    }
-    tr.images = newImgs;
-    tr.image = newImgs[0] || null;
-    await saveTradeToDb(tr);
-    done++;
-  }
-  refreshScopedTrades();
-  renderAll();
-  statusEl.style.display = 'none';
-  btn.disabled = false;
-  renderSettingsScreen();
-  await customAlert(t('compactDone').replace('{n}', done));
-}
-document.getElementById('settingsCompactBtn').addEventListener('click', compactLegacyImages);
 document.getElementById('settingsNotifyToggle').addEventListener('change', async (e)=>{
   const enabled = e.target.checked;
   if(enabled && 'Notification' in window){
@@ -4332,18 +4269,9 @@ document.getElementById('settingsNotifyToggle').addEventListener('change', async
 function updateNotifyRowsVisibility(){
   const on = getNotifyEnabled();
   document.getElementById('settingsNotifyTimeRow').style.display = on ? '' : 'none';
-  document.getElementById('settingsNotifyTestRow').style.display = on ? '' : 'none';
 }
 document.getElementById('settingsNotifyTimeInput').addEventListener('change', (e)=>{
   if(e.target.value) localStorage.setItem(NOTIFY_TIME_KEY, e.target.value);
-});
-document.getElementById('settingsNotifyTestBtn').addEventListener('click', async ()=>{
-  if(!('Notification' in window)){ customAlert(t('notifyUnsupported')); return; }
-  if(Notification.permission !== 'granted'){
-    const perm = await Notification.requestPermission();
-    if(perm !== 'granted') return;
-  }
-  showAppNotification(t('notifyTestTitle'), t('notifyTestBody'));
 });
 
 /* ============ SCREEN: PRIVACY POLICY ============ */
@@ -4467,14 +4395,9 @@ function applyStaticTexts(){
   document.getElementById('settingsNotifySub').textContent = t('settingsNotifySub');
   document.getElementById('settingsNotifyTimeTitle').textContent = t('settingsNotifyTimeTitle');
   document.getElementById('settingsNotifyTimeSub').textContent = t('settingsNotifyTimeSub');
-  document.getElementById('settingsNotifyTestTitle').textContent = t('settingsNotifyTestTitle');
-  document.getElementById('settingsNotifyTestSub').textContent = t('settingsNotifyTestSub');
-  document.getElementById('settingsNotifyTestBtn').textContent = t('settingsNotifyTestBtn');
   document.getElementById('settingsAboutTitle').textContent = t('settingsAboutTitle');
   document.getElementById('settingsVersionTitle').textContent = t('settingsVersionTitle');
-  document.getElementById('settingsStorageTitle').textContent = t('settingsStorageTitle');
-  document.getElementById('settingsCompactTitle').textContent = t('settingsCompactTitle');
-  document.getElementById('settingsCompactSub').textContent = t('settingsCompactSub');
+  document.getElementById('settingsContactTitle').textContent = t('settingsContactTitle');
   document.getElementById('profileTotalTradesLabel').textContent = t('profileTotalTradesLabel');
   document.getElementById('profilePasswordTitle').textContent = t('profilePasswordTitle');
   document.getElementById('profileNewPasswordLabel').textContent = t('profileNewPasswordLabel');
