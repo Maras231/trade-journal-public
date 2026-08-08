@@ -488,6 +488,27 @@ table.tradelist tr:hover td{background:var(--surface2);}
   color:rgba(255,255,255,0.7);font-size:12.5px;font-family:'JetBrains Mono',monospace;
 }
 
+.toast{
+  position:fixed;bottom:24px;left:50%;
+  transform:translateX(-50%) translateY(90px);
+  background:var(--surface);border:1px solid var(--border);border-radius:12px;
+  padding:14px 16px;display:flex;align-items:center;gap:14px;
+  box-shadow:var(--shadow-lg);z-index:800;opacity:0;pointer-events:none;
+  transition:transform .3s var(--ease), opacity .3s var(--ease);
+  max-width:calc(100vw - 32px);overflow:hidden;
+}
+.toast.show{transform:translateX(-50%) translateY(0); opacity:1; pointer-events:auto;}
+.toast span{font-size:13.5px;color:var(--text);white-space:nowrap;}
+.toast-undo-btn{
+  background:var(--gold-dim);border:1px solid var(--gold);color:var(--gold);
+  padding:6px 14px;border-radius:8px;font-size:12.5px;font-weight:700;cursor:pointer;flex:none;
+  transition:background .15s var(--ease);
+}
+.toast-undo-btn:hover{background:rgba(232,184,75,0.22);}
+.toast-progress{
+  position:absolute;bottom:0;left:0;height:2px;background:var(--gold);width:100%;
+}
+
 .dialog-overlay{z-index:700;}
 .dialog-modal{
   max-width:380px;text-align:center;padding:30px 26px 26px;
@@ -1676,6 +1697,13 @@ table.tradelist tr:hover td{background:var(--surface2);}
   </div>
 </div>
 
+<!-- UNDO TOAST -->
+<div class="toast" id="undoToast">
+  <span id="undoToastText">Transakcja usunięta.</span>
+  <button type="button" class="toast-undo-btn" id="undoToastBtn">Cofnij</button>
+  <div class="toast-progress" id="undoToastProgress"></div>
+</div>
+
 <!-- LIGHTBOX -->
 <div class="lightbox" id="lightbox">
   <button class="lightbox-close" id="lightboxClose">✕</button>
@@ -1842,6 +1870,7 @@ const I18N = {
     settingsCompactSub:'Przenosi zdjęcia zapisane w starym formacie do wydzielonego magazynu, żeby oszczędzić miejsce w bazie',
     runCompact:'Uruchom', noLegacyImages:'Wszystkie zdjęcia są już zoptymalizowane.',
     compactProgress:'Przetworzono {done} z {total} transakcji...', compactDone:'Gotowe. Zoptymalizowano zdjęcia w {n} transakcjach.',
+    undoLabel:'Cofnij', tradeDeletedToast:'Transakcja usunięta.',
     settingsAboutTitle:'O aplikacji', settingsVersionTitle:'Wersja aplikacji',
     monthsShort:'Miesiące', weekStartMonday:'Poniedziałek', weekStartSunday:'Niedziela',
     profileTotalTradesLabel:'Łącznie zapisanych transakcji',
@@ -1951,6 +1980,7 @@ const I18N = {
     settingsCompactSub:'Moves images stored in the old format into dedicated storage to save space in the database',
     runCompact:'Run', noLegacyImages:'All images are already optimized.',
     compactProgress:'Processed {done} of {total} trades...', compactDone:'Done. Optimized images in {n} trades.',
+    undoLabel:'Undo', tradeDeletedToast:'Trade deleted.',
     settingsAboutTitle:'About', settingsVersionTitle:'App version',
     monthsShort:'Months', weekStartMonday:'Monday', weekStartSunday:'Sunday',
     profileTotalTradesLabel:'Total trades logged',
@@ -2060,6 +2090,7 @@ const I18N = {
     settingsCompactSub:'Verschiebt im alten Format gespeicherte Bilder in einen eigenen Speicher, um Platz in der Datenbank zu sparen',
     runCompact:'Starten', noLegacyImages:'Alle Bilder sind bereits optimiert.',
     compactProgress:'{done} von {total} Trades verarbeitet...', compactDone:'Fertig. Bilder in {n} Trades optimiert.',
+    undoLabel:'Rückgängig', tradeDeletedToast:'Trade gelöscht.',
     settingsAboutTitle:'Über die App', settingsVersionTitle:'App-Version',
     monthsShort:'Monate', weekStartMonday:'Montag', weekStartSunday:'Sonntag',
     profileTotalTradesLabel:'Insgesamt erfasste Trades',
@@ -3629,16 +3660,68 @@ window.editTrade = function(id){
   const tr = trades.find(x=>x.id===id);
   if(tr) openModal(tr);
 };
-window.deleteTrade = async function(id){
-  if(await customConfirm(t('confirmDeleteTrade'), {danger:true})){
-    const tr = allTrades.find(x=>x.id===id);
-    allTrades = allTrades.filter(t=>t.id!==id);
-    refreshScopedTrades();
-    renderAll();
-    updateDrawerAccountInfo();
-    deleteTradeFromDb(id);
-    if(tr) deleteTradeImages(tr);
+function showUndoToast(message, durationMs, onExpire, onUndo){
+  const toast = document.getElementById('undoToast');
+  document.getElementById('undoToastText').textContent = message;
+  document.getElementById('undoToastBtn').textContent = t('undoLabel');
+  const progress = document.getElementById('undoToastProgress');
+  const btn = document.getElementById('undoToastBtn');
+
+  // jeśli jest już aktywny toast, natychmiast finalizuj poprzednie usunięcie
+  if(toast._pendingExpire){ toast._pendingExpire(); }
+  clearTimeout(toast._timeoutId);
+
+  toast.classList.add('show');
+  progress.style.transition = 'none';
+  progress.style.width = '100%';
+  void progress.offsetWidth; // wymuś reflow, żeby przejście zadziałało od nowa
+  progress.style.transition = `width ${durationMs}ms linear`;
+  progress.style.width = '0%';
+
+  let done = false;
+  function finalize(){
+    if(done) return;
+    done = true;
+    toast._pendingExpire = null;
+    onExpire();
   }
+  toast._pendingExpire = finalize;
+  toast._timeoutId = setTimeout(()=>{
+    toast.classList.remove('show');
+    finalize();
+  }, durationMs);
+
+  btn.onclick = ()=>{
+    if(done) return;
+    done = true;
+    toast._pendingExpire = null;
+    clearTimeout(toast._timeoutId);
+    toast.classList.remove('show');
+    onUndo();
+  };
+}
+
+window.deleteTrade = async function(id){
+  const tr = allTrades.find(x=>x.id===id);
+  if(!tr) return;
+  const idx = allTrades.indexOf(tr);
+  allTrades.splice(idx, 1);
+  refreshScopedTrades();
+  renderAll();
+  updateDrawerAccountInfo();
+  closeTradeDetail();
+  showUndoToast(t('tradeDeletedToast'), 5000,
+    ()=>{
+      deleteTradeFromDb(id);
+      deleteTradeImages(tr);
+    },
+    ()=>{
+      allTrades.splice(idx, 0, tr);
+      refreshScopedTrades();
+      renderAll();
+      updateDrawerAccountInfo();
+    }
+  );
 };
 
 /* ============ TRADE DETAIL PANEL + LIGHTBOX ============ */
