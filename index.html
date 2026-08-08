@@ -3392,6 +3392,12 @@ document.getElementById('profileDeleteBtn').addEventListener('click', async ()=>
   if(!confirm(t('confirmDeleteAccount1'))) return;
   if(!confirm(t('confirmDeleteAccount2'))) return;
   for(const acc of accounts.slice()){ await deleteAccountFromDb(acc.id); }
+  try{
+    const { error } = await sb.functions.invoke('delete-account', { method: 'POST' });
+    if(error) console.error('Nie udało się usunąć konta logowania (funkcja niedostępna?):', error);
+  }catch(e){
+    console.error('Nie udało się wywołać funkcji usuwania konta:', e);
+  }
   alert(t('accountDataDeleted'));
   await handleLogout();
 });
