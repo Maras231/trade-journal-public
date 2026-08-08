@@ -933,6 +933,19 @@ table.tradelist tr:hover td{background:var(--surface2);}
   background:var(--surface2);border:1px solid var(--border);border-radius:8px;
   display:flex;align-items:center;justify-content:center;padding:5px;
 }
+.mini-toggle{position:relative;display:inline-block;width:42px;height:24px;flex:none;cursor:pointer;}
+.mini-toggle input{position:absolute;opacity:0;width:0;height:0;}
+.mini-toggle-track{
+  position:absolute;inset:0;border-radius:20px;background:#242A38;border:1px solid var(--border);
+  transition:.2s;
+}
+.mini-toggle-knob{
+  position:absolute;top:2px;left:2px;width:18px;height:18px;border-radius:50%;
+  background:var(--muted);transition:.2s;
+}
+.mini-toggle input:checked ~ .mini-toggle-track{background:rgba(232,184,75,0.25);border-color:var(--gold);}
+.mini-toggle input:checked ~ .mini-toggle-track .mini-toggle-knob{transform:translateX(18px);background:var(--gold);box-shadow:0 0 8px rgba(232,184,75,.6);}
+[data-theme="light"] .mini-toggle-track{background:#DCE0EB;}
 .settings-footer .mark-mini img{width:100%;height:100%;object-fit:contain;display:block;}
 
 .accounts-summary{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-bottom:18px;max-width:520px;}
@@ -1347,6 +1360,37 @@ table.tradelist tr:hover td{background:var(--surface2);}
       <span class="profile-row-label" id="profileEmailLabel">Adres e-mail</span>
       <span id="profileEmailValue" class="profile-row-value"></span>
     </div>
+    <div class="profile-row">
+      <span class="profile-row-label" id="profileTotalTradesLabel">Łącznie zapisanych transakcji</span>
+      <span class="td-value mono" id="profileTotalTradesValue">0</span>
+    </div>
+  </div>
+
+  <div class="panel" id="profilePasswordPanel" style="max-width:520px;margin-top:14px;">
+    <div class="panel-subtitle" id="profilePasswordTitle">Zmiana hasła</div>
+    <form id="profilePasswordForm">
+      <div class="field" style="margin-bottom:12px;">
+        <label id="profileNewPasswordLabel">Nowe hasło</label>
+        <div style="position:relative;">
+          <input type="password" id="profileNewPassword" minlength="6" required placeholder="••••••••" style="padding-right:38px;">
+          <button type="button" class="pw-toggle" data-for="profileNewPassword" tabindex="-1">
+            <svg class="icon-eye" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1.5 12S5 5 12 5s10.5 7 10.5 7-3.5 7-10.5 7S1.5 12 1.5 12Z"/><circle cx="12" cy="12" r="3"/></svg>
+            <svg class="icon-eye-off" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3l18 18M10.6 10.6a3 3 0 0 0 4.24 4.24M9.9 4.24A10.9 10.9 0 0 1 12 4c7 0 10.5 7 10.5 7a13.2 13.2 0 0 1-2.9 3.9M6.2 6.2C3.2 8.2 1.5 12 1.5 12a13.4 13.4 0 0 0 4.38 4.94"/></svg>
+          </button>
+        </div>
+      </div>
+      <div class="field" style="margin-bottom:14px;">
+        <label id="profileConfirmPasswordLabel">Powtórz nowe hasło</label>
+        <div style="position:relative;">
+          <input type="password" id="profileConfirmPassword" minlength="6" required placeholder="••••••••" style="padding-right:38px;">
+          <button type="button" class="pw-toggle" data-for="profileConfirmPassword" tabindex="-1">
+            <svg class="icon-eye" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1.5 12S5 5 12 5s10.5 7 10.5 7-3.5 7-10.5 7S1.5 12 1.5 12Z"/><circle cx="12" cy="12" r="3"/></svg>
+            <svg class="icon-eye-off" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3l18 18M10.6 10.6a3 3 0 0 0 4.24 4.24M9.9 4.24A10.9 10.9 0 0 1 12 4c7 0 10.5 7 10.5 7a13.2 13.2 0 0 1-2.9 3.9M6.2 6.2C3.2 8.2 1.5 12 1.5 12a13.4 13.4 0 0 0 4.38 4.94"/></svg>
+          </button>
+        </div>
+      </div>
+      <button type="submit" class="btn primary" id="profilePasswordSaveBtn">Zmień hasło</button>
+    </form>
   </div>
 
   <div class="panel" style="max-width:520px;margin-top:14px;">
@@ -1358,7 +1402,6 @@ table.tradelist tr:hover td{background:var(--surface2);}
   </div>
 
   <div class="panel danger-zone" style="max-width:520px;margin-top:14px;">
-    <div class="panel-subtitle danger" id="profileDangerTitle">Strefa niebezpieczna</div>
     <div class="profile-row">
       <span class="profile-row-label" id="profileDeleteLabel">Usuń wszystkie dane i konto</span>
       <button class="btn danger" id="profileDeleteBtn">Usuń konto</button>
@@ -1384,7 +1427,9 @@ table.tradelist tr:hover td{background:var(--surface2);}
     <button class="screen-back" id="settingsBackBtn" type="button">‹</button>
     <h2 class="screen-title" id="settingsScreenTitle">Ustawienia</h2>
   </div>
+
   <div class="panel" style="max-width:520px;">
+    <div class="panel-subtitle" id="settingsAppearanceTitle">Wygląd</div>
     <div class="settings-row">
       <div>
         <div class="settings-row-title" id="settingsThemeTitle">Motyw</div>
@@ -1400,9 +1445,50 @@ table.tradelist tr:hover td{background:var(--surface2);}
       <div class="settings-lang-options" id="settingsLangOptions"></div>
     </div>
   </div>
+
+  <div class="panel" style="max-width:520px;margin-top:14px;">
+    <div class="panel-subtitle" id="settingsBehaviorTitle">Zachowanie appki</div>
+    <div class="settings-row">
+      <div>
+        <div class="settings-row-title" id="settingsDefaultViewTitle">Domyślny widok po zalogowaniu</div>
+        <div class="settings-row-sub" id="settingsDefaultViewSub">Ekran otwierany zaraz po zalogowaniu</div>
+      </div>
+      <div class="settings-lang-options" id="settingsDefaultViewOptions"></div>
+    </div>
+    <div class="settings-row">
+      <div>
+        <div class="settings-row-title" id="settingsWeekStartTitle">Dzień startu tygodnia</div>
+        <div class="settings-row-sub" id="settingsWeekStartSub">Pierwszy dzień w kalendarzu transakcji</div>
+      </div>
+      <div class="settings-lang-options" id="settingsWeekStartOptions"></div>
+    </div>
+  </div>
+
+  <div class="panel" style="max-width:520px;margin-top:14px;">
+    <div class="panel-subtitle" id="settingsNotifTitle">Powiadomienia</div>
+    <div class="settings-row">
+      <div>
+        <div class="settings-row-title" id="settingsNotifyTitle">Przypomnienia o dzienniku</div>
+        <div class="settings-row-sub" id="settingsNotifySub">Powiadomienia przeglądarki, gdy appka jest otwarta</div>
+      </div>
+      <label class="mini-toggle">
+        <input type="checkbox" id="settingsNotifyToggle">
+        <span class="mini-toggle-track"><span class="mini-toggle-knob"></span></span>
+      </label>
+    </div>
+  </div>
+
+  <div class="panel" style="max-width:520px;margin-top:14px;">
+    <div class="panel-subtitle" id="settingsAboutTitle">O aplikacji</div>
+    <div class="settings-row">
+      <div class="settings-row-title" id="settingsVersionTitle">Wersja aplikacji</div>
+      <span class="profile-row-value" id="settingsVersionValue"></span>
+    </div>
+  </div>
+
   <div class="settings-footer">
     <div class="mark-mini"><img src="icon-192.png" alt="Wick"></div>
-    <div id="settingsFooterText">Wick — Twój dziennik transakcji</div>
+    <div id="settingsFooterText">Wick · Twój dziennik transakcji</div>
   </div>
 </div>
 
@@ -1672,10 +1758,20 @@ const I18N = {
     settingsLangTitle:'Język', settingsLangSub:'Język interfejsu appki',
     privacyContent:'<h3>Jakie dane zbieramy</h3><p>Wick przechowuje wyłącznie dane, które sam wprowadzasz: transakcje, konta, notatki miesięczne oraz podstawowe dane konta logowania (e-mail, opcjonalnie nazwa użytkownika).</p><h3>Jak wykorzystujemy dane</h3><p>Twoje dane służą wyłącznie do wyświetlania Twojego dziennika transakcji. Nie są sprzedawane ani udostępniane osobom trzecim.</p><h3>Przechowywanie</h3><p>Dane są przechowywane w bazie Supabase, zabezpieczonej regułami dostępu ograniczającymi widoczność wyłącznie do Twojego konta.</p><h3>Usuwanie danych</h3><p>Możesz usunąć swoje dane w każdej chwili w zakładce Profil.</p><p style="margin-top:16px;color:var(--muted);font-size:11.5px;">To jest treść przykładowa. Zastąp ją właściwą polityką prywatności przed publicznym udostępnieniem appki.</p>',
     editLabel:'Edytuj', deleteLabel:'Usuń',
-    profileInfoTitle:'Informacje o koncie', profileSessionTitle:'Sesja', profileDangerTitle:'Strefa niebezpieczna',
+    profileInfoTitle:'Informacje o koncie', profileSessionTitle:'Sesja',
     memberSince:'Dołączył(a)', themeDark:'Ciemny', themeLight:'Jasny',
-    accountsCount:'Liczba kont', combinedBalance:'Łączny kapitał',
+    accountsCount:'Liczba kont',
     settingsFooterText:'Wick · Twój dziennik transakcji',
+    settingsAppearanceTitle:'Wygląd', settingsBehaviorTitle:'Zachowanie appki',
+    settingsDefaultViewTitle:'Domyślny widok po zalogowaniu', settingsDefaultViewSub:'Ekran otwierany zaraz po zalogowaniu',
+    settingsWeekStartTitle:'Dzień startu tygodnia', settingsWeekStartSub:'Pierwszy dzień w kalendarzu transakcji',
+    settingsNotifTitle:'Powiadomienia', settingsNotifyTitle:'Przypomnienia o dzienniku',
+    settingsNotifySub:'Powiadomienia przeglądarki, gdy appka jest otwarta',
+    settingsAboutTitle:'O aplikacji', settingsVersionTitle:'Wersja aplikacji',
+    monthsShort:'Miesiące', weekStartMonday:'Poniedziałek', weekStartSunday:'Niedziela',
+    profileTotalTradesLabel:'Łącznie zapisanych transakcji',
+    profilePasswordTitle:'Zmiana hasła', profileNewPasswordLabel:'Nowe hasło', profileConfirmPasswordLabel:'Powtórz nowe hasło',
+    profileChangePasswordBtn:'Zmień hasło',
   },
   en: {
     tagline:'Your trade journal & analytics',
@@ -1758,10 +1854,20 @@ const I18N = {
     settingsLangTitle:'Language', settingsLangSub:'App interface language',
     privacyContent:'<h3>What data we collect</h3><p>Wick only stores data you enter yourself: trades, accounts, monthly notes, and basic login account details (email, optionally a username).</p><h3>How we use your data</h3><p>Your data is used solely to display your trade journal. It is never sold or shared with third parties.</p><h3>Storage</h3><p>Data is stored in a Supabase database, secured by access rules that restrict visibility to your account only.</p><h3>Deleting your data</h3><p>You can delete your data at any time from the Profile tab.</p><p style="margin-top:16px;color:var(--muted);font-size:11.5px;">This is placeholder content. Replace it with your actual privacy policy before making the app public.</p>',
     editLabel:'Edit', deleteLabel:'Delete',
-    profileInfoTitle:'Account information', profileSessionTitle:'Session', profileDangerTitle:'Danger zone',
+    profileInfoTitle:'Account information', profileSessionTitle:'Session',
     memberSince:'Member since', themeDark:'Dark', themeLight:'Light',
-    accountsCount:'Number of accounts', combinedBalance:'Combined balance',
+    accountsCount:'Number of accounts',
     settingsFooterText:'Wick · Your trade journal',
+    settingsAppearanceTitle:'Appearance', settingsBehaviorTitle:'App behavior',
+    settingsDefaultViewTitle:'Default view after login', settingsDefaultViewSub:'Screen opened right after signing in',
+    settingsWeekStartTitle:'Week start day', settingsWeekStartSub:'First day shown in the trade calendar',
+    settingsNotifTitle:'Notifications', settingsNotifyTitle:'Journal reminders',
+    settingsNotifySub:'Browser notifications while the app is open',
+    settingsAboutTitle:'About', settingsVersionTitle:'App version',
+    monthsShort:'Months', weekStartMonday:'Monday', weekStartSunday:'Sunday',
+    profileTotalTradesLabel:'Total trades logged',
+    profilePasswordTitle:'Change password', profileNewPasswordLabel:'New password', profileConfirmPasswordLabel:'Confirm new password',
+    profileChangePasswordBtn:'Change password',
   },
   de: {
     tagline:'Dein Handelstagebuch & Analysen',
@@ -1844,10 +1950,20 @@ const I18N = {
     settingsLangTitle:'Sprache', settingsLangSub:'Sprache der App-Oberfläche',
     privacyContent:'<h3>Welche Daten wir erheben</h3><p>Wick speichert ausschließlich Daten, die du selbst eingibst: Trades, Konten, Monatsnotizen sowie grundlegende Zugangsdaten (E-Mail, optional ein Benutzername).</p><h3>Wie wir deine Daten nutzen</h3><p>Deine Daten dienen ausschließlich der Anzeige deines Handelstagebuchs. Sie werden niemals verkauft oder an Dritte weitergegeben.</p><h3>Speicherung</h3><p>Die Daten werden in einer Supabase-Datenbank gespeichert, abgesichert durch Zugriffsregeln, die die Sichtbarkeit auf dein Konto beschränken.</p><h3>Daten löschen</h3><p>Du kannst deine Daten jederzeit im Bereich Profil löschen.</p><p style="margin-top:16px;color:var(--muted);font-size:11.5px;">Dies ist ein Platzhaltertext. Ersetze ihn vor der Veröffentlichung durch deine tatsächliche Datenschutzerklärung.</p>',
     editLabel:'Bearbeiten', deleteLabel:'Löschen',
-    profileInfoTitle:'Kontoinformationen', profileSessionTitle:'Sitzung', profileDangerTitle:'Gefahrenzone',
+    profileInfoTitle:'Kontoinformationen', profileSessionTitle:'Sitzung',
     memberSince:'Mitglied seit', themeDark:'Dunkel', themeLight:'Hell',
-    accountsCount:'Anzahl Konten', combinedBalance:'Gesamtkapital',
+    accountsCount:'Anzahl Konten',
     settingsFooterText:'Wick · Dein Handelstagebuch',
+    settingsAppearanceTitle:'Erscheinungsbild', settingsBehaviorTitle:'App-Verhalten',
+    settingsDefaultViewTitle:'Standardansicht nach Anmeldung', settingsDefaultViewSub:'Bildschirm, der direkt nach der Anmeldung geöffnet wird',
+    settingsWeekStartTitle:'Wochenstart', settingsWeekStartSub:'Erster angezeigter Tag im Handelskalender',
+    settingsNotifTitle:'Benachrichtigungen', settingsNotifyTitle:'Tagebuch-Erinnerungen',
+    settingsNotifySub:'Browser-Benachrichtigungen, während die App geöffnet ist',
+    settingsAboutTitle:'Über die App', settingsVersionTitle:'App-Version',
+    monthsShort:'Monate', weekStartMonday:'Montag', weekStartSunday:'Sonntag',
+    profileTotalTradesLabel:'Insgesamt erfasste Trades',
+    profilePasswordTitle:'Passwort ändern', profileNewPasswordLabel:'Neues Passwort', profileConfirmPasswordLabel:'Neues Passwort wiederholen',
+    profileChangePasswordBtn:'Passwort ändern',
   }
 };
 
@@ -1871,11 +1987,13 @@ function monthAbbr(){
   }[currentLang] || ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
 }
 function dayAbbr(){
-  return {
-    pl:['Pon','Wt','Śr','Czw','Pt'],
-    en:['Mon','Tue','Wed','Thu','Fri'],
-    de:['Mo','Di','Mi','Do','Fr']
-  }[currentLang] || ['Mon','Tue','Wed','Thu','Fri'];
+  const sets = {
+    pl: { monday:['Pon','Wt','Śr','Czw','Pt'], sunday:['Nie','Pon','Wt','Śr','Czw'] },
+    en: { monday:['Mon','Tue','Wed','Thu','Fri'], sunday:['Sun','Mon','Tue','Wed','Thu'] },
+    de: { monday:['Mo','Di','Mi','Do','Fr'], sunday:['So','Mo','Di','Mi','Do'] }
+  };
+  const langSet = sets[currentLang] || sets.en;
+  return langSet[getWeekStart()] || langSet.monday;
 }
 function dpWeekdayLetters(){
   return {
@@ -1890,6 +2008,19 @@ let allTrades = []; // every trade across all of the user's accounts
 let accounts = [];
 let currentAccountId = null;
 const ACCOUNT_KEY = 'tj_current_account';
+const DEFAULT_VIEW_KEY = 'tj_default_view';
+const WEEK_START_KEY = 'tj_week_start';
+const NOTIFY_KEY = 'tj_notify_enabled';
+const APP_VERSION = '1.0.0';
+function getDefaultView(){ return localStorage.getItem(DEFAULT_VIEW_KEY) || 'dashboard'; }
+function getWeekStart(){ return localStorage.getItem(WEEK_START_KEY) || 'monday'; }
+function getNotifyEnabled(){ return localStorage.getItem(NOTIFY_KEY) === '1'; }
+function hasEmailProvider(){
+  if(!currentUser) return false;
+  if(currentUser.identities && currentUser.identities.some(i=>i.provider==='email')) return true;
+  if(currentUser.app_metadata && currentUser.app_metadata.provider==='email') return true;
+  return false;
+}
 let monthNotes = {};
 let currentUser = null;
 let dataLoaded = false;
@@ -2192,6 +2323,7 @@ document.getElementById('resetForm').addEventListener('submit', async (e)=>{
     if(!dataLoaded){
       await loadAllData();
       renderAll();
+      activateTab(getDefaultView());
     }
   }, 1200);
 });
@@ -2226,6 +2358,7 @@ async function initAuth(){
       await ensureUsername();
       await loadAllData();
       renderAll();
+      activateTab(getDefaultView());
     } else {
       showAuthGate(true);
     }
@@ -2249,6 +2382,7 @@ async function initAuth(){
       if(!dataLoaded){
         await loadAllData();
         renderAll();
+        activateTab(getDefaultView());
       }
     } else if(event === 'SIGNED_OUT'){
       currentUser = null;
@@ -3013,10 +3147,11 @@ function renderCalendar(){
     return {pnl,val,valCount,has};
   }
 
-  // wyznacz poniedziałek tygodnia zawierającego 1. dzień miesiąca
+  // wyznacz pierwszy dzień tygodnia (wg ustawień) zawierającego 1. dzień miesiąca
   const firstDay = new Date(y,m,1);
-  const firstDow = (firstDay.getDay()+6)%7; // 0=Pon
-  let cursor = addDays(firstDay, -firstDow); // poniedziałek pierwszego tygodnia (może być w poprzednim miesiącu)
+  const weekStart = getWeekStart();
+  const firstDow = weekStart==='sunday' ? firstDay.getDay() : (firstDay.getDay()+6)%7;
+  let cursor = addDays(firstDay, -firstDow); // pierwszy dzień pierwszego tygodnia (może być w poprzednim miesiącu)
   const lastDay = new Date(y,m,daysInMonth);
 
   const weeks = [];
@@ -3445,18 +3580,10 @@ function showScreen(name){
 /* ============ SCREEN: KONTA ============ */
 function renderAccountsScreen(){
   const summary = document.getElementById('accountsSummary');
-  const totalBalance = accounts.reduce((s,a)=>{
-    const pnl = allTrades.filter(tr=>tr.accountId===a.id).reduce((s2,tr)=>s2+tr.pnl,0);
-    return s + a.balance + pnl;
-  }, 0);
   summary.innerHTML = `
-    <div class="stat-card">
+    <div class="stat-card" style="max-width:180px;">
       <div class="label">${t('accountsCount')}</div>
       <div class="value">${accounts.length}</div>
-    </div>
-    <div class="stat-card">
-      <div class="label">${t('combinedBalance')}</div>
-      <div class="value ${totalBalance>=0?'pos':'neg'}">${fmt(totalBalance)}</div>
     </div>`;
 
   const grid = document.getElementById('accountsGrid');
@@ -3574,6 +3701,9 @@ function renderProfileScreen(){
   } else {
     sinceEl.textContent = '';
   }
+
+  document.getElementById('profileTotalTradesValue').textContent = allTrades.length;
+  document.getElementById('profilePasswordPanel').style.display = hasEmailProvider() ? '' : 'none';
 }
 function showProfileMsg(msg, ok){
   const el = document.getElementById('profileMsg');
@@ -3593,6 +3723,20 @@ document.getElementById('profileUsernameSaveBtn').addEventListener('click', asyn
 });
 document.getElementById('profileLogoutBtn').addEventListener('click', ()=>{
   if(confirm(t('confirmLogout'))) handleLogout();
+});
+document.getElementById('profilePasswordForm').addEventListener('submit', async (e)=>{
+  e.preventDefault();
+  const pw1 = document.getElementById('profileNewPassword').value;
+  const pw2 = document.getElementById('profileConfirmPassword').value;
+  if(pw1 !== pw2){ showProfileMsg(t('authPasswordMismatch'), false); return; }
+  if(pw1.length < 6){ showProfileMsg(t('authPasswordTooShort'), false); return; }
+  const btn = document.getElementById('profilePasswordSaveBtn');
+  btn.disabled = true;
+  const { error } = await sb.auth.updateUser({ password: pw1 });
+  btn.disabled = false;
+  if(error){ showProfileMsg(mapAuthError(error.message), false); return; }
+  document.getElementById('profilePasswordForm').reset();
+  showProfileMsg(t('authPasswordUpdated'), true);
 });
 async function hardResetLocalState(){
   try{ localStorage.clear(); }catch(e){}
@@ -3653,7 +3797,50 @@ function renderSettingsScreen(){
       renderSettingsScreen();
     });
   });
+
+  const viewWrap = document.getElementById('settingsDefaultViewOptions');
+  const currentView = getDefaultView();
+  const viewOptions = [
+    {key:'dashboard', label:t('tabDashboard')},
+    {key:'months', label:t('monthsShort')},
+    {key:'trades', label:t('drawerNavTrades')}
+  ];
+  viewWrap.innerHTML = viewOptions.map(o=>`<button type="button" data-view="${o.key}" class="${o.key===currentView?'active':''}">${o.label}</button>`).join('');
+  viewWrap.querySelectorAll('button').forEach(b=>{
+    b.addEventListener('click', ()=>{
+      localStorage.setItem(DEFAULT_VIEW_KEY, b.dataset.view);
+      renderSettingsScreen();
+    });
+  });
+
+  const weekWrap = document.getElementById('settingsWeekStartOptions');
+  const currentWeekStart = getWeekStart();
+  const weekOptions = [
+    {key:'monday', label:t('weekStartMonday')},
+    {key:'sunday', label:t('weekStartSunday')}
+  ];
+  weekWrap.innerHTML = weekOptions.map(o=>`<button type="button" data-week="${o.key}" class="${o.key===currentWeekStart?'active':''}">${o.label}</button>`).join('');
+  weekWrap.querySelectorAll('button').forEach(b=>{
+    b.addEventListener('click', ()=>{
+      localStorage.setItem(WEEK_START_KEY, b.dataset.week);
+      renderSettingsScreen();
+      renderCalendar();
+    });
+  });
+
+  document.getElementById('settingsNotifyToggle').checked = getNotifyEnabled();
+  document.getElementById('settingsVersionValue').textContent = 'v' + APP_VERSION;
 }
+document.getElementById('settingsNotifyToggle').addEventListener('change', async (e)=>{
+  const enabled = e.target.checked;
+  if(enabled && 'Notification' in window){
+    try{
+      const perm = await Notification.requestPermission();
+      if(perm !== 'granted'){ e.target.checked = false; localStorage.setItem(NOTIFY_KEY,'0'); return; }
+    }catch(err){ e.target.checked = false; localStorage.setItem(NOTIFY_KEY,'0'); return; }
+  }
+  localStorage.setItem(NOTIFY_KEY, enabled ? '1' : '0');
+});
 
 /* ============ SCREEN: PRIVACY POLICY ============ */
 function renderPrivacyScreen(){
@@ -3764,8 +3951,25 @@ function applyStaticTexts(){
   document.getElementById('settingsLangSub').textContent = t('settingsLangSub');
   document.getElementById('profileInfoTitle').textContent = t('profileInfoTitle');
   document.getElementById('profileSessionTitle').textContent = t('profileSessionTitle');
-  document.getElementById('profileDangerTitle').textContent = t('profileDangerTitle');
   document.getElementById('settingsFooterText').textContent = t('settingsFooterText');
+  document.getElementById('settingsAppearanceTitle').textContent = t('settingsAppearanceTitle');
+  document.getElementById('settingsBehaviorTitle').textContent = t('settingsBehaviorTitle');
+  document.getElementById('settingsDefaultViewTitle').textContent = t('settingsDefaultViewTitle');
+  document.getElementById('settingsDefaultViewSub').textContent = t('settingsDefaultViewSub');
+  document.getElementById('settingsWeekStartTitle').textContent = t('settingsWeekStartTitle');
+  document.getElementById('settingsWeekStartSub').textContent = t('settingsWeekStartSub');
+  document.getElementById('settingsNotifTitle').textContent = t('settingsNotifTitle');
+  document.getElementById('settingsNotifyTitle').textContent = t('settingsNotifyTitle');
+  document.getElementById('settingsNotifySub').textContent = t('settingsNotifySub');
+  document.getElementById('settingsAboutTitle').textContent = t('settingsAboutTitle');
+  document.getElementById('settingsVersionTitle').textContent = t('settingsVersionTitle');
+  document.getElementById('profileTotalTradesLabel').textContent = t('profileTotalTradesLabel');
+  document.getElementById('profilePasswordTitle').textContent = t('profilePasswordTitle');
+  document.getElementById('profileNewPasswordLabel').textContent = t('profileNewPasswordLabel');
+  document.getElementById('profileConfirmPasswordLabel').textContent = t('profileConfirmPasswordLabel');
+  document.getElementById('profilePasswordSaveBtn').textContent = t('profileChangePasswordBtn');
+  document.getElementById('profileNewPassword').placeholder = t('authPasswordPlaceholder');
+  document.getElementById('profileConfirmPassword').placeholder = t('authPasswordPlaceholder');
   updateDrawerAccountInfo();
   renderImageGrid();
 }
