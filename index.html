@@ -99,16 +99,13 @@ header.top{
 }
 .brand{display:flex;align-items:center;gap:13px;}
 .mark{
-  width:40px;height:40px;border-radius:11px;
-  background:linear-gradient(135deg,var(--gold),#c98f2b);
+  width:40px;height:40px;
   display:flex;align-items:center;justify-content:center;
-  font-family:'Space Grotesk',sans-serif;font-weight:700;color:#151102;font-size:18px;
-  box-shadow:var(--shadow-gold), inset 0 1px 0 rgba(255,255,255,.35);
   position:relative;
-  overflow:hidden;
   flex:none;
+  filter:drop-shadow(0 4px 10px rgba(0,0,0,0.35));
 }
-.mark img{width:100%;height:100%;object-fit:cover;display:block;}
+.mark img{width:100%;height:100%;object-fit:contain;display:block;}
 .brand h1{
   font-family:'Space Grotesk',sans-serif;font-size:22px;letter-spacing:0.2px;font-weight:700;
 }
@@ -1047,32 +1044,11 @@ table.tradelist tr:hover td{background:var(--surface2);}
       <div class="mark"><img src="icon-192.png" alt="Wick"></div>
     </button>
     <div>
-      <div style="display:flex;align-items:center;gap:9px;">
-        <h1>Wick</h1>
-        <button class="theme-toggle" id="themeToggle" type="button" title="Zmień motyw">
-          <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
-          <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.8A9 9 0 1 1 11.2 3 7 7 0 0 0 21 12.8Z"/></svg>
-        </button>
-        <button class="lang-toggle" id="langSwitchBtn" type="button" title="Change language"></button>
-      </div>
+      <h1>Wick</h1>
       <p id="brandTagline">Twój dziennik transakcji i analityka</p>
     </div>
   </div>
   <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
-    <div class="sync-widget">
-      <button class="btn" id="loginBtn">
-        <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor" style="vertical-align:-2px;margin-right:2px;">
-          <circle cx="12" cy="8" r="4"/>
-          <path d="M4 20c0-4.4 3.6-8 8-8s8 3.6 8 8"/>
-        </svg>
-        <span id="loginBtnText">Zaloguj się przez Google</span>
-      </button>
-      <div class="sync-status" id="userStatusWrap" style="display:none;">
-        <span class="sync-dot synced" id="syncDot"></span>
-        <span id="userEmailText"></span>
-        <button class="icon-btn" id="logoutBtn" title="Wyloguj">✕</button>
-      </div>
-    </div>
     <button class="btn primary" id="addTradeBtn">+ <span id="addTradeBtnText">Dodaj transakcję</span></button>
   </div>
 </header>
@@ -1080,14 +1056,14 @@ table.tradelist tr:hover td{background:var(--surface2);}
 <div id="mainScreen">
 
 <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;margin-bottom:22px;">
-<nav class="tabs" id="tabNav" style="margin-bottom:0;">
-  <button class="active" data-tab="dashboard" id="tabDashboardBtn"> Dashboard</button>
-  <button data-tab="trades" id="tabTradesBtn"> Baza transakcji</button>
-  <button data-tab="months" id="tabMonthsBtn"> Podsumowanie Miesiąca</button>
+<nav class="tabs" id="statsSubNav" style="margin-bottom:0;">
+  <button class="active" data-tab="dashboard" id="subNavDashboard">Dashboard</button>
+  <button data-tab="months" id="subNavMonths">Podsumowanie Miesiąca</button>
 </nav>
 <nav class="tabs" style="margin-bottom:0;" id="modeToggle">
   <button class="active" data-mode="usd">$ P/L</button>
   <button data-mode="rr">RR</button>
+
 </nav>
 </div>
 
@@ -1811,17 +1787,7 @@ function showAuthGate(show){
   if(show) switchAuthMode('login');
 }
 function updateUserWidget(){
-  const loginBtn = document.getElementById('loginBtn');
-  const wrap = document.getElementById('userStatusWrap');
-  const emailText = document.getElementById('userEmailText');
-  if(currentUser){
-    loginBtn.style.display = 'none';
-    wrap.style.display = 'flex';
-    emailText.textContent = (currentUser.user_metadata && currentUser.user_metadata.username) || currentUser.email;
-  } else {
-    loginBtn.style.display = 'inline-flex';
-    wrap.style.display = 'none';
-  }
+  /* header no longer shows a user chip — profile info lives in the Profil drawer screen */
 }
 
 function clearAuthMessages(){
@@ -1929,12 +1895,7 @@ async function handleLogout(){
   showAuthGate(true);
 }
 
-document.getElementById('loginBtn').addEventListener('click', ()=> showAuthGate(true));
 document.getElementById('authGateLoginBtn').addEventListener('click', handleLogin);
-document.getElementById('logoutBtn').addEventListener('click', (e)=>{
-  e.stopPropagation();
-  if(confirm(t('confirmLogout'))) handleLogout();
-});
 
 function isRecoveryUrl(){
   const hash = window.location.hash || '';
@@ -2048,11 +2009,6 @@ function applyTheme(theme){
   if(meta) meta.setAttribute('content', theme==='light' ? '#F4F5F9' : '#0B0E14');
 }
 applyTheme(localStorage.getItem(THEME_KEY) || 'dark');
-document.getElementById('themeToggle').addEventListener('click', ()=>{
-  const current = document.documentElement.getAttribute('data-theme') || 'dark';
-  applyTheme(current === 'dark' ? 'light' : 'dark');
-  renderAll();
-});
 
 document.querySelectorAll('#modeToggle button').forEach(b=>{
   b.addEventListener('click', ()=>{
@@ -2086,16 +2042,18 @@ function fmt(n){
 }
 
 /* ============ TABS ============ */
-document.querySelectorAll('#tabNav button').forEach(b=>{
-  b.addEventListener('click', ()=>{
-    document.querySelectorAll('#tabNav button').forEach(x=>x.classList.remove('active'));
-    b.classList.add('active');
-    document.getElementById('tab-dashboard').style.display = b.dataset.tab==='dashboard' ? '' : 'none';
-    document.getElementById('tab-trades').style.display = b.dataset.tab==='trades' ? '' : 'none';
-    document.getElementById('tab-months').style.display = b.dataset.tab==='months' ? '' : 'none';
-    if(b.dataset.tab==='trades') renderTradesTable();
-    if(b.dataset.tab==='months') renderMonthsSummary();
-  });
+function activateTab(tabName){
+  document.getElementById('tab-dashboard').style.display = tabName==='dashboard' ? '' : 'none';
+  document.getElementById('tab-trades').style.display = tabName==='trades' ? '' : 'none';
+  document.getElementById('tab-months').style.display = tabName==='months' ? '' : 'none';
+  document.getElementById('statsRow').style.display = tabName==='trades' ? 'none' : '';
+  document.getElementById('statsSubNav').style.display = tabName==='trades' ? 'none' : '';
+  document.querySelectorAll('#statsSubNav button').forEach(b=> b.classList.toggle('active', b.dataset.tab===tabName));
+  if(tabName==='trades') renderTradesTable();
+  if(tabName==='months') renderMonthsSummary();
+}
+document.querySelectorAll('#statsSubNav button').forEach(b=>{
+  b.addEventListener('click', ()=> activateTab(b.dataset.tab));
 });
 
 /* ============ CUSTOM DATE PICKER (form) ============ */
@@ -2924,8 +2882,8 @@ document.querySelectorAll('.drawer-nav button[data-screen]').forEach(btn=>{
     const screen = btn.dataset.screen;
     closeDrawer();
     setActiveDrawerNav(screen);
-    if(screen==='stats'){ showScreen('main'); document.getElementById('tabDashboardBtn').click(); }
-    else if(screen==='trades'){ showScreen('main'); document.getElementById('tabTradesBtn').click(); }
+    if(screen==='stats'){ showScreen('main'); activateTab('dashboard'); }
+    else if(screen==='trades'){ showScreen('main'); activateTab('trades'); }
     else showScreen(screen);
   });
 });
@@ -3026,7 +2984,7 @@ function renderAccountsScreen(){
   if(addTile) addTile.addEventListener('click', ()=> openAccountModal(null));
 }
 function selectAccount(id){
-  if(id === currentAccountId){ showScreen('main'); setActiveDrawerNav('stats'); document.getElementById('tabDashboardBtn').click(); return; }
+  if(id === currentAccountId){ showScreen('main'); setActiveDrawerNav('stats'); activateTab('dashboard'); return; }
   currentAccountId = id;
   localStorage.setItem(ACCOUNT_KEY, id);
   refreshScopedTrades();
@@ -3034,7 +2992,7 @@ function selectAccount(id){
   renderAll();
   showScreen('main');
   setActiveDrawerNav('stats');
-  document.getElementById('tabDashboardBtn').click();
+  activateTab('dashboard');
 }
 async function deleteAccount(id){
   if(accounts.length <= 1){ alert(t('cannotDeleteLastAccount')); return; }
@@ -3152,11 +3110,9 @@ function applyStaticTexts(){
   document.getElementById('brandTagline').textContent = t('tagline');
   document.getElementById('authGateDesc').textContent = t('authGateDesc');
   document.getElementById('authGateLoginText').textContent = t('googleLogin');
-  document.getElementById('loginBtnText').textContent = t('loginBtnLabel');
   document.getElementById('addTradeBtnText').textContent = t('addTrade');
-  document.getElementById('tabDashboardBtn').textContent = t('tabDashboard');
-  document.getElementById('tabTradesBtn').textContent = t('tabTrades');
-  document.getElementById('tabMonthsBtn').textContent = t('tabMonths');
+  document.getElementById('subNavDashboard').textContent = t('tabDashboard');
+  document.getElementById('subNavMonths').textContent = t('tabMonths');
   document.getElementById('eqCurveTitle').textContent = t('equityCurve');
   document.getElementById('monthsSummaryTitle').textContent = t('monthsSummaryTitle');
   document.getElementById('monthEqCurveTitle').textContent = t('monthEquityCurveTitle');
@@ -3223,11 +3179,6 @@ function applyStaticTexts(){
   document.getElementById('resetSubmitBtn').textContent = t('resetSubmitBtn');
   document.getElementById('resetPassword1').placeholder = t('authPasswordPlaceholder');
   document.getElementById('resetPassword2').placeholder = t('authPasswordPlaceholder');
-  const curLangObj = LANGS.find(l=>l.code===currentLang) || LANGS[0];
-  document.getElementById('langSwitchBtn').textContent = curLangObj.flag + ' ' + currentLang.toUpperCase();
-  document.getElementById('langSwitchBtn').title = t('langTooltip');
-  document.getElementById('logoutBtn').title = t('logoutTooltip');
-  document.getElementById('themeToggle').title = t('themeTooltip');
 
   document.getElementById('drawerNavProfile').textContent = t('drawerNavProfile');
   document.getElementById('drawerNavAccounts').textContent = t('drawerNavAccounts');
@@ -3309,9 +3260,6 @@ document.getElementById('langConfirmBtn').addEventListener('click', ()=>{
   localStorage.setItem(LANG_KEY, currentLang);
   closeLangGate();
   applyLanguage();
-});
-document.getElementById('langSwitchBtn').addEventListener('click', ()=>{
-  openLangGate(false);
 });
 
 /* ============ SPLASH SCREEN ============ */
