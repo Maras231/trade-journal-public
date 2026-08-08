@@ -513,7 +513,9 @@ table.tradelist tr:hover td{background:var(--surface2);}
 .confidence-panel{
   background:var(--surface2);border:1px solid var(--border);border-radius:12px;
   padding:14px 16px;display:flex;flex-direction:column;gap:8px;
+  transition:border-color .18s var(--ease),box-shadow .18s var(--ease);
 }
+.confidence-panel.invalid{border-color:var(--loss);box-shadow:0 0 0 3px rgba(255,107,107,.12);}
 .confidence-panel-title{font-size:13.5px;font-weight:600;color:var(--text);}
 .confidence-panel-sub{font-size:11.5px;color:var(--muted);line-height:1.3;}
 .confidence-stars{display:flex;gap:6px;margin-top:2px;}
@@ -1149,7 +1151,7 @@ table.tradelist tr:hover td{background:var(--surface2);}
     </div>
   </div>
   <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
-    <button class="btn primary" id="addTradeBtn">+ <span id="addTradeBtnText">Dodaj transakcję</span></button>
+    <button class="btn primary" id="addTradeBtn" style="display:none;">+ <span id="addTradeBtnText">Dodaj transakcję</span></button>
   </div>
 </header>
 
@@ -1359,7 +1361,7 @@ table.tradelist tr:hover td{background:var(--surface2);}
           <select id="f-direction"><option value="long">Long</option><option value="short">Short</option></select>
         </div>
         <div class="field"><label id="fLabelPnl">Wynik P/L ($)</label><input type="number" step="0.01" id="f-pnl" placeholder="np. 250 lub -100" required></div>
-        <div class="field"><label id="fLabelRR">RR (risk/reward, np. 2 lub -1)</label><input type="number" step="any" id="f-rr" placeholder="opcjonalnie"></div>
+        <div class="field"><label id="fLabelRR">RR (risk/reward, np. 2 lub -1)</label><input type="number" step="any" id="f-rr" required placeholder="np. 2"></div>
         <div class="field full">
           <label class="be-toggle" id="beToggleLabel" for="f-breakeven">
             <input type="checkbox" id="f-breakeven">
@@ -1371,7 +1373,7 @@ table.tradelist tr:hover td{background:var(--surface2);}
           </label>
         </div>
         <div class="field full">
-          <div class="confidence-panel">
+          <div class="confidence-panel" id="confidencePanel">
             <span class="confidence-panel-title" id="confTitle">Pewność transakcji</span>
             <span class="confidence-panel-sub" id="confSub">Jak mocno wierzyłeś w ten setup przed wejściem: 5 gwiazdek = mega pewność, 1 = strzał na pół gwizdka.</span>
             <div class="confidence-stars" id="confidenceStars">
@@ -1511,7 +1513,7 @@ const I18N = {
     sortDateDesc:'Data ↓', sortDateAsc:'Data ↑', sortPnlDesc:'P/L ↓', sortPnlAsc:'P/L ↑',
     date:'Data', symbolLabel:'Symbol / instrument', symbolPlaceholder:'np. EURUSD, BTC, AAPL',
     direction:'Kierunek', pnlLabel:'Wynik P/L ($)', pnlPlaceholder:'np. 250 lub -100',
-    rrLabel:'RR (risk/reward, np. 2 lub -1)', rrPlaceholder:'opcjonalnie',
+    rrLabel:'RR (risk/reward, np. 2 lub -1)', rrPlaceholder:'np. 2',
     breakevenTitle:'Breakeven', breakevenSub:'Transakcja wyjęta na zero. Nie liczy się do Win Rate / Avg RR',
     confidenceTitle:'Pewność transakcji',
     confidenceSub:'Jak mocno wierzyłeś w ten setup przed wejściem: 5 gwiazdek = mega pewność, 1 = strzał na pół gwizdka.',
@@ -1594,7 +1596,7 @@ const I18N = {
     sortDateDesc:'Date ↓', sortDateAsc:'Date ↑', sortPnlDesc:'P/L ↓', sortPnlAsc:'P/L ↑',
     date:'Date', symbolLabel:'Symbol / instrument', symbolPlaceholder:'e.g. EURUSD, BTC, AAPL',
     direction:'Direction', pnlLabel:'Result P/L ($)', pnlPlaceholder:'e.g. 250 or -100',
-    rrLabel:'RR (risk/reward, e.g. 2 or -1)', rrPlaceholder:'optional',
+    rrLabel:'RR (risk/reward, e.g. 2 or -1)', rrPlaceholder:'e.g. 2',
     breakevenTitle:'Breakeven', breakevenSub:'Trade closed at zero. Excluded from Win Rate / Avg RR',
     confidenceTitle:'Trade confidence',
     confidenceSub:'How strongly you believed in this setup before entering: 5 stars = fully convinced, 1 = a coin-flip shot.',
@@ -1676,7 +1678,7 @@ const I18N = {
     sortDateDesc:'Datum ↓', sortDateAsc:'Datum ↑', sortPnlDesc:'G/V ↓', sortPnlAsc:'G/V ↑',
     date:'Datum', symbolLabel:'Symbol / Instrument', symbolPlaceholder:'z. B. EURUSD, BTC, AAPL',
     direction:'Richtung', pnlLabel:'Ergebnis G/V ($)', pnlPlaceholder:'z. B. 250 oder -100',
-    rrLabel:'RR (Risk/Reward, z. B. 2 oder -1)', rrPlaceholder:'optional',
+    rrLabel:'RR (Risk/Reward, z. B. 2 oder -1)', rrPlaceholder:'z. B. 2',
     breakevenTitle:'Breakeven', breakevenSub:'Trade bei null geschlossen. Zählt nicht zur Win Rate / Ø RR',
     confidenceTitle:'Trade-Sicherheit',
     confidenceSub:'Wie sehr du vor dem Einstieg von diesem Setup überzeugt warst: 5 Sterne = volle Überzeugung, 1 = reiner Zufallstreffer.',
@@ -2210,6 +2212,7 @@ function activateTab(tabName){
   document.getElementById('tab-months').style.display = tabName==='months' ? '' : 'none';
   document.getElementById('statsRow').style.display = tabName==='trades' ? 'none' : '';
   document.getElementById('statsSubNav').style.display = tabName==='trades' ? 'none' : '';
+  document.getElementById('addTradeBtn').style.display = tabName==='trades' ? '' : 'none';
   document.querySelectorAll('#statsSubNav button').forEach(b=> b.classList.toggle('active', b.dataset.tab===tabName));
   if(tabName==='trades') renderTradesTable();
   if(tabName==='months') renderMonthsSummary();
@@ -2347,6 +2350,7 @@ function setConfidence(val){
   document.querySelectorAll('#confidenceStars .star-btn').forEach(btn=>{
     btn.classList.toggle('filled', Number(btn.dataset.val) <= val);
   });
+  if(val > 0) document.getElementById('confidencePanel').classList.remove('invalid');
 }
 document.getElementById('confidenceStars').addEventListener('click', (e)=>{
   const btn = e.target.closest('.star-btn');
@@ -2437,6 +2441,12 @@ document.getElementById('tradeForm').addEventListener('submit', async e=>{
   if(!dpSelected){
     document.getElementById('dpInput').classList.add('invalid');
     openDpPanel();
+    return;
+  }
+  if(Number(document.getElementById('f-confidence').value) === 0){
+    const panel = document.getElementById('confidencePanel');
+    panel.classList.add('invalid');
+    panel.scrollIntoView({behavior:'smooth', block:'center'});
     return;
   }
   const id = document.getElementById('tradeId').value;
@@ -3255,12 +3265,17 @@ function showScreen(name){
   document.getElementById('screenAccounts').style.display = name==='accounts' ? '' : 'none';
   document.getElementById('screenSettings').style.display = name==='settings' ? '' : 'none';
   document.getElementById('screenPrivacy').style.display = name==='privacy' ? '' : 'none';
+  if(name!=='main') document.getElementById('addTradeBtn').style.display = 'none';
   window.scrollTo({top:0});
   if(name==='accounts') renderAccountsScreen();
   if(name==='profile') renderProfileScreen();
   if(name==='settings') renderSettingsScreen();
   if(name==='privacy') renderPrivacyScreen();
-  if(name==='main') setActiveDrawerNav(document.getElementById('tab-trades').style.display==='none' ? 'stats' : 'trades');
+  if(name==='main'){
+    const onTrades = document.getElementById('tab-trades').style.display!=='none';
+    document.getElementById('addTradeBtn').style.display = onTrades ? '' : 'none';
+    setActiveDrawerNav(onTrades ? 'trades' : 'stats');
+  }
 }
 ['profileBackBtn','accountsBackBtn','settingsBackBtn','privacyBackBtn'].forEach(id=>{
   document.getElementById(id).addEventListener('click', ()=> showScreen('main'));
