@@ -624,11 +624,18 @@ table.tradelist tr:hover td{background:var(--surface2);}
 }
 
 .auth-logo{
-  width:42px;height:42px;margin:2px auto 16px;display:block;
-  filter:drop-shadow(0 6px 16px rgba(0,0,0,0.45));
+  width:36px;height:36px;margin:4px auto 18px;display:block;
+  background-color:var(--text);
+  -webkit-mask-image:url('icon-192.png');
+          mask-image:url('icon-192.png');
+  -webkit-mask-size:contain;
+          mask-size:contain;
+  -webkit-mask-repeat:no-repeat;
+          mask-repeat:no-repeat;
+  -webkit-mask-position:center;
+          mask-position:center;
+  filter:drop-shadow(0 3px 8px rgba(0,0,0,0.35));
 }
-.auth-logo img{width:100%;height:100%;object-fit:contain;display:block;}
-[data-theme="light"] .auth-logo img{filter:invert(1) brightness(0.15);}
 
 .auth-tabs{
   display:flex;gap:3px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.07);
@@ -758,7 +765,7 @@ table.tradelist tr:hover td{background:var(--surface2);}
 
 <div class="modal-overlay auth-overlay" id="langGate" style="z-index:300;">
   <div class="modal auth-card" style="max-width:380px;text-align:center;padding:36px 28px;">
-    <div class="auth-logo"><img src="icon-192.png" alt="Wick"></div>
+    <div class="auth-logo" role="img" aria-label="Wick"></div>
     <h2 id="langGateTitle" style="margin-bottom:6px;">Wybierz język</h2>
     <p id="langGateSub" style="color:var(--muted);font-size:12.5px;margin-bottom:22px;">Możesz to zmienić później w ustawieniach.</p>
     <div id="langOptions" style="display:flex;flex-direction:column;gap:10px;margin-bottom:22px;"></div>
@@ -768,7 +775,7 @@ table.tradelist tr:hover td{background:var(--surface2);}
 
 <div class="modal-overlay auth-overlay" id="authGate" style="z-index:200;">
   <div class="modal auth-card" style="max-width:400px;padding:36px 30px;">
-    <div class="auth-logo"><img src="icon-192.png" alt="Wick"></div>
+    <div class="auth-logo" role="img" aria-label="Wick"></div>
     <h2 id="authTitle" style="text-align:center;margin-bottom:6px;">Witaj w Wick</h2>
     <p id="authGateDesc" style="color:var(--muted);font-size:12.5px;text-align:center;margin-bottom:20px;line-height:1.4;">Zaloguj się, aby zobaczyć swój dziennik transakcji — Twoje dane są prywatne i widoczne tylko dla Ciebie.</p>
 
@@ -857,7 +864,7 @@ table.tradelist tr:hover td{background:var(--surface2);}
 
 <div class="modal-overlay auth-overlay" id="resetGate" style="z-index:400;">
   <div class="modal auth-card" style="max-width:400px;padding:36px 30px;">
-    <div class="auth-logo"><img src="icon-192.png" alt="Wick"></div>
+    <div class="auth-logo" role="img" aria-label="Wick"></div>
     <h2 id="resetTitle" style="text-align:center;margin-bottom:6px;">Ustaw nowe hasło</h2>
     <p id="resetDesc" style="color:var(--muted);font-size:12.5px;text-align:center;margin-bottom:22px;line-height:1.4;">Wpisz nowe hasło do swojego konta.</p>
     <form id="resetForm">
