@@ -406,6 +406,9 @@ table.tradelist tr:hover td{background:var(--surface2);}
 .dp-day.today{border-color:var(--gold);color:var(--gold);font-weight:700;}
 .dp-day.selected{background:linear-gradient(135deg,var(--gold),#c98f2b);color:#151102;font-weight:700;box-shadow:var(--shadow-gold);}
 .dp-day.weekend{color:var(--muted);}
+.dp-day.disabled{color:var(--muted);opacity:.35;cursor:not-allowed;}
+.dp-nav:disabled{opacity:.3;cursor:not-allowed;}
+.dp-nav:disabled:hover{border-color:var(--border);color:var(--text);}
 .dp-panel-actions{
   display:flex;justify-content:space-between;margin-top:12px;padding-top:12px;border-top:1px solid var(--border);
 }
@@ -1858,6 +1861,7 @@ const I18N = {
     settingsContactTitle:'Kontakt',
     undoLabel:'Cofnij', tradeDeletedToast:'Transakcja usunięta.',
     allYears:'Wszystkie lata',
+    futureDateNotAllowed:'Nie można dodać transakcji z datą w przyszłości.',
     settingsAboutTitle:'O aplikacji', settingsVersionTitle:'Wersja aplikacji',
     monthsShort:'Miesiące', weekStartMonday:'Poniedziałek', weekStartSunday:'Niedziela',
     profileTotalTradesLabel:'Łącznie zapisanych transakcji',
@@ -1964,6 +1968,7 @@ const I18N = {
     settingsContactTitle:'Contact',
     undoLabel:'Undo', tradeDeletedToast:'Trade deleted.',
     allYears:'All years',
+    futureDateNotAllowed:'You cannot add a trade with a future date.',
     settingsAboutTitle:'About', settingsVersionTitle:'App version',
     monthsShort:'Months', weekStartMonday:'Monday', weekStartSunday:'Sunday',
     profileTotalTradesLabel:'Total trades logged',
@@ -2070,6 +2075,7 @@ const I18N = {
     settingsContactTitle:'Kontakt',
     undoLabel:'Rückgängig', tradeDeletedToast:'Trade gelöscht.',
     allYears:'Alle Jahre',
+    futureDateNotAllowed:'Du kannst keinen Trade mit einem zukünftigen Datum hinzufügen.',
     settingsAboutTitle:'Über die App', settingsVersionTitle:'App-Version',
     monthsShort:'Monate', weekStartMonday:'Montag', weekStartSunday:'Sonntag',
     profileTotalTradesLabel:'Insgesamt erfasste Trades',
@@ -2660,6 +2666,7 @@ function renderDpPanel(){
   const daysInMonth = new Date(y,m+1,0).getDate();
   const daysInPrevMonth = new Date(y,m,0).getDate();
   const todayStr = new Date().toISOString().slice(0,10);
+  const now = new Date();
 
   let cellsHtml = '';
   // dni z poprzedniego miesiąca (wypełnienie)
@@ -2670,11 +2677,13 @@ function renderDpPanel(){
   for(let d=1; d<=daysInMonth; d++){
     const dateStr = dpDateStr(y,m,d);
     const dow = (new Date(y,m,d).getDay()+6)%7;
+    const isFuture = dateStr > todayStr;
     let cls = 'dp-day';
     if(dow>=5) cls += ' weekend';
     if(dateStr===todayStr) cls += ' today';
     if(dateStr===dpSelected) cls += ' selected';
-    cellsHtml += `<div class="${cls}" data-date="${dateStr}">${d}</div>`;
+    if(isFuture) cls += ' disabled';
+    cellsHtml += `<div class="${cls}" data-date="${dateStr}"${isFuture ? ' data-disabled="1"' : ''}>${d}</div>`;
   }
   const totalCells = firstDow + daysInMonth;
   const trailing = (7 - (totalCells % 7)) % 7;
@@ -2684,12 +2693,17 @@ function renderDpPanel(){
   document.getElementById('dpDays').innerHTML = cellsHtml;
 
   document.querySelectorAll('#dpDays .dp-day[data-date]').forEach(el=>{
+    if(el.dataset.disabled) return;
     el.addEventListener('click', ()=>{
       setDpDate(el.dataset.date);
       renderDpPanel();
       closeDpPanel();
     });
   });
+
+  // nie pozwalamy przeglądać miesięcy późniejszych niż bieżący
+  const viewingCurrentOrLater = (y > now.getFullYear()) || (y === now.getFullYear() && m >= now.getMonth());
+  document.getElementById('dpNext').disabled = viewingCurrentOrLater;
 }
 
 function openDpPanel(){
@@ -2912,6 +2926,11 @@ document.getElementById('tradeForm').addEventListener('submit', async e=>{
   if(!dpSelected){
     document.getElementById('dpInput').classList.add('invalid');
     openDpPanel();
+    return;
+  }
+  if(dpSelected > new Date().toISOString().slice(0,10)){
+    document.getElementById('dpInput').classList.add('invalid');
+    await customAlert(t('futureDateNotAllowed'), {danger:true});
     return;
   }
   if(Number(document.getElementById('f-confidence').value) === 0){
