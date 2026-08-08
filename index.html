@@ -410,6 +410,73 @@ table.tradelist tr:hover td{background:var(--surface2);}
 .dropzone:hover{border-color:var(--gold);color:var(--gold);}
 .dropzone.has-img{padding:8px;}
 .dropzone img{max-width:100%;max-height:160px;border-radius:8px;display:block;margin:0 auto;}
+
+.image-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(84px,1fr));gap:8px;}
+.image-slot{
+  position:relative;aspect-ratio:1;border-radius:10px;overflow:hidden;
+  border:1px solid var(--border);background:var(--surface2);
+}
+.image-slot img{width:100%;height:100%;object-fit:cover;display:block;}
+.image-slot .img-remove{
+  position:absolute;top:4px;right:4px;width:20px;height:20px;border-radius:50%;
+  background:rgba(4,5,9,0.75);color:#fff;border:none;cursor:pointer;font-size:11px;
+  display:flex;align-items:center;justify-content:center;line-height:1;
+}
+.image-slot .img-remove:hover{background:var(--loss);}
+.image-slot-add{
+  aspect-ratio:1;border-radius:10px;border:1.5px dashed var(--border);
+  display:flex;align-items:center;justify-content:center;flex-direction:column;gap:2px;
+  color:var(--muted);cursor:pointer;font-size:22px;font-weight:300;
+  transition:border-color .18s var(--ease),color .18s var(--ease);
+}
+.image-slot-add:hover{border-color:var(--gold);color:var(--gold);}
+.image-slot-add .add-label{font-size:9.5px;font-weight:600;}
+
+/* ---------- TRADE DETAIL PANEL ---------- */
+.trade-detail-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px 20px;margin-bottom:18px;}
+.trade-detail-grid .full{grid-column:1/-1;}
+.td-label{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;font-weight:600;margin-bottom:4px;}
+.td-value{font-size:14px;font-weight:600;}
+.td-value.mono{font-family:'JetBrains Mono',monospace;}
+.td-notes{
+  background:var(--surface2);border:1px solid var(--border);border-radius:10px;
+  padding:12px 14px;font-size:13.5px;line-height:1.55;white-space:pre-wrap;color:var(--text);
+}
+.td-images{display:grid;grid-template-columns:repeat(auto-fill,minmax(100px,1fr));gap:10px;margin-top:6px;}
+.td-images img{
+  width:100%;aspect-ratio:1;object-fit:cover;border-radius:10px;border:1px solid var(--border);
+  cursor:pointer;transition:transform .18s var(--ease),border-color .18s var(--ease);display:block;
+}
+.td-images img:hover{transform:scale(1.03);border-color:var(--gold);}
+.trade-detail-row{display:flex;justify-content:flex-end;gap:10px;margin-top:22px;padding-top:18px;border-top:1px solid var(--border);}
+
+.lightbox{
+  position:fixed;inset:0;background:rgba(2,3,7,0.94);z-index:600;
+  display:none;align-items:center;justify-content:center;padding:24px;
+  animation:overlayIn .18s var(--ease);
+}
+.lightbox.open{display:flex;}
+.lightbox img{max-width:100%;max-height:90vh;border-radius:10px;box-shadow:0 30px 80px -20px rgba(0,0,0,0.7);object-fit:contain;}
+.lightbox-close{
+  position:absolute;top:20px;right:20px;width:38px;height:38px;border-radius:10px;
+  background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.15);color:#fff;
+  font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;
+}
+.lightbox-close:hover{background:rgba(255,255,255,0.16);}
+.lightbox-nav{
+  position:absolute;top:50%;transform:translateY(-50%);width:44px;height:44px;border-radius:50%;
+  background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.15);color:#fff;
+  font-size:20px;cursor:pointer;display:flex;align-items:center;justify-content:center;
+}
+.lightbox-nav:hover{background:rgba(255,255,255,0.16);}
+.lightbox-nav.prev{left:20px;}
+.lightbox-nav.next{right:20px;}
+.lightbox-counter{
+  position:absolute;bottom:24px;left:50%;transform:translateX(-50%);
+  color:rgba(255,255,255,0.7);font-size:12.5px;font-family:'JetBrains Mono',monospace;
+}
+.trade-row-clickable{cursor:pointer;}
+
 .modal-actions{display:flex;justify-content:flex-end;gap:10px;margin-top:20px;}
 .close-x{
   position:absolute;top:20px;right:20px;background:none;border:none;color:var(--muted);
@@ -1286,11 +1353,9 @@ table.tradelist tr:hover td{background:var(--surface2);}
         </div>
         <div class="field full"><label id="fLabelNotes">Opis / notatki</label><textarea id="f-notes" placeholder="Co zadziałało, co poprawić, emocje podczas transakcji..."></textarea></div>
         <div class="field full">
-          <label id="fLabelImage">Zrzut ekranu / wykres</label>
-          <div class="dropzone" id="dropzone">
-            <div id="dropzoneText">Kliknij lub przeciągnij obrazek tutaj</div>
-            <input type="file" id="f-image" accept="image/*" style="display:none">
-          </div>
+          <label id="fLabelImage">Zrzuty ekranu / wykresy (maks. 5)</label>
+          <div class="image-grid" id="imageGrid"></div>
+          <input type="file" id="f-image" accept="image/*" multiple style="display:none">
         </div>
       </div>
       <div class="modal-actions">
@@ -1322,6 +1387,36 @@ table.tradelist tr:hover td{background:var(--surface2);}
       </div>
     </form>
   </div>
+</div>
+
+<!-- TRADE DETAIL MODAL -->
+<div class="modal-overlay" id="tradeDetailOverlay">
+  <div class="modal" style="max-width:640px;">
+    <button class="close-x" id="closeTradeDetail">✕</button>
+    <h2 id="tradeDetailTitle">EURUSD</h2>
+    <div class="trade-detail-grid" id="tradeDetailGrid"></div>
+    <div class="field full" id="tradeDetailNotesWrap" style="margin-bottom:16px;">
+      <div class="td-label" id="tradeDetailNotesLabel">Notatki</div>
+      <div class="td-notes" id="tradeDetailNotes"></div>
+    </div>
+    <div class="field full" id="tradeDetailImagesWrap">
+      <div class="td-label" id="tradeDetailImagesLabel">Zrzuty ekranu</div>
+      <div class="td-images" id="tradeDetailImages"></div>
+    </div>
+    <div class="trade-detail-row">
+      <button class="btn ghost" id="tradeDetailEditBtn">✎ <span id="tradeDetailEditText">Edytuj</span></button>
+      <button class="btn danger" id="tradeDetailDeleteBtn">🗑 <span id="tradeDetailDeleteText">Usuń</span></button>
+    </div>
+  </div>
+</div>
+
+<!-- LIGHTBOX -->
+<div class="lightbox" id="lightbox">
+  <button class="lightbox-close" id="lightboxClose">✕</button>
+  <button class="lightbox-nav prev" id="lightboxPrev" style="display:none;">‹</button>
+  <img id="lightboxImg" src="" alt="">
+  <button class="lightbox-nav next" id="lightboxNext" style="display:none;">›</button>
+  <div class="lightbox-counter" id="lightboxCounter" style="display:none;"></div>
 </div>
 
 </div><!-- /appRoot -->
@@ -1447,6 +1542,7 @@ const I18N = {
     settingsThemeTitle:'Motyw', settingsThemeSub:'Jasny lub ciemny wygląd appki',
     settingsLangTitle:'Język', settingsLangSub:'Język interfejsu appki',
     privacyContent:'<h3>Jakie dane zbieramy</h3><p>Wick przechowuje wyłącznie dane, które sam wprowadzasz: transakcje, konta, notatki miesięczne oraz podstawowe dane konta logowania (e-mail, opcjonalnie nazwa użytkownika).</p><h3>Jak wykorzystujemy dane</h3><p>Twoje dane służą wyłącznie do wyświetlania Twojego dziennika transakcji. Nie są sprzedawane ani udostępniane osobom trzecim.</p><h3>Przechowywanie</h3><p>Dane są przechowywane w bazie Supabase, zabezpieczonej regułami dostępu ograniczającymi widoczność wyłącznie do Twojego konta.</p><h3>Usuwanie danych</h3><p>Możesz usunąć swoje dane w każdej chwili w zakładce Profil.</p><p style="margin-top:16px;color:var(--muted);font-size:11.5px;">To jest treść przykładowa. Zastąp ją właściwą polityką prywatności przed publicznym udostępnieniem appki.</p>',
+    editLabel:'Edytuj', deleteLabel:'Usuń',
   },
   en: {
     tagline:'Your trade journal & analytics',
@@ -1528,6 +1624,7 @@ const I18N = {
     settingsThemeTitle:'Theme', settingsThemeSub:'Light or dark app appearance',
     settingsLangTitle:'Language', settingsLangSub:'App interface language',
     privacyContent:'<h3>What data we collect</h3><p>Wick only stores data you enter yourself: trades, accounts, monthly notes, and basic login account details (email, optionally a username).</p><h3>How we use your data</h3><p>Your data is used solely to display your trade journal. It is never sold or shared with third parties.</p><h3>Storage</h3><p>Data is stored in a Supabase database, secured by access rules that restrict visibility to your account only.</p><h3>Deleting your data</h3><p>You can delete your data at any time from the Profile tab.</p><p style="margin-top:16px;color:var(--muted);font-size:11.5px;">This is placeholder content. Replace it with your actual privacy policy before making the app public.</p>',
+    editLabel:'Edit', deleteLabel:'Delete',
   },
   de: {
     tagline:'Dein Handelstagebuch & Analysen',
@@ -1609,6 +1706,7 @@ const I18N = {
     settingsThemeTitle:'Theme', settingsThemeSub:'Helles oder dunkles Erscheinungsbild',
     settingsLangTitle:'Sprache', settingsLangSub:'Sprache der App-Oberfläche',
     privacyContent:'<h3>Welche Daten wir erheben</h3><p>Wick speichert ausschließlich Daten, die du selbst eingibst: Trades, Konten, Monatsnotizen sowie grundlegende Zugangsdaten (E-Mail, optional ein Benutzername).</p><h3>Wie wir deine Daten nutzen</h3><p>Deine Daten dienen ausschließlich der Anzeige deines Handelstagebuchs. Sie werden niemals verkauft oder an Dritte weitergegeben.</p><h3>Speicherung</h3><p>Die Daten werden in einer Supabase-Datenbank gespeichert, abgesichert durch Zugriffsregeln, die die Sichtbarkeit auf dein Konto beschränken.</p><h3>Daten löschen</h3><p>Du kannst deine Daten jederzeit im Bereich Profil löschen.</p><p style="margin-top:16px;color:var(--muted);font-size:11.5px;">Dies ist ein Platzhaltertext. Ersetze ihn vor der Veröffentlichung durch deine tatsächliche Datenschutzerklärung.</p>',
+    editLabel:'Bearbeiten', deleteLabel:'Löschen',
   }
 };
 
@@ -1670,6 +1768,7 @@ function rowToTrade(row){
     breakeven: !!row.breakeven,
     confidence: row.confidence || 0,
     image: row.image || null,
+    images: Array.isArray(row.images) ? row.images : (row.image ? [row.image] : []),
     updatedAt: row.updated_at ? new Date(row.updated_at).getTime() : Date.now()
   };
 }
@@ -1686,7 +1785,8 @@ function tradeToRow(t){
     notes: t.notes,
     breakeven: t.breakeven,
     confidence: t.confidence,
-    image: t.image,
+    image: (t.images && t.images[0]) || null,
+    images: t.images || [],
     updated_at: new Date().toISOString()
   };
 }
@@ -1992,6 +2092,8 @@ async function initAuth(){
 
 let selectedSummaryMonth = null; // 'YYYY-MM'
 let currentImageData = null;
+const MAX_IMAGES = 5;
+let currentImages = [];
 let selectedDate = null;
 let calDate = new Date();
 calDate.setDate(1);
@@ -2164,8 +2266,8 @@ function openModal(edit){
     document.getElementById('f-notes').value = edit.notes || '';
     document.getElementById('f-breakeven').checked = !!edit.breakeven;
     setConfidence(edit.confidence || 0);
-    currentImageData = edit.image || null;
-    updateDropzonePreview();
+    currentImages = getTradeImages(edit).slice(0, MAX_IMAGES);
+    renderImageGrid();
     updateBeToggleVisual();
   } else {
     document.getElementById('modalTitle').textContent = t('newTradeTitle');
@@ -2175,8 +2277,8 @@ function openModal(edit){
     setDpDate(new Date().toISOString().slice(0,10));
     document.getElementById('f-breakeven').checked = false;
     setConfidence(0);
-    currentImageData = null;
-    updateDropzonePreview();
+    currentImages = [];
+    renderImageGrid();
     updateBeToggleVisual();
   }
 }
@@ -2205,29 +2307,68 @@ document.getElementById('cancelBtn').addEventListener('click', closeModal);
 overlay.addEventListener('click', e=>{ if(e.target===overlay) closeModal(); });
 
 /* image upload */
-const dropzone = document.getElementById('dropzone');
 const fImage = document.getElementById('f-image');
-dropzone.addEventListener('click', ()=>fImage.click());
-dropzone.addEventListener('dragover', e=>{e.preventDefault(); dropzone.style.borderColor='var(--gold)';});
-dropzone.addEventListener('dragleave', ()=>{dropzone.style.borderColor='var(--border)';});
-dropzone.addEventListener('drop', e=>{
-  e.preventDefault(); dropzone.style.borderColor='var(--border)';
-  if(e.dataTransfer.files[0]) handleImageFile(e.dataTransfer.files[0]);
-});
-fImage.addEventListener('change', e=>{ if(e.target.files[0]) handleImageFile(e.target.files[0]); });
-function handleImageFile(file){
-  const reader = new FileReader();
-  reader.onload = ev=>{ currentImageData = ev.target.result; updateDropzonePreview(); };
-  reader.readAsDataURL(file);
+function resizeImageFile(file, maxDim, quality){
+  return new Promise((resolve)=>{
+    const reader = new FileReader();
+    reader.onload = ev=>{
+      const img = new Image();
+      img.onload = ()=>{
+        let w = img.width, h = img.height;
+        if(w > maxDim || h > maxDim){
+          if(w >= h){ h = Math.round(h * (maxDim/w)); w = maxDim; }
+          else { w = Math.round(w * (maxDim/h)); h = maxDim; }
+        }
+        const canvas = document.createElement('canvas');
+        canvas.width = w; canvas.height = h;
+        canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+        resolve(canvas.toDataURL('image/jpeg', quality));
+      };
+      img.onerror = ()=> resolve(ev.target.result);
+      img.src = ev.target.result;
+    };
+    reader.readAsDataURL(file);
+  });
 }
-function updateDropzonePreview(){
-  if(currentImageData){
-    dropzone.classList.add('has-img');
-    dropzone.innerHTML = `<img src="${currentImageData}"><div style="margin-top:6px;font-size:11px;">${t('dropzoneChange')}</div>`;
-  } else {
-    dropzone.classList.remove('has-img');
-    dropzone.innerHTML = `<div id="dropzoneText">${t('dropzoneText')}</div>`;
+async function handleImageFiles(fileList){
+  const files = Array.from(fileList).slice(0, MAX_IMAGES - currentImages.length);
+  for(const file of files){
+    const dataUrl = await resizeImageFile(file, 1280, 0.82);
+    currentImages.push(dataUrl);
   }
+  renderImageGrid();
+}
+fImage.addEventListener('change', e=>{
+  if(e.target.files && e.target.files.length) handleImageFiles(e.target.files);
+  fImage.value = '';
+});
+function getTradeImages(tr){
+  if(tr.images && tr.images.length) return tr.images;
+  if(tr.image) return [tr.image];
+  return [];
+}
+function renderImageGrid(){
+  const grid = document.getElementById('imageGrid');
+  let html = currentImages.map((src, i)=>`
+    <div class="image-slot">
+      <img src="${src}">
+      <button type="button" class="img-remove" data-idx="${i}">✕</button>
+    </div>`).join('');
+  if(currentImages.length < MAX_IMAGES){
+    html += `<div class="image-slot-add" id="addImageTile">
+      <span>+</span>
+      <span class="add-label">${currentImages.length}/${MAX_IMAGES}</span>
+    </div>`;
+  }
+  grid.innerHTML = html;
+  const addTile = document.getElementById('addImageTile');
+  if(addTile) addTile.addEventListener('click', ()=> fImage.click());
+  grid.querySelectorAll('.img-remove').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      currentImages.splice(Number(btn.dataset.idx), 1);
+      renderImageGrid();
+    });
+  });
 }
 
 /* form submit */
@@ -2250,7 +2391,7 @@ document.getElementById('tradeForm').addEventListener('submit', async e=>{
     notes: document.getElementById('f-notes').value.trim(),
     breakeven: document.getElementById('f-breakeven').checked,
     confidence: Number(document.getElementById('f-confidence').value) || 0,
-    image: currentImageData,
+    images: currentImages.slice(),
     updatedAt: Date.now()
   };
   if(id){
@@ -2732,7 +2873,7 @@ function renderDayDetail(){
   if(!dayTrades.length){ box.innerHTML = `<div class="dd-title">${t('noTradesOn')} ${selectedDate}</div>`; return; }
   box.innerHTML = `<div class="dd-title">${t('tradesLabel')} · ${selectedDate}</div>` +
     dayTrades.map(t2=>`
-      <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-top:1px solid var(--border);">
+      <div class="trade-row-clickable" data-tradeid="${t2.id}" style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-top:1px solid var(--border);">
         <div>
           <strong>${t2.symbol}</strong> <span class="tag ${t2.direction}">${t2.direction}</span>${t2.breakeven?' <span class="tag be">BE</span>':''}
           ${t2.confidence ? `<span style="margin-left:6px;">${renderStarsReadonly(t2.confidence)}</span>` : ''}
@@ -2741,6 +2882,9 @@ function renderDayDetail(){
         <span class="pnl-cell ${t2.breakeven ? 'be' : (tradeValue(t2,displayMode)>=0?'pos':'neg')}">${fmtValue(tradeValue(t2,displayMode), displayMode)}</span>
       </div>
     `).join('');
+  box.querySelectorAll('[data-tradeid]').forEach(row=>{
+    row.addEventListener('click', ()=> openTradeDetail(row.dataset.tradeid));
+  });
 }
 
 document.getElementById('prevMonth').addEventListener('click', ()=>{ calDate.setMonth(calDate.getMonth()-1); renderCalendar(); });
@@ -2795,8 +2939,8 @@ function renderTradesTable(){
     </tr></thead>
     <tbody>
       ${pageList.map(t2=>`
-        <tr>
-          <td>${t2.image ? `<img class="thumb" src="${t2.image}">` : ''}</td>
+        <tr class="trade-row-clickable" data-tradeid="${t2.id}">
+          <td>${getTradeImages(t2)[0] ? `<img class="thumb" src="${getTradeImages(t2)[0]}">` : ''}</td>
           <td style="font-family:'Inter',sans-serif;">${fmtDateWords(t2.date)}</td>
           <td><strong>${t2.symbol}</strong></td>
           <td><span class="tag ${t2.direction}">${t2.direction}</span>${t2.breakeven?' <span class="tag be">BE</span>':''}</td>
@@ -2804,8 +2948,8 @@ function renderTradesTable(){
           <td class="pnl-cell ${t2.breakeven ? 'be' : (tradeValue(t2,displayMode)>=0?'pos':'neg')}">${fmtValue(tradeValue(t2,displayMode), displayMode)}</td>
           <td>
             <div class="row-actions">
-              <button class="icon-btn" onclick="editTrade('${t2.id}')">✎</button>
-              <button class="icon-btn" onclick="deleteTrade('${t2.id}')">🗑</button>
+              <button class="icon-btn" data-edit="${t2.id}">✎</button>
+              <button class="icon-btn" data-del="${t2.id}">🗑</button>
             </div>
           </td>
         </tr>
@@ -2824,6 +2968,19 @@ function renderTradesTable(){
   const nextBtn = document.getElementById('pageNext');
   if(prevBtn) prevBtn.addEventListener('click', ()=>{ tradesPage--; renderTradesTable(); });
   if(nextBtn) nextBtn.addEventListener('click', ()=>{ tradesPage++; renderTradesTable(); });
+
+  wrap.querySelectorAll('tr[data-tradeid]').forEach(row=>{
+    row.addEventListener('click', (e)=>{
+      if(e.target.closest('[data-edit]') || e.target.closest('[data-del]')) return;
+      openTradeDetail(row.dataset.tradeid);
+    });
+  });
+  wrap.querySelectorAll('[data-edit]').forEach(btn=>{
+    btn.addEventListener('click', (e)=>{ e.stopPropagation(); editTrade(btn.dataset.edit); });
+  });
+  wrap.querySelectorAll('[data-del]').forEach(btn=>{
+    btn.addEventListener('click', (e)=>{ e.stopPropagation(); deleteTrade(btn.dataset.del); });
+  });
 }
 window.editTrade = function(id){
   const tr = trades.find(x=>x.id===id);
@@ -2838,6 +2995,107 @@ window.deleteTrade = function(id){
     deleteTradeFromDb(id);
   }
 };
+
+/* ============ TRADE DETAIL PANEL + LIGHTBOX ============ */
+let detailTradeId = null;
+let lightboxImages = [];
+let lightboxIndex = 0;
+
+function openTradeDetail(id){
+  const tr = allTrades.find(x=>x.id===id);
+  if(!tr) return;
+  detailTradeId = id;
+  const imgs = getTradeImages(tr);
+
+  document.getElementById('tradeDetailTitle').innerHTML =
+    `${escapeHtml(tr.symbol)} <span class="tag ${tr.direction}" style="margin-left:8px;vertical-align:middle;">${tr.direction}</span>${tr.breakeven?' <span class="tag be" style="vertical-align:middle;">BE</span>':''}`;
+
+  const rows = [
+    {label: t('date'), value: fmtDateWords(tr.date)},
+    {label: displayMode==='rr' ? 'RR' : 'P/L', value: fmtValue(tradeValue(tr, displayMode), displayMode), cls: tr.breakeven ? '' : (tradeValue(tr,displayMode)>=0?'pos':'neg')},
+  ];
+  if(tr.rr !== null && tr.rr !== undefined && tr.rr !== ''){
+    rows.push({label:'RR', value: (tr.rr>=0?'+':'')+Number(tr.rr).toFixed(2)+'R'});
+  }
+  rows.push({label: t('confidence'), value: tr.confidence ? renderStarsReadonly(tr.confidence) : '—', isHtml:true});
+
+  document.getElementById('tradeDetailGrid').innerHTML = rows.map(r=>`
+    <div>
+      <div class="td-label">${r.label}</div>
+      <div class="td-value mono ${r.cls||''}">${r.isHtml ? r.value : escapeHtml(String(r.value))}</div>
+    </div>`).join('');
+
+  const notesWrap = document.getElementById('tradeDetailNotesWrap');
+  if(tr.notes && tr.notes.trim()){
+    notesWrap.style.display = '';
+    document.getElementById('tradeDetailNotesLabel').textContent = t('notesLabel');
+    document.getElementById('tradeDetailNotes').textContent = tr.notes;
+  } else {
+    notesWrap.style.display = 'none';
+  }
+
+  const imagesWrap = document.getElementById('tradeDetailImagesWrap');
+  if(imgs.length){
+    imagesWrap.style.display = '';
+    document.getElementById('tradeDetailImagesLabel').textContent = t('imageLabel');
+    document.getElementById('tradeDetailImages').innerHTML = imgs.map((src,i)=>`<img src="${src}" data-idx="${i}">`).join('');
+    document.getElementById('tradeDetailImages').querySelectorAll('img').forEach(img=>{
+      img.addEventListener('click', ()=> openLightbox(imgs, Number(img.dataset.idx)));
+    });
+  } else {
+    imagesWrap.style.display = 'none';
+  }
+
+  document.getElementById('tradeDetailEditText').textContent = t('editLabel');
+  document.getElementById('tradeDetailDeleteText').textContent = t('deleteLabel');
+  document.getElementById('tradeDetailOverlay').classList.add('open');
+}
+function closeTradeDetail(){ document.getElementById('tradeDetailOverlay').classList.remove('open'); }
+document.getElementById('closeTradeDetail').addEventListener('click', closeTradeDetail);
+document.getElementById('tradeDetailOverlay').addEventListener('click', e=>{ if(e.target.id==='tradeDetailOverlay') closeTradeDetail(); });
+document.getElementById('tradeDetailEditBtn').addEventListener('click', ()=>{
+  closeTradeDetail();
+  editTrade(detailTradeId);
+});
+document.getElementById('tradeDetailDeleteBtn').addEventListener('click', ()=>{
+  closeTradeDetail();
+  deleteTrade(detailTradeId);
+});
+
+function openLightbox(images, index){
+  lightboxImages = images;
+  lightboxIndex = index;
+  renderLightbox();
+  document.getElementById('lightbox').classList.add('open');
+}
+function closeLightbox(){ document.getElementById('lightbox').classList.remove('open'); }
+function renderLightbox(){
+  document.getElementById('lightboxImg').src = lightboxImages[lightboxIndex];
+  const multi = lightboxImages.length > 1;
+  document.getElementById('lightboxPrev').style.display = multi ? 'flex' : 'none';
+  document.getElementById('lightboxNext').style.display = multi ? 'flex' : 'none';
+  const counter = document.getElementById('lightboxCounter');
+  counter.style.display = multi ? 'block' : 'none';
+  counter.textContent = (lightboxIndex+1) + ' / ' + lightboxImages.length;
+}
+document.getElementById('lightboxClose').addEventListener('click', closeLightbox);
+document.getElementById('lightbox').addEventListener('click', e=>{ if(e.target.id==='lightbox') closeLightbox(); });
+document.getElementById('lightboxPrev').addEventListener('click', (e)=>{
+  e.stopPropagation();
+  lightboxIndex = (lightboxIndex - 1 + lightboxImages.length) % lightboxImages.length;
+  renderLightbox();
+});
+document.getElementById('lightboxNext').addEventListener('click', (e)=>{
+  e.stopPropagation();
+  lightboxIndex = (lightboxIndex + 1) % lightboxImages.length;
+  renderLightbox();
+});
+document.addEventListener('keydown', (e)=>{
+  if(!document.getElementById('lightbox').classList.contains('open')) return;
+  if(e.key === 'Escape') closeLightbox();
+  if(e.key === 'ArrowLeft' && lightboxImages.length>1){ lightboxIndex = (lightboxIndex-1+lightboxImages.length)%lightboxImages.length; renderLightbox(); }
+  if(e.key === 'ArrowRight' && lightboxImages.length>1){ lightboxIndex = (lightboxIndex+1)%lightboxImages.length; renderLightbox(); }
+});
 
 ['searchInput','filterDirection','sortSelect'].forEach(id=>{
   document.getElementById(id).addEventListener('input', ()=>{ tradesPage = 1; renderTradesTable(); });
@@ -3205,7 +3463,7 @@ function applyStaticTexts(){
   document.getElementById('settingsLangTitle').textContent = t('settingsLangTitle');
   document.getElementById('settingsLangSub').textContent = t('settingsLangSub');
   updateDrawerAccountInfo();
-  updateDropzonePreview();
+  renderImageGrid();
 }
 
 function applyLanguage(){
