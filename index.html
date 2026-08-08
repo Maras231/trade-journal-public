@@ -560,17 +560,118 @@ table.tradelist tr:hover td{background:var(--surface2);}
 
 /* ================= LANGUAGE GATE ================= */
 .lang-option{
-  display:flex;align-items:center;gap:12px;background:var(--surface2);border:1.5px solid var(--border);
+  display:flex;align-items:center;gap:12px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);
   border-radius:12px;padding:12px 14px;cursor:pointer;transition:border-color .18s var(--ease),background .18s var(--ease),transform .15s var(--ease);
   text-align:left;width:100%;font-family:'Inter',sans-serif;color:var(--text);
 }
-.lang-option:hover{border-color:#3a4258;transform:translateY(-1px);}
-.lang-option.selected{border-color:var(--gold);background:var(--gold-dim);box-shadow:var(--shadow-gold);}
+.lang-option:hover{border-color:rgba(255,255,255,0.18);background:rgba(255,255,255,0.05);transform:translateY(-1px);}
+.lang-option.selected{border-color:rgba(232,184,75,0.55);background:rgba(232,184,75,0.08);}
 .lang-flag{font-size:22px;line-height:1;flex:none;}
 .lang-name{font-weight:600;font-size:14px;flex:1;text-align:left;}
-.lang-radio{width:18px;height:18px;border-radius:50%;border:2px solid var(--border);flex:none;position:relative;transition:border-color .18s var(--ease);}
+.lang-radio{width:18px;height:18px;border-radius:50%;border:2px solid rgba(255,255,255,0.18);flex:none;position:relative;transition:border-color .18s var(--ease);}
 .lang-option.selected .lang-radio{border-color:var(--gold);}
-.lang-option.selected .lang-radio::after{content:'';position:absolute;inset:2px;border-radius:50%;background:var(--gold);}
+.lang-option.selected .lang-radio::after{content:'';position:absolute;inset:3px;border-radius:50%;background:var(--gold);}
+
+/* ================= AUTH SCREENS (login / register / reset / language) ================= */
+/* Applies only to the auth-family overlays — rest of the app is untouched. */
+.auth-overlay{
+  background:
+    radial-gradient(ellipse 640px 480px at 12% -6%, rgba(232,184,75,0.10), transparent 62%),
+    radial-gradient(ellipse 560px 460px at 92% 104%, rgba(102,126,255,0.10), transparent 60%),
+    rgba(2,3,7,0.94);
+  backdrop-filter: blur(10px);
+  overflow:hidden;
+}
+.auth-overlay::before, .auth-overlay::after{
+  content:'';position:absolute;border-radius:50%;filter:blur(70px);opacity:.55;pointer-events:none;z-index:0;
+}
+.auth-overlay::before{
+  width:360px;height:360px;background:radial-gradient(circle, rgba(232,184,75,0.16), transparent 70%);
+  top:-120px;left:-90px;animation:authBlobFloat1 16s ease-in-out infinite;
+}
+.auth-overlay::after{
+  width:420px;height:420px;background:radial-gradient(circle, rgba(96,120,255,0.14), transparent 70%);
+  bottom:-140px;right:-110px;animation:authBlobFloat2 19s ease-in-out infinite;
+}
+@keyframes authBlobFloat1{0%,100%{transform:translate(0,0);}50%{transform:translate(30px,25px);}}
+@keyframes authBlobFloat2{0%,100%{transform:translate(0,0);}50%{transform:translate(-25px,-30px);}}
+@media(prefers-reduced-motion:reduce){.auth-overlay::before,.auth-overlay::after{animation:none;}}
+
+.auth-card{
+  position:relative;z-index:1;
+  background:linear-gradient(175deg, rgba(26,29,40,0.82), rgba(11,13,20,0.88));
+  backdrop-filter:blur(28px) saturate(140%);
+  border:1px solid rgba(255,255,255,0.08);
+  border-radius:24px;
+  box-shadow:0 40px 100px -24px rgba(0,0,0,0.75), inset 0 1px 0 rgba(255,255,255,0.05);
+  overflow:hidden;
+  animation:modalIn .28s var(--ease);
+}
+.auth-card::before{
+  content:'';position:absolute;top:0;left:0;right:0;height:1px;
+  background:linear-gradient(90deg, transparent, rgba(232,184,75,0.5), transparent);
+}
+[data-theme="light"] .auth-overlay{
+  background:
+    radial-gradient(ellipse 640px 480px at 12% -6%, rgba(184,134,11,0.08), transparent 62%),
+    radial-gradient(ellipse 560px 460px at 92% 104%, rgba(70,90,220,0.08), transparent 60%),
+    rgba(15,17,26,0.7);
+}
+[data-theme="light"] .auth-card{
+  background:linear-gradient(175deg, rgba(255,255,255,0.92), rgba(244,245,249,0.96));
+  border-color:rgba(20,25,45,0.08);
+  box-shadow:0 40px 100px -24px rgba(20,25,45,0.35), inset 0 1px 0 rgba(255,255,255,0.6);
+}
+
+.auth-logo{
+  width:42px;height:42px;margin:2px auto 16px;display:block;
+  filter:drop-shadow(0 6px 16px rgba(0,0,0,0.45));
+}
+.auth-logo img{width:100%;height:100%;object-fit:contain;display:block;}
+[data-theme="light"] .auth-logo img{filter:invert(1) brightness(0.15);}
+
+.auth-tabs{
+  display:flex;gap:3px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.07);
+  border-radius:12px;padding:4px;margin:0 auto 24px;width:fit-content;
+}
+.auth-tabs button{
+  background:transparent;border:none;color:var(--muted);padding:8px 22px;
+  border-radius:9px;font-size:13px;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif;
+  transition:background .18s var(--ease),color .18s var(--ease);
+}
+.auth-tabs button.active{background:rgba(232,184,75,0.14);color:var(--gold);}
+.auth-tabs button:hover:not(.active){color:var(--text);}
+
+.auth-field{position:relative;}
+.auth-field svg{
+  position:absolute;left:13px;top:50%;transform:translateY(-50%);
+  width:15px;height:15px;color:var(--muted);pointer-events:none;
+}
+.auth-field input{padding-left:37px !important;}
+
+.auth-divider{display:flex;align-items:center;gap:10px;margin:18px 0;}
+.auth-divider .line{flex:1;height:1px;background:linear-gradient(90deg, transparent, rgba(255,255,255,0.14), transparent);}
+.auth-divider span{color:var(--muted);font-size:11px;text-transform:uppercase;letter-spacing:.6px;flex:none;}
+
+.auth-google-btn{
+  background:rgba(255,255,255,0.03) !important;border:1px solid rgba(255,255,255,0.1) !important;
+  box-shadow:none !important;
+}
+.auth-google-btn:hover{background:rgba(255,255,255,0.06) !important;border-color:rgba(255,255,255,0.18) !important;color:var(--text) !important;transform:translateY(-1px);}
+
+.auth-card .btn.primary{box-shadow:0 12px 28px -10px rgba(232,184,75,0.35);}
+.auth-card .btn.primary:hover{box-shadow:0 16px 34px -8px rgba(232,184,75,0.45);}
+
+.auth-card .field label{color:rgba(255,255,255,0.5);}
+[data-theme="light"] .auth-card .field label{color:rgba(20,25,45,0.55);}
+.auth-card .field input{
+  background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.09);
+}
+[data-theme="light"] .auth-card .field input{background:rgba(20,25,45,0.03);border-color:rgba(20,25,45,0.1);}
+.auth-card .field input:focus{border-color:rgba(232,184,75,0.55);box-shadow:0 0 0 3px rgba(232,184,75,0.1);}
+
+.auth-remember-row a{transition:color .15s var(--ease);}
+.auth-remember-row a:hover{color:var(--gold) !important;}
 
 /* ================= RESPONSIVE ================= */
 @media(max-width:900px){
@@ -655,9 +756,9 @@ table.tradelist tr:hover td{background:var(--surface2);}
   <div class="splash-bar"><div class="splash-bar-fill"></div></div>
 </div>
 
-<div class="modal-overlay" id="langGate" style="z-index:300;">
-  <div class="modal" style="max-width:380px;text-align:center;padding:34px 28px;">
-    <div class="mark" style="width:52px;height:52px;border-radius:14px;font-size:22px;margin:0 auto 16px;"><img src="icon-192.png" alt="Wick"></div>
+<div class="modal-overlay auth-overlay" id="langGate" style="z-index:300;">
+  <div class="modal auth-card" style="max-width:380px;text-align:center;padding:36px 28px;">
+    <div class="auth-logo"><img src="icon-192.png" alt="Wick"></div>
     <h2 id="langGateTitle" style="margin-bottom:6px;">Wybierz język</h2>
     <p id="langGateSub" style="color:var(--muted);font-size:12.5px;margin-bottom:22px;">Możesz to zmienić później w ustawieniach.</p>
     <div id="langOptions" style="display:flex;flex-direction:column;gap:10px;margin-bottom:22px;"></div>
@@ -665,22 +766,33 @@ table.tradelist tr:hover td{background:var(--surface2);}
   </div>
 </div>
 
-<div class="modal-overlay" id="authGate" style="z-index:200;">
-  <div class="modal" style="max-width:400px;padding:34px 30px;">
-    <div class="mark" style="width:52px;height:52px;border-radius:14px;font-size:22px;margin:0 auto 14px;"><img src="icon-192.png" alt="Wick"></div>
+<div class="modal-overlay auth-overlay" id="authGate" style="z-index:200;">
+  <div class="modal auth-card" style="max-width:400px;padding:36px 30px;">
+    <div class="auth-logo"><img src="icon-192.png" alt="Wick"></div>
     <h2 id="authTitle" style="text-align:center;margin-bottom:6px;">Witaj w Wick</h2>
-    <p id="authGateDesc" style="color:var(--muted);font-size:12.5px;text-align:center;margin-bottom:22px;line-height:1.4;">Zaloguj się, aby zobaczyć swój dziennik transakcji — Twoje dane są prywatne i widoczne tylko dla Ciebie.</p>
+    <p id="authGateDesc" style="color:var(--muted);font-size:12.5px;text-align:center;margin-bottom:20px;line-height:1.4;">Zaloguj się, aby zobaczyć swój dziennik transakcji — Twoje dane są prywatne i widoczne tylko dla Ciebie.</p>
+
+    <div class="auth-tabs" id="authTabs">
+      <button type="button" class="active" id="authTabLogin">Zaloguj</button>
+      <button type="button" id="authTabRegister">Zarejestruj</button>
+    </div>
 
     <form id="loginForm">
       <div class="field" style="margin-bottom:12px;">
         <label id="authEmailLabel">Adres e-mail</label>
-        <input type="email" id="authLoginEmail" required placeholder="ty@przyklad.pl" autocomplete="email">
+        <div class="auth-field">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5h16v14H4z"/><path d="M4 6l8 7 8-7"/></svg>
+          <input type="email" id="authLoginEmail" required placeholder="ty@przyklad.pl" autocomplete="email">
+        </div>
       </div>
       <div class="field" style="margin-bottom:10px;">
         <label id="authPasswordLabel">Hasło</label>
-        <input type="password" id="authLoginPassword" required placeholder="••••••••" autocomplete="current-password">
+        <div class="auth-field">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4.5" y="10.5" width="15" height="9.5" rx="2"/><path d="M8 10.5V7a4 4 0 0 1 8 0v3.5"/></svg>
+          <input type="password" id="authLoginPassword" required placeholder="••••••••" autocomplete="current-password">
+        </div>
       </div>
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:18px;font-size:12px;flex-wrap:wrap;gap:6px;">
+      <div class="auth-remember-row" style="display:flex;justify-content:space-between;align-items:center;margin-bottom:18px;font-size:12px;flex-wrap:wrap;gap:6px;">
         <label style="display:flex;align-items:center;gap:6px;cursor:pointer;color:var(--muted);">
           <input type="checkbox" id="authRemember" checked style="accent-color:var(--gold);width:14px;height:14px;">
           <span id="authRememberLabel">Zapamiętaj mnie</span>
@@ -693,30 +805,42 @@ table.tradelist tr:hover td{background:var(--surface2);}
     <form id="registerForm" style="display:none;">
       <div class="field" style="margin-bottom:12px;">
         <label id="authUsernameLabel">Nazwa użytkownika</label>
-        <input type="text" id="authRegUsername" required placeholder="np. tradermarek" autocomplete="username">
+        <div class="auth-field">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="3.5"/><path d="M5 20c0-3.9 3.1-7 7-7s7 3.1 7 7"/></svg>
+          <input type="text" id="authRegUsername" required placeholder="np. tradermarek" autocomplete="username">
+        </div>
       </div>
       <div class="field" style="margin-bottom:12px;">
         <label id="authEmailLabel2">Adres e-mail</label>
-        <input type="email" id="authRegEmail" required placeholder="ty@przyklad.pl" autocomplete="email">
+        <div class="auth-field">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5h16v14H4z"/><path d="M4 6l8 7 8-7"/></svg>
+          <input type="email" id="authRegEmail" required placeholder="ty@przyklad.pl" autocomplete="email">
+        </div>
       </div>
       <div class="field" style="margin-bottom:12px;">
         <label id="authPasswordLabel2">Hasło</label>
-        <input type="password" id="authRegPassword" required minlength="6" placeholder="••••••••" autocomplete="new-password">
+        <div class="auth-field">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4.5" y="10.5" width="15" height="9.5" rx="2"/><path d="M8 10.5V7a4 4 0 0 1 8 0v3.5"/></svg>
+          <input type="password" id="authRegPassword" required minlength="6" placeholder="••••••••" autocomplete="new-password">
+        </div>
       </div>
       <div class="field" style="margin-bottom:18px;">
         <label id="authConfirmLabel">Powtórz hasło</label>
-        <input type="password" id="authRegPassword2" required minlength="6" placeholder="••••••••" autocomplete="new-password">
+        <div class="auth-field">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4.5" y="10.5" width="15" height="9.5" rx="2"/><path d="M8 10.5V7a4 4 0 0 1 8 0v3.5"/></svg>
+          <input type="password" id="authRegPassword2" required minlength="6" placeholder="••••••••" autocomplete="new-password">
+        </div>
       </div>
       <button type="submit" class="btn primary" id="authRegisterSubmit" style="width:100%;justify-content:center;padding:12px;">Zarejestruj</button>
     </form>
 
-    <div style="display:flex;align-items:center;gap:10px;margin:18px 0;">
-      <div style="flex:1;height:1px;background:var(--border);"></div>
-      <span id="authOr" style="color:var(--muted);font-size:11.5px;text-transform:uppercase;letter-spacing:.4px;">lub</span>
-      <div style="flex:1;height:1px;background:var(--border);"></div>
+    <div class="auth-divider">
+      <div class="line"></div>
+      <span id="authOr">lub</span>
+      <div class="line"></div>
     </div>
 
-    <button class="btn" id="authGateLoginBtn" style="width:100%;justify-content:center;padding:12px;">
+    <button class="btn auth-google-btn" id="authGateLoginBtn" style="width:100%;justify-content:center;padding:12px;">
       <svg width="17" height="17" viewBox="0 0 48 48" style="vertical-align:-3px;margin-right:6px;">
         <path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3c-1.6 4.6-6 8-11.3 8-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.8 1.2 8 3l6-6C34.6 5.1 29.6 3 24 3 12.4 3 3 12.4 3 24s9.4 21 21 21 21-9.4 21-21c0-1.2-.1-2.4-.4-3.5z"/>
         <path fill="#FF3D00" d="M6.3 14.7l6.6 4.8C14.6 15.9 18.9 13 24 13c3.1 0 5.8 1.2 8 3l6-6C34.6 5.1 29.6 3 24 3c-7.5 0-13.9 4.3-17.7 10.7z"/>
@@ -726,28 +850,30 @@ table.tradelist tr:hover td{background:var(--surface2);}
       <span id="authGateLoginText">Zaloguj się przez Google</span>
     </button>
 
-    <div style="text-align:center;margin-top:18px;font-size:12.5px;color:var(--muted);">
-      <span id="authSwitchText">Nowy?</span> <a href="#" id="authSwitchLink" style="color:var(--gold);font-weight:600;text-decoration:none;">Zarejestruj się</a>
-    </div>
-
     <div id="authGateError" style="color:var(--loss);font-size:12.5px;margin-top:14px;display:none;text-align:center;"></div>
     <div id="authGateSuccess" style="color:var(--profit);font-size:12.5px;margin-top:14px;display:none;text-align:center;"></div>
   </div>
 </div>
 
-<div class="modal-overlay" id="resetGate" style="z-index:400;">
-  <div class="modal" style="max-width:400px;padding:34px 30px;">
-    <div class="mark" style="width:52px;height:52px;border-radius:14px;font-size:22px;margin:0 auto 14px;"><img src="icon-192.png" alt="Wick"></div>
+<div class="modal-overlay auth-overlay" id="resetGate" style="z-index:400;">
+  <div class="modal auth-card" style="max-width:400px;padding:36px 30px;">
+    <div class="auth-logo"><img src="icon-192.png" alt="Wick"></div>
     <h2 id="resetTitle" style="text-align:center;margin-bottom:6px;">Ustaw nowe hasło</h2>
     <p id="resetDesc" style="color:var(--muted);font-size:12.5px;text-align:center;margin-bottom:22px;line-height:1.4;">Wpisz nowe hasło do swojego konta.</p>
     <form id="resetForm">
       <div class="field" style="margin-bottom:12px;">
         <label id="resetPassword1Label">Nowe hasło</label>
-        <input type="password" id="resetPassword1" required minlength="6" placeholder="••••••••" autocomplete="new-password">
+        <div class="auth-field">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4.5" y="10.5" width="15" height="9.5" rx="2"/><path d="M8 10.5V7a4 4 0 0 1 8 0v3.5"/></svg>
+          <input type="password" id="resetPassword1" required minlength="6" placeholder="••••••••" autocomplete="new-password">
+        </div>
       </div>
       <div class="field" style="margin-bottom:18px;">
         <label id="resetPassword2Label">Powtórz nowe hasło</label>
-        <input type="password" id="resetPassword2" required minlength="6" placeholder="••••••••" autocomplete="new-password">
+        <div class="auth-field">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4.5" y="10.5" width="15" height="9.5" rx="2"/><path d="M8 10.5V7a4 4 0 0 1 8 0v3.5"/></svg>
+          <input type="password" id="resetPassword2" required minlength="6" placeholder="••••••••" autocomplete="new-password">
+        </div>
       </div>
       <button type="submit" class="btn primary" id="resetSubmitBtn" style="width:100%;justify-content:center;padding:12px;">Zapisz nowe hasło</button>
     </form>
@@ -1355,13 +1481,11 @@ function switchAuthMode(mode){
   document.getElementById('registerForm').style.display = mode==='register' ? '' : 'none';
   document.getElementById('authTitle').textContent = mode==='login' ? t('authLoginTitle') : t('authRegisterTitle');
   document.getElementById('authGateDesc').textContent = mode==='login' ? t('authGateDesc') : t('authGateDescRegister');
-  document.getElementById('authSwitchText').textContent = mode==='login' ? t('authNewUser') : t('authHaveAccount');
-  document.getElementById('authSwitchLink').textContent = mode==='login' ? t('authGoRegister') : t('authGoLogin');
+  document.getElementById('authTabLogin').classList.toggle('active', mode==='login');
+  document.getElementById('authTabRegister').classList.toggle('active', mode==='register');
 }
-document.getElementById('authSwitchLink').addEventListener('click', (e)=>{
-  e.preventDefault();
-  switchAuthMode(authMode==='login' ? 'register' : 'login');
-});
+document.getElementById('authTabLogin').addEventListener('click', ()=> switchAuthMode('login'));
+document.getElementById('authTabRegister').addEventListener('click', ()=> switchAuthMode('register'));
 
 document.getElementById('loginForm').addEventListener('submit', async (e)=>{
   e.preventDefault();
@@ -2442,8 +2566,8 @@ function applyStaticTexts(){
   dpWeekdayLetters().forEach((d,i)=>{ if(dpWeekdaySpans[i]) dpWeekdaySpans[i].textContent = d; });
   document.getElementById('authTitle').textContent = authMode==='login' ? t('authLoginTitle') : t('authRegisterTitle');
   document.getElementById('authGateDesc').textContent = authMode==='login' ? t('authGateDesc') : t('authGateDescRegister');
-  document.getElementById('authSwitchText').textContent = authMode==='login' ? t('authNewUser') : t('authHaveAccount');
-  document.getElementById('authSwitchLink').textContent = authMode==='login' ? t('authGoRegister') : t('authGoLogin');
+  document.getElementById('authTabLogin').textContent = t('authLoginSubmit');
+  document.getElementById('authTabRegister').textContent = t('authRegisterSubmit');
   document.getElementById('authEmailLabel').textContent = t('authEmailLabel');
   document.getElementById('authEmailLabel2').textContent = t('authEmailLabel');
   document.getElementById('authPasswordLabel').textContent = t('authPasswordLabel');
