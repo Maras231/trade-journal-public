@@ -1790,6 +1790,7 @@ const I18N = {
     addAccount:'Dodaj konto', newAccountTitle:'Nowe konto', editAccountTitle:'Edytuj konto',
     accNameLabel:'Nazwa konta (maks. 20 znaków)', accBalanceLabel:'Kapitał początkowy ($)',
     cannotDeleteLastAccount:'Nie możesz usunąć jedynego konta.', confirmDeleteAccount:'Usunąć to konto wraz z jego transakcjami?',
+    maxAccountsReached:'Możesz mieć maksymalnie 5 kont. Usuń jedno, aby dodać nowe.',
     alertAccountSaveFail:'Nie udało się zapisać konta w bazie danych.', alertAccountDeleteFail:'Nie udało się usunąć konta z bazy danych.',
     settingsThemeTitle:'Motyw', settingsThemeSub:'Jasny lub ciemny wygląd appki',
     settingsLangTitle:'Język', settingsLangSub:'Język interfejsu appki',
@@ -1887,6 +1888,7 @@ const I18N = {
     addAccount:'Add account', newAccountTitle:'New account', editAccountTitle:'Edit account',
     accNameLabel:'Account name (max 20 characters)', accBalanceLabel:'Starting balance ($)',
     cannotDeleteLastAccount:'You cannot delete your only account.', confirmDeleteAccount:'Delete this account along with its trades?',
+    maxAccountsReached:'You can have up to 5 accounts. Delete one to add a new one.',
     alertAccountSaveFail:'Failed to save the account to the database.', alertAccountDeleteFail:'Failed to delete the account from the database.',
     settingsThemeTitle:'Theme', settingsThemeSub:'Light or dark app appearance',
     settingsLangTitle:'Language', settingsLangSub:'App interface language',
@@ -1984,6 +1986,7 @@ const I18N = {
     addAccount:'Konto hinzufügen', newAccountTitle:'Neues Konto', editAccountTitle:'Konto bearbeiten',
     accNameLabel:'Kontoname (max. 20 Zeichen)', accBalanceLabel:'Startkapital ($)',
     cannotDeleteLastAccount:'Du kannst dein einziges Konto nicht löschen.', confirmDeleteAccount:'Dieses Konto samt seiner Trades löschen?',
+    maxAccountsReached:'Du kannst maximal 5 Konten haben. Lösche eines, um ein neues hinzuzufügen.',
     alertAccountSaveFail:'Das Konto konnte nicht in der Datenbank gespeichert werden.', alertAccountDeleteFail:'Das Konto konnte nicht aus der Datenbank gelöscht werden.',
     settingsThemeTitle:'Theme', settingsThemeSub:'Helles oder dunkles Erscheinungsbild',
     settingsLangTitle:'Sprache', settingsLangSub:'Sprache der App-Oberfläche',
@@ -3687,12 +3690,13 @@ function showScreen(name){
 });
 
 /* ============ SCREEN: KONTA ============ */
+const MAX_ACCOUNTS = 5;
 function renderAccountsScreen(){
   const summary = document.getElementById('accountsSummary');
   summary.innerHTML = `
     <div class="stat-card" style="max-width:180px;">
       <div class="label">${t('accountsCount')}</div>
-      <div class="value">${accounts.length}</div>
+      <div class="value">${accounts.length} / ${MAX_ACCOUNTS}</div>
     </div>`;
 
   const grid = document.getElementById('accountsGrid');
@@ -3711,7 +3715,10 @@ function renderAccountsScreen(){
       </div>
     </div>`;
   }).join('');
-  grid.innerHTML = tiles + `<div class="account-tile-add" id="addAccountTile">+ <span id="addAccountLabel" style="margin-left:6px;">${t('addAccount')}</span></div>`;
+  const addTileHtml = accounts.length < MAX_ACCOUNTS
+    ? `<div class="account-tile-add" id="addAccountTile">+ <span id="addAccountLabel" style="margin-left:6px;">${t('addAccount')}</span></div>`
+    : '';
+  grid.innerHTML = tiles + addTileHtml;
 
   grid.querySelectorAll('.account-tile[data-account]').forEach(tile=>{
     tile.addEventListener('click', (e)=>{
@@ -3781,6 +3788,11 @@ document.getElementById('accountForm').addEventListener('submit', async (e)=>{
     const acc = accounts.find(a=>a.id===id);
     if(acc){ acc.name = name; acc.balance = balance; acc.updatedAt = Date.now(); await saveAccountToDb(acc); }
   } else {
+    if(accounts.length >= MAX_ACCOUNTS){
+      closeAccountModal();
+      await customAlert(t('maxAccountsReached'));
+      return;
+    }
     const acc = { id: uid(), name, balance, createdAt: Date.now(), updatedAt: Date.now() };
     accounts.push(acc);
     if(!currentAccountId){ currentAccountId = acc.id; localStorage.setItem(ACCOUNT_KEY, acc.id); refreshScopedTrades(); }
