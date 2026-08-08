@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Wick: Trade Journal — Twój dziennik transakcji i analityka</title>
+<meta name="description" content="Wick to prosty, przejrzysty dziennik transakcji dla traderów. Zapisuj transakcje, zdjęcia i notatki, a Wick sam policzy Twoje statystyki: Win Rate, średni zysk/stratę i krzywą kapitału.">
+<link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0B0E14; --surface:#12161F; --surface2:#181D28; --border:#242A38;
+  --text:#E7EAF2; --muted:#7C8399; --gold:#E8B84B; --profit:#3ADD9C;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{
+  background:radial-gradient(ellipse 900px 500px at 88% -8%, rgba(232,184,75,0.07) 0%, transparent 60%),
+             radial-gradient(circle at 10% 0%, #131826 0%, #0B0E14 45%) fixed;
+  color:var(--text); font-family:'Inter',sans-serif; line-height:1.6;
+  -webkit-font-smoothing:antialiased;
+}
+.wrap{max-width:880px;margin:0 auto;padding:28px 24px 80px;}
+header{display:flex;align-items:center;justify-content:space-between;padding-bottom:24px;border-bottom:1px solid var(--border);margin-bottom:56px;}
+.brand{display:flex;align-items:center;gap:12px;}
+.brand img{width:34px;height:34px;filter:drop-shadow(0 4px 10px rgba(0,0,0,.35));}
+.brand span{font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:19px;}
+.cta-top{
+  background:linear-gradient(135deg,var(--gold),#c98f2b);color:#151102;font-weight:700;font-size:13.5px;
+  padding:9px 18px;border-radius:9px;text-decoration:none;box-shadow:0 8px 24px -6px rgba(232,184,75,.35);
+}
+.hero{text-align:center;margin-bottom:72px;}
+.hero h1{font-family:'Space Grotesk',sans-serif;font-size:40px;font-weight:700;letter-spacing:-.5px;margin-bottom:16px;}
+.hero p{color:var(--muted);font-size:16px;max-width:520px;margin:0 auto 32px;}
+.hero .cta{
+  display:inline-flex;align-items:center;gap:8px;background:linear-gradient(135deg,var(--gold),#c98f2b);
+  color:#151102;font-weight:700;font-size:15px;padding:14px 28px;border-radius:11px;text-decoration:none;
+  box-shadow:0 10px 28px -6px rgba(232,184,75,.4);
+}
+.features{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px;margin-bottom:64px;}
+.feature{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:22px;}
+.feature .icon{width:34px;height:34px;border-radius:9px;background:rgba(232,184,75,.12);color:var(--gold);
+  display:flex;align-items:center;justify-content:center;margin-bottom:14px;font-size:16px;font-weight:700;}
+.feature h3{font-family:'Space Grotesk',sans-serif;font-size:15px;margin-bottom:6px;}
+.feature p{color:var(--muted);font-size:13.5px;}
+.section-title{font-family:'Space Grotesk',sans-serif;font-size:22px;margin-bottom:20px;}
+.about{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:32px;margin-bottom:56px;}
+.about p{color:#C7CCDA;font-size:14.5px;margin-bottom:14px;}
+.about p:last-child{margin-bottom:0;}
+footer{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;
+  padding-top:28px;border-top:1px solid var(--border);color:var(--muted);font-size:13px;}
+footer a{color:var(--muted);text-decoration:none;margin-left:18px;}
+footer a:hover{color:var(--gold);}
+@media(max-width:600px){
+  .hero h1{font-size:30px;}
+  header{flex-wrap:wrap;gap:14px;}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="brand"><img src="icon-192.png" alt="Wick"><span>Wick</span></div>
+    <a class="cta-top" href="index.html">Otwórz aplikację</a>
+  </header>
+
+  <div class="hero">
+    <h1>Wick: Trade Journal</h1>
+    <p>Osobisty dziennik transakcji tradingowych. Zapisuj swoje transakcje, zdjęcia i notatki — Wick sam policzy za Ciebie statystyki i krzywą kapitału.</p>
+    <a class="cta" href="index.html">Otwórz aplikację →</a>
+  </div>
+
+  <div class="features">
+    <div class="feature">
+      <div class="icon">1</div>
+      <h3>Dziennik transakcji</h3>
+      <p>Zapisuj symbol, kierunek, wynik, RR i pewność każdej transakcji, wraz ze zrzutami ekranu wykresu.</p>
+    </div>
+    <div class="feature">
+      <div class="icon">2</div>
+      <h3>Automatyczne statystyki</h3>
+      <p>Win Rate, średni zysk/strata, seria wygranych i krzywa kapitału liczone same, na bieżąco.</p>
+    </div>
+    <div class="feature">
+      <div class="icon">3</div>
+      <h3>Wiele kont</h3>
+      <p>Prowadź osobne dzienniki dla różnych kont handlowych w jednym miejscu.</p>
+    </div>
+    <div class="feature">
+      <div class="icon">4</div>
+      <h3>Kalendarz i miesiące</h3>
+      <p>Podsumowania miesięczne i widok kalendarza pokazują wyniki dzień po dniu.</p>
+    </div>
+    <div class="feature">
+      <div class="icon">5</div>
+      <h3>Prywatność</h3>
+      <p>Twoje dane widzi tylko Ty — appka nie sprzedaje ani nie udostępnia ich nikomu.</p>
+    </div>
+    <div class="feature">
+      <div class="icon">6</div>
+      <h3>Wszędzie dostępna</h3>
+      <p>Działa w przeglądarce i jako aplikacja na telefonie, na Androidzie i komputerze.</p>
+    </div>
+  </div>
+
+  <div class="section-title">Czym jest Wick?</div>
+  <div class="about">
+    <p><strong>Wick</strong> to prosty, przejrzysty dziennik transakcji dla traderów indywidualnych. Aplikacja nie łączy się z żadnym brokerem ani giełdą i nie wykonuje żadnych operacji finansowych — służy wyłącznie do ręcznego zapisywania własnych transakcji i automatycznego liczenia statystyk na ich podstawie (Win Rate, średni zysk, średnia strata, krzywa kapitału i inne).</p>
+    <p>Aplikacja wymaga założenia konta (e-mail i hasło, lub logowanie przez Google), żeby dane każdego użytkownika były prywatne i widoczne tylko dla niego. Po zalogowaniu można prowadzić kilka niezależnych kont handlowych, dodawać transakcje ze zrzutami ekranu i notatkami, oraz przeglądać podsumowania dzienne i miesięczne.</p>
+  </div>
+
+  <footer>
+    <span>© 2026 Wick: Trade Journal</span>
+    <div>
+      <a href="privacy-policy.html">Polityka Prywatności</a>
+      <a href="mailto:wickjournalapp@gmail.com">Kontakt</a>
+    </div>
+  </footer>
+</div>
+</body>
+</html>
