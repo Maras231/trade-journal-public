@@ -666,18 +666,72 @@ table.tradelist tr:hover td{background:var(--surface2);}
 </div>
 
 <div class="modal-overlay" id="authGate" style="z-index:200;">
-  <div class="modal" style="max-width:400px;text-align:center;padding:36px 30px;">
-    <div class="mark" style="width:56px;height:56px;border-radius:14px;font-size:24px;margin:0 auto 18px;"><img src="icon-192.png" alt="Wick"></div>
-    <h2 style="margin-bottom:8px;">Wick</h2>
-    <p id="authGateDesc" style="color:var(--muted);font-size:13.5px;margin-bottom:26px;">Zaloguj się przez Google, żeby zobaczyć swój dziennik transakcji — Twoje dane są prywatne i widoczne tylko dla Ciebie.</p>
-    <button class="btn primary" id="authGateLoginBtn" style="width:100%;justify-content:center;padding:12px;">
-      <svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor" style="vertical-align:-3px;margin-right:4px;">
-        <circle cx="12" cy="8" r="4"/>
-        <path d="M4 20c0-4.4 3.6-8 8-8s8 3.6 8 8"/>
+  <div class="modal" style="max-width:400px;padding:34px 30px;">
+    <div class="mark" style="width:52px;height:52px;border-radius:14px;font-size:22px;margin:0 auto 14px;"><img src="icon-192.png" alt="Wick"></div>
+    <h2 id="authTitle" style="text-align:center;margin-bottom:6px;">Witaj w Wick</h2>
+    <p id="authGateDesc" style="color:var(--muted);font-size:12.5px;text-align:center;margin-bottom:22px;line-height:1.4;">Zaloguj się, aby zobaczyć swój dziennik transakcji — Twoje dane są prywatne i widoczne tylko dla Ciebie.</p>
+
+    <form id="loginForm">
+      <div class="field" style="margin-bottom:12px;">
+        <label id="authEmailLabel">Adres e-mail</label>
+        <input type="email" id="authLoginEmail" required placeholder="ty@przyklad.pl" autocomplete="email">
+      </div>
+      <div class="field" style="margin-bottom:10px;">
+        <label id="authPasswordLabel">Hasło</label>
+        <input type="password" id="authLoginPassword" required placeholder="••••••••" autocomplete="current-password">
+      </div>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:18px;font-size:12px;flex-wrap:wrap;gap:6px;">
+        <label style="display:flex;align-items:center;gap:6px;cursor:pointer;color:var(--muted);">
+          <input type="checkbox" id="authRemember" checked style="accent-color:var(--gold);width:14px;height:14px;">
+          <span id="authRememberLabel">Zapamiętaj mnie</span>
+        </label>
+        <a href="#" id="authForgotLink" style="color:var(--muted);text-decoration:none;">Zapomniałeś hasła?</a>
+      </div>
+      <button type="submit" class="btn primary" id="authLoginSubmit" style="width:100%;justify-content:center;padding:12px;">Zaloguj</button>
+    </form>
+
+    <form id="registerForm" style="display:none;">
+      <div class="field" style="margin-bottom:12px;">
+        <label id="authUsernameLabel">Nazwa użytkownika</label>
+        <input type="text" id="authRegUsername" required placeholder="np. tradermarek" autocomplete="username">
+      </div>
+      <div class="field" style="margin-bottom:12px;">
+        <label id="authEmailLabel2">Adres e-mail</label>
+        <input type="email" id="authRegEmail" required placeholder="ty@przyklad.pl" autocomplete="email">
+      </div>
+      <div class="field" style="margin-bottom:12px;">
+        <label id="authPasswordLabel2">Hasło</label>
+        <input type="password" id="authRegPassword" required minlength="6" placeholder="••••••••" autocomplete="new-password">
+      </div>
+      <div class="field" style="margin-bottom:18px;">
+        <label id="authConfirmLabel">Powtórz hasło</label>
+        <input type="password" id="authRegPassword2" required minlength="6" placeholder="••••••••" autocomplete="new-password">
+      </div>
+      <button type="submit" class="btn primary" id="authRegisterSubmit" style="width:100%;justify-content:center;padding:12px;">Zarejestruj</button>
+    </form>
+
+    <div style="display:flex;align-items:center;gap:10px;margin:18px 0;">
+      <div style="flex:1;height:1px;background:var(--border);"></div>
+      <span id="authOr" style="color:var(--muted);font-size:11.5px;text-transform:uppercase;letter-spacing:.4px;">lub</span>
+      <div style="flex:1;height:1px;background:var(--border);"></div>
+    </div>
+
+    <button class="btn" id="authGateLoginBtn" style="width:100%;justify-content:center;padding:12px;">
+      <svg width="17" height="17" viewBox="0 0 48 48" style="vertical-align:-3px;margin-right:6px;">
+        <path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3c-1.6 4.6-6 8-11.3 8-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.8 1.2 8 3l6-6C34.6 5.1 29.6 3 24 3 12.4 3 3 12.4 3 24s9.4 21 21 21 21-9.4 21-21c0-1.2-.1-2.4-.4-3.5z"/>
+        <path fill="#FF3D00" d="M6.3 14.7l6.6 4.8C14.6 15.9 18.9 13 24 13c3.1 0 5.8 1.2 8 3l6-6C34.6 5.1 29.6 3 24 3c-7.5 0-13.9 4.3-17.7 10.7z"/>
+        <path fill="#4CAF50" d="M24 45c5.5 0 10.4-1.9 14.3-5.1l-6.6-5.6C29.6 36.1 26.9 37 24 37c-5.2 0-9.6-3.3-11.2-8l-6.6 5.1C9.9 40.5 16.4 45 24 45z"/>
+        <path fill="#1976D2" d="M43.6 20.5H42V20H24v8h11.3c-.8 2.3-2.2 4.2-4.1 5.6l6.6 5.6C41.4 36 44 30.5 44 24c0-1.2-.1-2.4-.4-3.5z"/>
       </svg>
       <span id="authGateLoginText">Zaloguj się przez Google</span>
     </button>
-    <div id="authGateError" style="color:var(--loss);font-size:12.5px;margin-top:14px;display:none;"></div>
+
+    <div style="text-align:center;margin-top:18px;font-size:12.5px;color:var(--muted);">
+      <span id="authSwitchText">Nowy?</span> <a href="#" id="authSwitchLink" style="color:var(--gold);font-weight:600;text-decoration:none;">Zarejestruj się</a>
+    </div>
+
+    <div id="authGateError" style="color:var(--loss);font-size:12.5px;margin-top:14px;display:none;text-align:center;"></div>
+    <div id="authGateSuccess" style="color:var(--profit);font-size:12.5px;margin-top:14px;display:none;text-align:center;"></div>
   </div>
 </div>
 
@@ -889,7 +943,21 @@ table.tradelist tr:hover td{background:var(--surface2);}
 /* ============ DATA LAYER (Supabase) ============ */
 const SUPABASE_URL = 'https://ifjwlttariefurtljeyb.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImlmandsdHRhcmllZnVydGxqZXliIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODU2NzkxMTIsImV4cCI6MjEwMTI1NTExMn0.0JeSoUVmfHQoe04YIknl6gfgBshA2320ih0whUgP62k';
-const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+  auth: {
+    storage: {
+      getItem: (k)=> (getRemember() ? localStorage : sessionStorage).getItem(k),
+      setItem: (k,v)=> (getRemember() ? localStorage : sessionStorage).setItem(k,v),
+      removeItem: (k)=> (getRemember() ? localStorage : sessionStorage).removeItem(k)
+    },
+    persistSession: true,
+    autoRefreshToken: true,
+    detectSessionInUrl: true
+  }
+});
+const REMEMBER_KEY = 'tj_remember';
+function getRemember(){ return localStorage.getItem(REMEMBER_KEY) !== '0'; }
+function setRemember(val){ localStorage.setItem(REMEMBER_KEY, val ? '1' : '0'); }
 
 /* ============ I18N ============ */
 const LANG_KEY = 'tj_lang';
@@ -914,7 +982,6 @@ let currentLang = localStorage.getItem(LANG_KEY) || detectLang();
 const I18N = {
   pl: {
     tagline:'Twój dziennik transakcji i analityka',
-    authGateDesc:'Zaloguj się przez Google, żeby zobaczyć swój dziennik transakcji — Twoje dane są prywatne i widoczne tylko dla Ciebie.',
     googleLogin:'Zaloguj się przez Google',
     addTrade:'Dodaj transakcję',
     tabDashboard:'Dashboard', tabTrades:'Baza transakcji', tabMonths:'Podsumowanie Miesiąca',
@@ -954,11 +1021,28 @@ const I18N = {
     loginErrorPrefix:'Błąd logowania: ',
     langGateTitle:'Wybierz język', langGateSub:'Możesz to zmienić później w ustawieniach.', confirm:'Zatwierdź',
     splashSub:'Dziennik transakcji',
-    logoutTooltip:'Wyloguj', themeTooltip:'Zmień motyw', langTooltip:'Zmień język'
+    logoutTooltip:'Wyloguj', themeTooltip:'Zmień motyw', langTooltip:'Zmień język',
+    authLoginTitle:'Witaj w Wick', authRegisterTitle:'Rejestracja',
+    authGateDesc:'Zaloguj się, aby zobaczyć swój dziennik transakcji — Twoje dane są prywatne i widoczne tylko dla Ciebie.',
+    authGateDescRegister:'Załóż konto, aby zacząć prowadzić swój dziennik transakcji.',
+    authNewUser:'Nowy?', authHaveAccount:'Masz już konto?',
+    authGoRegister:'Zarejestruj się', authGoLogin:'Zaloguj się',
+    authEmailLabel:'Adres e-mail', authPasswordLabel:'Hasło', authUsernameLabel:'Nazwa użytkownika',
+    authConfirmLabel:'Powtórz hasło', authRememberLabel:'Zapamiętaj mnie', authForgotLink:'Zapomniałeś hasła?',
+    authOr:'lub', authLoginSubmit:'Zaloguj', authRegisterSubmit:'Zarejestruj',
+    loginBtnLabel:'Zaloguj się',
+    authPasswordMismatch:'Hasła nie są takie same.', authPasswordTooShort:'Hasło musi mieć co najmniej 6 znaków.',
+    authCheckEmail:'Sprawdź swoją skrzynkę e-mail, aby potwierdzić konto, a następnie się zaloguj.',
+    authEnterEmailFirst:'Najpierw wpisz swój adres e-mail.',
+    authResetSent:'Wysłaliśmy link do resetu hasła na podany adres e-mail.',
+    authInvalidCredentials:'Nieprawidłowy e-mail lub hasło.',
+    authEmailNotConfirmed:'Potwierdź swój adres e-mail przed zalogowaniem.',
+    authUserExists:'Konto z tym adresem e-mail już istnieje.',
+    authEmailPlaceholder:'ty@przyklad.pl', authPasswordPlaceholder:'••••••••', authUsernamePlaceholder:'np. tradermarek'
   },
   en: {
     tagline:'Your trade journal & analytics',
-    authGateDesc:'Sign in with Google to see your trade journal — your data is private and visible only to you.',
+    authGateDesc:'Sign in to see your trade journal — your data is private and visible only to you.',
     googleLogin:'Sign in with Google',
     addTrade:'Add Trade',
     tabDashboard:'Dashboard', tabTrades:'Trade Log', tabMonths:'Monthly Summary',
@@ -998,11 +1082,27 @@ const I18N = {
     loginErrorPrefix:'Login error: ',
     langGateTitle:'Choose your language', langGateSub:'You can change this later in settings.', confirm:'Confirm',
     splashSub:'Trade Journal',
-    logoutTooltip:'Log out', themeTooltip:'Toggle theme', langTooltip:'Change language'
+    logoutTooltip:'Log out', themeTooltip:'Toggle theme', langTooltip:'Change language',
+    authLoginTitle:'Welcome to Wick', authRegisterTitle:'Create an account',
+    authGateDescRegister:'Create an account to start your trade journal.',
+    authNewUser:'New here?', authHaveAccount:'Already have an account?',
+    authGoRegister:'Sign up', authGoLogin:'Log in',
+    authEmailLabel:'Email address', authPasswordLabel:'Password', authUsernameLabel:'Username',
+    authConfirmLabel:'Confirm password', authRememberLabel:'Remember me', authForgotLink:'Forgot password?',
+    authOr:'or', authLoginSubmit:'Log in', authRegisterSubmit:'Sign up',
+    loginBtnLabel:'Log in',
+    authPasswordMismatch:'Passwords do not match.', authPasswordTooShort:'Password must be at least 6 characters.',
+    authCheckEmail:'Check your inbox to confirm your account, then log in.',
+    authEnterEmailFirst:'Enter your email first.',
+    authResetSent:'We sent a password reset link to that email address.',
+    authInvalidCredentials:'Invalid email or password.',
+    authEmailNotConfirmed:'Please confirm your email before logging in.',
+    authUserExists:'An account with this email already exists.',
+    authEmailPlaceholder:'you@example.com', authPasswordPlaceholder:'••••••••', authUsernamePlaceholder:'e.g. trader_mike'
   },
   de: {
     tagline:'Dein Handelstagebuch & Analysen',
-    authGateDesc:'Melde dich mit Google an, um dein Handelstagebuch zu sehen — deine Daten sind privat und nur für dich sichtbar.',
+    authGateDesc:'Melde dich an, um dein Handelstagebuch zu sehen — deine Daten sind privat und nur für dich sichtbar.',
     googleLogin:'Mit Google anmelden',
     addTrade:'Trade hinzufügen',
     tabDashboard:'Dashboard', tabTrades:'Handelsprotokoll', tabMonths:'Monatsübersicht',
@@ -1042,7 +1142,23 @@ const I18N = {
     loginErrorPrefix:'Anmeldefehler: ',
     langGateTitle:'Sprache wählen', langGateSub:'Du kannst dies später in den Einstellungen ändern.', confirm:'Bestätigen',
     splashSub:'Handelstagebuch',
-    logoutTooltip:'Abmelden', themeTooltip:'Theme wechseln', langTooltip:'Sprache ändern'
+    logoutTooltip:'Abmelden', themeTooltip:'Theme wechseln', langTooltip:'Sprache ändern',
+    authLoginTitle:'Willkommen bei Wick', authRegisterTitle:'Registrieren',
+    authGateDescRegister:'Erstelle ein Konto, um dein Handelstagebuch zu starten.',
+    authNewUser:'Neu hier?', authHaveAccount:'Schon ein Konto?',
+    authGoRegister:'Registrieren', authGoLogin:'Anmelden',
+    authEmailLabel:'E-Mail-Adresse', authPasswordLabel:'Passwort', authUsernameLabel:'Benutzername',
+    authConfirmLabel:'Passwort wiederholen', authRememberLabel:'Angemeldet bleiben', authForgotLink:'Passwort vergessen?',
+    authOr:'oder', authLoginSubmit:'Anmelden', authRegisterSubmit:'Registrieren',
+    loginBtnLabel:'Anmelden',
+    authPasswordMismatch:'Die Passwörter stimmen nicht überein.', authPasswordTooShort:'Das Passwort muss mindestens 6 Zeichen haben.',
+    authCheckEmail:'Bestätige dein Konto per E-Mail und melde dich anschließend an.',
+    authEnterEmailFirst:'Gib zuerst deine E-Mail-Adresse ein.',
+    authResetSent:'Wir haben einen Link zum Zurücksetzen des Passworts gesendet.',
+    authInvalidCredentials:'Ungültige E-Mail oder ungültiges Passwort.',
+    authEmailNotConfirmed:'Bitte bestätige deine E-Mail, bevor du dich anmeldest.',
+    authUserExists:'Ein Konto mit dieser E-Mail existiert bereits.',
+    authEmailPlaceholder:'du@beispiel.de', authPasswordPlaceholder:'••••••••', authUsernamePlaceholder:'z. B. tradermax'
   }
 };
 
@@ -1152,9 +1268,12 @@ async function saveMonthNoteToDb(month, text){
 }
 
 /* ---------- AUTH ---------- */
+let authMode = 'login'; // 'login' | 'register'
+
 function showAuthGate(show){
   document.getElementById('authGate').classList.toggle('open', show);
   document.getElementById('appRoot').style.display = show ? 'none' : '';
+  if(show) switchAuthMode('login');
 }
 function updateUserWidget(){
   const loginBtn = document.getElementById('loginBtn');
@@ -1163,23 +1282,108 @@ function updateUserWidget(){
   if(currentUser){
     loginBtn.style.display = 'none';
     wrap.style.display = 'flex';
-    emailText.textContent = currentUser.email;
+    emailText.textContent = (currentUser.user_metadata && currentUser.user_metadata.username) || currentUser.email;
   } else {
     loginBtn.style.display = 'inline-flex';
     wrap.style.display = 'none';
   }
 }
 
+function clearAuthMessages(){
+  const errEl = document.getElementById('authGateError');
+  const okEl = document.getElementById('authGateSuccess');
+  errEl.style.display = 'none'; errEl.textContent = '';
+  okEl.style.display = 'none'; okEl.textContent = '';
+}
+function showAuthError(msg){
+  clearAuthMessages();
+  const el = document.getElementById('authGateError');
+  el.textContent = msg; el.style.display = 'block';
+}
+function showAuthSuccess(msg){
+  clearAuthMessages();
+  const el = document.getElementById('authGateSuccess');
+  el.textContent = msg; el.style.display = 'block';
+}
+function mapAuthError(msg){
+  const m = (msg || '').toLowerCase();
+  if(m.includes('invalid login credentials')) return t('authInvalidCredentials');
+  if(m.includes('email not confirmed')) return t('authEmailNotConfirmed');
+  if(m.includes('already registered') || m.includes('already exists') || m.includes('user already registered')) return t('authUserExists');
+  if(m.includes('password should be at least') || m.includes('at least 6')) return t('authPasswordTooShort');
+  return msg;
+}
+
+function switchAuthMode(mode){
+  authMode = mode;
+  clearAuthMessages();
+  document.getElementById('loginForm').style.display = mode==='login' ? '' : 'none';
+  document.getElementById('registerForm').style.display = mode==='register' ? '' : 'none';
+  document.getElementById('authTitle').textContent = mode==='login' ? t('authLoginTitle') : t('authRegisterTitle');
+  document.getElementById('authGateDesc').textContent = mode==='login' ? t('authGateDesc') : t('authGateDescRegister');
+  document.getElementById('authSwitchText').textContent = mode==='login' ? t('authNewUser') : t('authHaveAccount');
+  document.getElementById('authSwitchLink').textContent = mode==='login' ? t('authGoRegister') : t('authGoLogin');
+}
+document.getElementById('authSwitchLink').addEventListener('click', (e)=>{
+  e.preventDefault();
+  switchAuthMode(authMode==='login' ? 'register' : 'login');
+});
+
+document.getElementById('loginForm').addEventListener('submit', async (e)=>{
+  e.preventDefault();
+  clearAuthMessages();
+  const email = document.getElementById('authLoginEmail').value.trim();
+  const password = document.getElementById('authLoginPassword').value;
+  const remember = document.getElementById('authRemember').checked;
+  setRemember(remember);
+  const btn = document.getElementById('authLoginSubmit');
+  btn.disabled = true;
+  const { error } = await sb.auth.signInWithPassword({ email, password });
+  btn.disabled = false;
+  if(error) showAuthError(mapAuthError(error.message));
+});
+
+document.getElementById('registerForm').addEventListener('submit', async (e)=>{
+  e.preventDefault();
+  clearAuthMessages();
+  const username = document.getElementById('authRegUsername').value.trim();
+  const email = document.getElementById('authRegEmail').value.trim();
+  const pw1 = document.getElementById('authRegPassword').value;
+  const pw2 = document.getElementById('authRegPassword2').value;
+  if(pw1 !== pw2){ showAuthError(t('authPasswordMismatch')); return; }
+  if(pw1.length < 6){ showAuthError(t('authPasswordTooShort')); return; }
+  setRemember(true);
+  const btn = document.getElementById('authRegisterSubmit');
+  btn.disabled = true;
+  const { data, error } = await sb.auth.signUp({
+    email, password: pw1,
+    options: { data: { username }, emailRedirectTo: window.location.href }
+  });
+  btn.disabled = false;
+  if(error){ showAuthError(mapAuthError(error.message)); return; }
+  if(!data.session){
+    showAuthSuccess(t('authCheckEmail'));
+    switchAuthMode('login');
+  }
+});
+
+document.getElementById('authForgotLink').addEventListener('click', async (e)=>{
+  e.preventDefault();
+  clearAuthMessages();
+  const email = document.getElementById('authLoginEmail').value.trim();
+  if(!email){ showAuthError(t('authEnterEmailFirst')); return; }
+  const { error } = await sb.auth.resetPasswordForEmail(email, { redirectTo: window.location.href });
+  if(error) showAuthError(mapAuthError(error.message));
+  else showAuthSuccess(t('authResetSent'));
+});
+
 async function handleLogin(){
+  setRemember(true);
   const { error } = await sb.auth.signInWithOAuth({
     provider: 'google',
     options: { redirectTo: window.location.href }
   });
-  if(error){
-    const el = document.getElementById('authGateError');
-    el.textContent = t('loginErrorPrefix') + error.message;
-    el.style.display = 'block';
-  }
+  if(error) showAuthError(t('loginErrorPrefix') + error.message);
 }
 async function handleLogout(){
   await sb.auth.signOut();
@@ -1191,7 +1395,7 @@ async function handleLogout(){
   showAuthGate(true);
 }
 
-document.getElementById('loginBtn').addEventListener('click', handleLogin);
+document.getElementById('loginBtn').addEventListener('click', ()=> showAuthGate(true));
 document.getElementById('authGateLoginBtn').addEventListener('click', handleLogin);
 document.getElementById('logoutBtn').addEventListener('click', (e)=>{
   e.stopPropagation();
@@ -2098,7 +2302,7 @@ function applyStaticTexts(){
   document.getElementById('brandTagline').textContent = t('tagline');
   document.getElementById('authGateDesc').textContent = t('authGateDesc');
   document.getElementById('authGateLoginText').textContent = t('googleLogin');
-  document.getElementById('loginBtnText').textContent = t('googleLogin');
+  document.getElementById('loginBtnText').textContent = t('loginBtnLabel');
   document.getElementById('addTradeBtnText').textContent = t('addTrade');
   document.getElementById('tabDashboardBtn').textContent = t('tabDashboard');
   document.getElementById('tabTradesBtn').textContent = t('tabTrades');
@@ -2140,6 +2344,28 @@ function applyStaticTexts(){
   document.getElementById('dpInputText').textContent = dpSelected ? dpFormatDisplay(dpSelected) : t('pickDate');
   const dpWeekdaySpans = document.querySelectorAll('#dpWeekdays span');
   dpWeekdayLetters().forEach((d,i)=>{ if(dpWeekdaySpans[i]) dpWeekdaySpans[i].textContent = d; });
+  document.getElementById('authTitle').textContent = authMode==='login' ? t('authLoginTitle') : t('authRegisterTitle');
+  document.getElementById('authGateDesc').textContent = authMode==='login' ? t('authGateDesc') : t('authGateDescRegister');
+  document.getElementById('authSwitchText').textContent = authMode==='login' ? t('authNewUser') : t('authHaveAccount');
+  document.getElementById('authSwitchLink').textContent = authMode==='login' ? t('authGoRegister') : t('authGoLogin');
+  document.getElementById('authEmailLabel').textContent = t('authEmailLabel');
+  document.getElementById('authEmailLabel2').textContent = t('authEmailLabel');
+  document.getElementById('authPasswordLabel').textContent = t('authPasswordLabel');
+  document.getElementById('authPasswordLabel2').textContent = t('authPasswordLabel');
+  document.getElementById('authUsernameLabel').textContent = t('authUsernameLabel');
+  document.getElementById('authConfirmLabel').textContent = t('authConfirmLabel');
+  document.getElementById('authRememberLabel').textContent = t('authRememberLabel');
+  document.getElementById('authForgotLink').textContent = t('authForgotLink');
+  document.getElementById('authOr').textContent = t('authOr');
+  document.getElementById('authLoginSubmit').textContent = t('authLoginSubmit');
+  document.getElementById('authRegisterSubmit').textContent = t('authRegisterSubmit');
+  document.getElementById('authGateLoginText').textContent = t('googleLogin');
+  document.getElementById('authLoginEmail').placeholder = t('authEmailPlaceholder');
+  document.getElementById('authRegEmail').placeholder = t('authEmailPlaceholder');
+  document.getElementById('authLoginPassword').placeholder = t('authPasswordPlaceholder');
+  document.getElementById('authRegPassword').placeholder = t('authPasswordPlaceholder');
+  document.getElementById('authRegPassword2').placeholder = t('authPasswordPlaceholder');
+  document.getElementById('authRegUsername').placeholder = t('authUsernamePlaceholder');
   const curLangObj = LANGS.find(l=>l.code===currentLang) || LANGS[0];
   document.getElementById('langSwitchBtn').textContent = curLangObj.flag + ' ' + currentLang.toUpperCase();
   document.getElementById('langSwitchBtn').title = t('langTooltip');
@@ -2203,7 +2429,7 @@ document.getElementById('langSwitchBtn').addEventListener('click', ()=>{
 });
 
 /* ============ SPLASH SCREEN ============ */
-const MIN_SPLASH_MS = 3000;
+const MIN_SPLASH_MS = 2000;
 const splashStartTime = Date.now();
 let authReady = false;
 let splashHidden = false;
