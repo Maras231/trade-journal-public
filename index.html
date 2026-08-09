@@ -208,6 +208,7 @@ nav.tabs button:hover:not(.active){color:var(--text);}
   background:linear-gradient(90deg,var(--gold),transparent);opacity:0;transition:opacity .2s var(--ease);
 }
 .stat-card:hover{border-color:#2f3648;transform:translateY(-2px);box-shadow:var(--shadow-md);}
+.stat-card.clickable{cursor:pointer;}
 .stat-card:hover::before{opacity:.7;}
 .stat-card .label{color:var(--muted);font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:.6px;margin-bottom:8px;}
 .stat-card .value{font-family:'JetBrains Mono',monospace;font-size:24px;font-weight:700;font-feature-settings:"tnum";letter-spacing:-.2px;}
@@ -299,6 +300,9 @@ td.win .pnl{color:var(--profit);}
 table.calendar td.loss{background:linear-gradient(135deg, rgba(255,107,107,0.16), rgba(255,107,107,0.05));border-color:rgba(255,107,107,0.28);}
 table.calendar td.loss:hover{border-color:var(--loss);background:linear-gradient(135deg, rgba(255,107,107,0.22), rgba(255,107,107,0.08));}
 td.loss .pnl{color:var(--loss);}
+table.calendar td.be{background:linear-gradient(135deg, rgba(255,255,255,0.09), rgba(255,255,255,0.02));border-color:rgba(255,255,255,0.18);}
+table.calendar td.be:hover{border-color:rgba(255,255,255,0.35);background:linear-gradient(135deg, rgba(255,255,255,0.13), rgba(255,255,255,0.04));}
+td.be .pnl{color:#fff;}
 td.selected{outline:2px solid var(--gold);outline-offset:-1px;}
 
 /* dzień z sąsiedniego miesiąca (koniec/początek tygodnia na przełomie) — przygaszony */
@@ -317,10 +321,12 @@ table.calendar td.week-col{
 table.calendar td.week-col:hover{transform:none;box-shadow:inset 0 0 0 1px rgba(232,184,75,.08);}
 table.calendar td.week-col.win{background:linear-gradient(160deg, rgba(58,221,156,0.14), rgba(58,221,156,0.04));border-color:rgba(58,221,156,0.3);}
 table.calendar td.week-col.loss{background:linear-gradient(160deg, rgba(255,107,107,0.14), rgba(255,107,107,0.04));border-color:rgba(255,107,107,0.3);}
+table.calendar td.week-col.be{background:linear-gradient(160deg, rgba(255,255,255,0.1), rgba(255,255,255,0.03));border-color:rgba(255,255,255,0.22);}
 .week-label{font-size:9.5px;color:var(--muted);text-transform:uppercase;letter-spacing:.6px;font-weight:700;margin-bottom:4px;}
 .week-total{font-family:'JetBrains Mono',monospace;font-weight:700;font-size:14px;font-feature-settings:"tnum";color:var(--muted);}
 table.calendar td.week-col.win .week-total{color:var(--profit);}
 table.calendar td.week-col.loss .week-total{color:var(--loss);}
+table.calendar td.week-col.be .week-total{color:#fff;}
 
 /* ---------- TRADES TABLE ---------- */
 .trades-toolbar{display:flex;gap:10px;margin-bottom:14px;align-items:center;flex-wrap:wrap;}
@@ -2014,6 +2020,7 @@ const I18N = {
     week:'Tydzień', total:'Suma', page:'strona', back:'Wstecz', next:'Dalej',
     monthTotalPL:'Całościowe P/L', monthTotalRR:'Całościowe RR', tradeCount:'Ilość transakcji',
     wins:'Wygrane', losses:'Przegrane', breakeven:'Breakeven', confidence:'Pewność',
+    bestTrade:'Najlepsza transakcja', worstTrade:'Najgorsza transakcja',
     confirmLogout:'Wylogować się?', confirmDeleteTrade:'Usunąć tę transakcję?',
     alertSaveFail:'Nie udało się zapisać transakcji w bazie danych. Sprawdź połączenie z internetem.',
     alertDeleteFail:'Nie udało się usunąć transakcji z bazy danych.',
@@ -2143,6 +2150,7 @@ const I18N = {
     week:'Week', total:'Total', page:'page', back:'Back', next:'Next',
     monthTotalPL:'Total P/L', monthTotalRR:'Total RR', tradeCount:'Trade count',
     wins:'Wins', losses:'Losses', breakeven:'Breakeven', confidence:'Confidence',
+    bestTrade:'Best trade', worstTrade:'Worst trade',
     confirmLogout:'Log out?', confirmDeleteTrade:'Delete this trade?',
     alertSaveFail:'Failed to save the trade to the database. Check your internet connection.',
     alertDeleteFail:'Failed to delete the trade from the database.',
@@ -2271,6 +2279,7 @@ const I18N = {
     week:'Woche', total:'Summe', page:'Seite', back:'Zurück', next:'Weiter',
     monthTotalPL:'Gesamt G/V', monthTotalRR:'Gesamt RR', tradeCount:'Anzahl Trades',
     wins:'Gewinne', losses:'Verluste', breakeven:'Breakeven', confidence:'Sicherheit',
+    bestTrade:'Bester Trade', worstTrade:'Schlechtester Trade',
     confirmLogout:'Abmelden?', confirmDeleteTrade:'Diesen Trade löschen?',
     alertSaveFail:'Der Trade konnte nicht in der Datenbank gespeichert werden. Prüfe deine Internetverbindung.',
     alertDeleteFail:'Der Trade konnte nicht aus der Datenbank gelöscht werden.',
@@ -3636,7 +3645,12 @@ function computeMonthStats(list){
   const totalPnl = list.reduce((s,t)=>s+t.pnl,0);
   const rrTrades = list.filter(t=> t.rr!==undefined && t.rr!==null && t.rr!=='' && !isNaN(t.rr));
   const totalRR = rrTrades.reduce((s,t)=>s+parseFloat(t.rr),0);
-  return {total, beCount, winRate, totalPnl, totalRR, hasRR: rrTrades.length>0, winsCount: wins.length, lossesCount: losses.length};
+  let bestTrade = null, worstTrade = null;
+  scored.forEach(t=>{
+    if(!bestTrade || t.pnl > bestTrade.pnl) bestTrade = t;
+    if(!worstTrade || t.pnl < worstTrade.pnl) worstTrade = t;
+  });
+  return {total, beCount, winRate, totalPnl, totalRR, hasRR: rrTrades.length>0, winsCount: wins.length, lossesCount: losses.length, bestTrade, worstTrade};
 }
 
 function getMonthsWithTrades(){
@@ -3758,12 +3772,17 @@ function renderMonthDetail(){
     {label:t('wins'), value: s.winsCount, cls:'pos'},
     {label:t('losses'), value: s.lossesCount, cls:'neg'},
     {label:t('breakeven'), value: s.beCount, cls:''},
+    {label:t('bestTrade'), value: s.bestTrade ? `${escapeHtml(s.bestTrade.symbol)} ${fmt(s.bestTrade.pnl)}` : '—', cls: s.bestTrade?'pos':'', tradeId: s.bestTrade?.id},
+    {label:t('worstTrade'), value: s.worstTrade ? `${escapeHtml(s.worstTrade.symbol)} ${fmt(s.worstTrade.pnl)}` : '—', cls: s.worstTrade?'neg':'', tradeId: s.worstTrade?.id},
   ];
   document.getElementById('monthStatsRow').innerHTML = cards.map(c=>`
-    <div class="stat-card">
+    <div class="stat-card${c.tradeId?' clickable':''}"${c.tradeId?` data-open-trade="${c.tradeId}"`:''}>
       <div class="label">${c.label}</div>
       <div class="value ${c.cls}">${c.value}</div>
     </div>`).join('');
+  document.getElementById('monthStatsRow').querySelectorAll('[data-open-trade]').forEach(card=>{
+    card.addEventListener('click', ()=> openTradeDetail(card.dataset.openTrade));
+  });
 
   renderMonthEquityCurve(list);
 
@@ -3798,13 +3817,14 @@ function addDays(d,n){ const nd=new Date(d); nd.setDate(nd.getDate()+n); return 
 function dayInfoAnyMonth(dateStr){
   const list = trades.filter(t=>t.date===dateStr);
   if(!list.length) return null;
-  let pnl=0,count=0,val=0,valCount=0;
+  let pnl=0,count=0,val=0,valCount=0,beCount=0;
   list.forEach(t=>{
     pnl+=t.pnl; count+=1;
+    if(t.breakeven) beCount+=1;
     const v = tradeValue(t, displayMode);
     if(v!==null){ val+=v; valCount+=1; }
   });
-  return {pnl,count,val,valCount};
+  return {pnl,count,val,valCount,beCount};
 }
 
 function renderCalendar(){
@@ -3819,9 +3839,10 @@ function renderCalendar(){
     const d = new Date(t.date+'T00:00:00');
     if(d.getFullYear()===y && d.getMonth()===m){
       const key = t.date;
-      if(!byDay[key]) byDay[key] = {pnl:0,count:0,val:0,valCount:0};
+      if(!byDay[key]) byDay[key] = {pnl:0,count:0,val:0,valCount:0,beCount:0};
       byDay[key].pnl += t.pnl;
       byDay[key].count += 1;
+      if(t.breakeven) byDay[key].beCount += 1;
       const v = tradeValue(t, displayMode);
       if(v!==null){ byDay[key].val += v; byDay[key].valCount += 1; }
     }
@@ -3838,15 +3859,16 @@ function renderCalendar(){
   // byWeek: dane dla CAŁEGO tygodnia (Pon-Pt), licząc transakcje ze WSZYSTKICH miesięcy,
   // żeby tydzień na przełomie miesięcy sumował się poprawnie (np. 31 sie + 1-4 wrz)
   function weekTotalsFor(mondayStr, fridayStr){
-    let pnl=0, val=0, valCount=0, has=false;
+    let pnl=0, val=0, valCount=0, has=false, count=0, beCount=0;
     trades.forEach(t=>{
       if(t.date>=mondayStr && t.date<=fridayStr){
-        has = true; pnl += t.pnl;
+        has = true; pnl += t.pnl; count += 1;
+        if(t.breakeven) beCount += 1;
         const v = tradeValue(t, displayMode);
         if(v!==null){ val += v; valCount++; }
       }
     });
-    return {pnl,val,valCount,has};
+    return {pnl,val,valCount,has,count,beCount};
   }
 
   // wyznacz pierwszy dzień tygodnia (wg ustawień) zawierającego 1. dzień miesiąca
@@ -3881,7 +3903,7 @@ function renderCalendar(){
         // pokazujemy je zawsze (przygaszone), niezależnie czy mają transakcje
         const otherInfo = dayInfoAnyMonth(dateStr);
         let ocls = 'other-month';
-        if(otherInfo) ocls += otherInfo.pnl>=0 ? ' win' : ' loss';
+        if(otherInfo) ocls += otherInfo.beCount===otherInfo.count ? ' be' : (otherInfo.pnl>=0 ? ' win' : ' loss');
         const oDisplay = otherInfo ? (displayMode==='rr'
           ? (otherInfo.valCount ? `${otherInfo.val>=0?'+':''}${otherInfo.val.toFixed(1)}R` : '—')
           : `${otherInfo.pnl>=0?'+':''}${Math.round(otherInfo.pnl)}`) : '';
@@ -3896,7 +3918,7 @@ function renderCalendar(){
       let cls = '';
       if(dateStr===todayStr) cls+=' today';
       if(dateStr===selectedDate) cls+=' selected';
-      if(info) cls += info.pnl>=0 ? ' win' : ' loss';
+      if(info) cls += info.beCount===info.count ? ' be' : (info.pnl>=0 ? ' win' : ' loss');
       const cellDisplay = info ? (displayMode==='rr'
         ? (info.valCount ? `${info.val>=0?'+':''}${info.val.toFixed(1)}R` : '—')
         : `${info.pnl>=0?'+':''}${Math.round(info.pnl)}`) : '';
@@ -3910,11 +3932,12 @@ function renderCalendar(){
     let weekCls = 'week-col';
     let weekDisplay = '—';
     if(wk.has){
+      const allBe = wk.beCount === wk.count;
       if(displayMode==='rr'){
-        weekCls += wk.valCount ? (wk.val>=0?' win':' loss') : '';
+        weekCls += allBe ? ' be' : (wk.valCount ? (wk.val>=0?' win':' loss') : '');
         weekDisplay = wk.valCount ? `${wk.val>=0?'+':''}${wk.val.toFixed(1)}R` : '—';
       } else {
-        weekCls += wk.pnl>=0 ? ' win' : ' loss';
+        weekCls += allBe ? ' be' : (wk.pnl>=0 ? ' win' : ' loss');
         weekDisplay = `${wk.pnl>=0?'+':''}${fmt(wk.pnl)}`;
       }
     }
