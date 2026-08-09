@@ -1069,9 +1069,15 @@ table.tradelist tr:hover td{background:var(--surface2);}
   box-shadow:var(--shadow-gold);
 }
 .profile-hero-text{min-width:0;}
+.profile-hero-meta-row{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:4px;}
+.login-method-badge{
+  display:inline-flex;align-items:center;gap:5px;
+  background:var(--surface2);border:1px solid var(--border);border-radius:20px;
+  padding:3px 10px;font-size:11px;font-weight:600;color:var(--muted);white-space:nowrap;
+}
 .profile-hero-name{font-family:'Space Grotesk',sans-serif;font-size:18px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 .profile-hero-email{color:var(--muted);font-size:12.5px;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-.profile-hero-since{color:var(--muted);font-size:11px;margin-top:4px;font-family:'JetBrains Mono',monospace;}
+.profile-hero-since{color:var(--muted);font-size:11px;font-family:'JetBrains Mono',monospace;}
 
 .danger-zone{border-color:rgba(255,107,107,0.28) !important;}
 
@@ -1533,11 +1539,17 @@ table.tradelist tr:hover td{background:var(--surface2);}
   </div>
 
   <div class="profile-hero">
-    <div class="avatar-circle" id="profileAvatar">?</div>
+    <div class="avatar-circle" id="profileAvatar">
+      <img id="profileAvatarImg" style="display:none;width:100%;height:100%;border-radius:50%;object-fit:cover;" alt="">
+      <span id="profileAvatarInitial">?</span>
+    </div>
     <div class="profile-hero-text">
       <div class="profile-hero-name" id="profileHeroName">—</div>
       <div class="profile-hero-email" id="profileHeroEmail">—</div>
-      <div class="profile-hero-since" id="profileHeroSince"></div>
+      <div class="profile-hero-meta-row">
+        <span class="login-method-badge" id="profileLoginMethodBadge"></span>
+        <span class="profile-hero-since" id="profileHeroSince"></span>
+      </div>
     </div>
   </div>
 
@@ -1676,6 +1688,17 @@ table.tradelist tr:hover td{background:var(--surface2);}
         <div class="settings-row-sub" id="settingsNotifyTimeSub">Jeśli nie dodasz transakcji tego dnia</div>
       </div>
       <input type="time" id="settingsNotifyTimeInput" class="profile-input" style="width:110px;">
+    </div>
+  </div>
+
+  <div class="panel" style="max-width:520px;margin-top:14px;">
+    <div class="panel-subtitle" id="settingsDeviceTitle">To urządzenie</div>
+    <div class="settings-row">
+      <div>
+        <div class="settings-row-title" id="settingsResetDeviceTitle">Wyczyść dane appki na tym urządzeniu</div>
+        <div class="settings-row-sub" id="settingsResetDeviceSub">Resetuje motyw, język i inne lokalne ustawienia. Nie usuwa konta ani transakcji.</div>
+      </div>
+      <button class="btn" id="settingsResetDeviceBtn">Wyczyść</button>
     </div>
   </div>
 
@@ -2047,6 +2070,11 @@ const I18N = {
     profileTotalTradesLabel:'Łącznie zapisanych transakcji',
     profilePasswordTitle:'Zmiana hasła', profileNewPasswordLabel:'Nowe hasło', profileConfirmPasswordLabel:'Powtórz nowe hasło',
     profileChangePasswordBtn:'Zmień hasło',
+    loginMethodEmail:'E-mail i hasło', loginMethodGoogle:'Zalogowano przez Google',
+    settingsDeviceTitle:'To urządzenie', settingsResetDeviceTitle:'Wyczyść dane appki na tym urządzeniu',
+    settingsResetDeviceSub:'Resetuje motyw, język i inne lokalne ustawienia. Nie usuwa konta ani transakcji.',
+    settingsResetDeviceBtn:'Wyczyść', confirmResetDevice:'Zresetować lokalne ustawienia appki na tym urządzeniu? Twoje konto i transakcje pozostaną nietknięte.',
+    resetDeviceDone:'Gotowe. Lokalne ustawienia wyczyszczone.',
     rrSignMismatch:'Znak RR musi zgadzać się ze znakiem P/L. Jeśli P/L jest ujemne, RR też musi być ujemne (i odwrotnie dla dodatniego).',
   },
   en: {
@@ -2166,6 +2194,11 @@ const I18N = {
     profileTotalTradesLabel:'Total trades logged',
     profilePasswordTitle:'Change password', profileNewPasswordLabel:'New password', profileConfirmPasswordLabel:'Confirm new password',
     profileChangePasswordBtn:'Change password',
+    loginMethodEmail:'Email and password', loginMethodGoogle:'Signed in with Google',
+    settingsDeviceTitle:'This device', settingsResetDeviceTitle:'Clear app data on this device',
+    settingsResetDeviceSub:'Resets theme, language and other local settings. Does not delete your account or trades.',
+    settingsResetDeviceBtn:'Clear', confirmResetDevice:'Reset local app settings on this device? Your account and trades will remain untouched.',
+    resetDeviceDone:'Done. Local settings cleared.',
     rrSignMismatch:'The RR sign must match the P/L sign. If P/L is negative, RR must be negative too (and vice versa for positive).',
   },
   de: {
@@ -2285,6 +2318,11 @@ const I18N = {
     profileTotalTradesLabel:'Insgesamt erfasste Trades',
     profilePasswordTitle:'Passwort ändern', profileNewPasswordLabel:'Neues Passwort', profileConfirmPasswordLabel:'Neues Passwort wiederholen',
     profileChangePasswordBtn:'Passwort ändern',
+    loginMethodEmail:'E-Mail und Passwort', loginMethodGoogle:'Mit Google angemeldet',
+    settingsDeviceTitle:'Dieses Gerät', settingsResetDeviceTitle:'App-Daten auf diesem Gerät löschen',
+    settingsResetDeviceSub:'Setzt Theme, Sprache und andere lokale Einstellungen zurück. Konto und Trades bleiben unberührt.',
+    settingsResetDeviceBtn:'Löschen', confirmResetDevice:'Lokale App-Einstellungen auf diesem Gerät zurücksetzen? Dein Konto und deine Trades bleiben unberührt.',
+    resetDeviceDone:'Fertig. Lokale Einstellungen gelöscht.',
     rrSignMismatch:'Das Vorzeichen von RR muss zum Vorzeichen von P/L passen. Bei negativem P/L muss auch RR negativ sein (und umgekehrt bei positivem).',
   }
 };
@@ -4502,7 +4540,24 @@ function renderProfileScreen(){
   const displayName = username || (currentUser.email ? currentUser.email.split('@')[0] : '');
   document.getElementById('profileHeroName').textContent = displayName || '—';
   document.getElementById('profileHeroEmail').textContent = currentUser.email || '';
-  document.getElementById('profileAvatar').textContent = (displayName || '?').charAt(0).toUpperCase();
+  document.getElementById('profileAvatarInitial').textContent = (displayName || '?').charAt(0).toUpperCase();
+
+  const photoUrl = currentUser.user_metadata && (currentUser.user_metadata.avatar_url || currentUser.user_metadata.picture);
+  const avatarImg = document.getElementById('profileAvatarImg');
+  const avatarInitial = document.getElementById('profileAvatarInitial');
+  if(photoUrl){
+    avatarImg.src = photoUrl;
+    avatarImg.style.display = 'block';
+    avatarInitial.style.display = 'none';
+  } else {
+    avatarImg.style.display = 'none';
+    avatarInitial.style.display = '';
+  }
+  // jeśli zdjęcie z Google nie chce się załadować (link wygasł/niedostępny) - cofnij się do inicjału
+  avatarImg.onerror = ()=>{ avatarImg.style.display = 'none'; avatarInitial.style.display = ''; };
+
+  const badge = document.getElementById('profileLoginMethodBadge');
+  badge.textContent = hasEmailProvider() ? t('loginMethodEmail') : t('loginMethodGoogle');
 
   const sinceEl = document.getElementById('profileHeroSince');
   if(currentUser.created_at){
@@ -4662,6 +4717,12 @@ function updateNotifyRowsVisibility(){
 document.getElementById('settingsNotifyTimeInput').addEventListener('change', (e)=>{
   if(e.target.value) localStorage.setItem(NOTIFY_TIME_KEY, e.target.value);
 });
+document.getElementById('settingsResetDeviceBtn').addEventListener('click', async ()=>{
+  if(!await customConfirm(t('confirmResetDevice'))) return;
+  Object.keys(localStorage).filter(k=>k.startsWith('tj_')).forEach(k=> localStorage.removeItem(k));
+  await customAlert(t('resetDeviceDone'));
+  window.location.reload();
+});
 
 /* ============ SCREEN: PRIVACY POLICY ============ */
 function renderPrivacyScreen(){
@@ -4792,6 +4853,10 @@ function applyStaticTexts(){
   document.getElementById('settingsAboutTitle').textContent = t('settingsAboutTitle');
   document.getElementById('settingsVersionTitle').textContent = t('settingsVersionTitle');
   document.getElementById('settingsContactTitle').textContent = t('settingsContactTitle');
+  document.getElementById('settingsDeviceTitle').textContent = t('settingsDeviceTitle');
+  document.getElementById('settingsResetDeviceTitle').textContent = t('settingsResetDeviceTitle');
+  document.getElementById('settingsResetDeviceSub').textContent = t('settingsResetDeviceSub');
+  document.getElementById('settingsResetDeviceBtn').textContent = t('settingsResetDeviceBtn');
   document.getElementById('profileTotalTradesLabel').textContent = t('profileTotalTradesLabel');
   document.getElementById('profilePasswordTitle').textContent = t('profilePasswordTitle');
   document.getElementById('profileNewPasswordLabel').textContent = t('profileNewPasswordLabel');
