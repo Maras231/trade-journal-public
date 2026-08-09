@@ -1555,7 +1555,8 @@ table.tradelist tr:hover td{background:var(--surface2);}
     </div>
     <div class="field full month-notes-field">
       <label id="monthNotesLabel">Notatki i uwagi do miesiąca</label>
-      <textarea id="monthNotes" placeholder="Co poszło dobrze w tym miesiącu, co poprawić, wnioski na przyszłość..."></textarea>
+      <textarea id="monthNotes" maxlength="2000" placeholder="Co poszło dobrze w tym miesiącu, co poprawić, wnioski na przyszłość..."></textarea>
+      <div class="char-counter" id="monthNotesCharCounter">0 / 2000</div>
       <div class="month-notes-saved" id="monthNotesSaved">Zapisano ✓</div>
     </div>
   </div>
@@ -3788,10 +3789,21 @@ function renderMonthDetail(){
 
   const existingNote = monthNotes[monthNoteKey(currentAccountId, selectedSummaryMonth)];
   document.getElementById('monthNotes').value = (typeof existingNote === 'string' ? existingNote : existingNote?.text) || '';
+  updateMonthNotesCharCounter();
 }
 
 let notesSaveTimeout = null;
+function updateMonthNotesCharCounter(){
+  const el = document.getElementById('monthNotes');
+  const counter = document.getElementById('monthNotesCharCounter');
+  const len = el.value.length;
+  const max = 2000;
+  counter.textContent = `${len} / ${max}`;
+  counter.classList.toggle('near-limit', len >= max*0.9 && len < max);
+  counter.classList.toggle('at-limit', len >= max);
+}
 document.getElementById('monthNotes').addEventListener('input', ()=>{
+  updateMonthNotesCharCounter();
   if(!selectedSummaryMonth) return;
   const month = selectedSummaryMonth;
   const accId = currentAccountId;
