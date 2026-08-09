@@ -406,6 +406,9 @@ table.tradelist tr:hover td{background:var(--surface2);}
   transition:border-color .18s var(--ease),box-shadow .18s var(--ease);
 }
 .field textarea{resize:vertical;min-height:80px;}
+.char-counter{text-align:right;font-size:11px;color:var(--muted);margin-top:4px;font-family:'JetBrains Mono',monospace;}
+.char-counter.near-limit{color:var(--gold);}
+.char-counter.at-limit{color:var(--loss);}
 .field input[type=date]{cursor:pointer;}
 .field input:focus, .field select:focus, .field textarea:focus{outline:none;border-color:var(--gold);box-shadow:0 0 0 3px rgba(232,184,75,.12);}
 
@@ -566,6 +569,64 @@ table.tradelist tr:hover td{background:var(--surface2);}
 .connection-banner.show{transform:translateY(0);}
 .connection-banner.offline{background:linear-gradient(90deg,#E8B84B,#c98f2b);}
 .connection-banner.online{background:var(--profit);color:#04150c;}
+
+/* ============ ONBOARDING TOUR ============ */
+.tour-overlay{
+  position:fixed;inset:0;z-index:1200;background:rgba(5,6,10,0.82);
+  display:none;align-items:center;justify-content:center;padding:24px;
+  backdrop-filter:blur(3px);
+}
+.tour-overlay.show{display:flex;}
+.tour-welcome-card{
+  background:var(--surface);border:1px solid var(--border);border-radius:20px;
+  padding:34px 28px;max-width:360px;width:100%;text-align:center;
+  box-shadow:var(--shadow-lg);animation:tourPop .35s var(--ease);
+}
+@keyframes tourPop{from{opacity:0;transform:scale(.94) translateY(8px);}to{opacity:1;transform:scale(1) translateY(0);}}
+.tour-welcome-icon{width:56px;height:56px;margin:0 auto 16px;border-radius:14px;overflow:hidden;background:var(--surface2);padding:10px;box-sizing:border-box;}
+.tour-welcome-icon img{width:100%;height:100%;object-fit:contain;}
+.tour-welcome-title{font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:20px;margin-bottom:10px;}
+.tour-welcome-sub{color:var(--muted);font-size:13.5px;line-height:1.55;margin-bottom:22px;}
+.tour-skip-btn, .tour-skip-link{
+  background:none;border:none;color:var(--muted);font-size:12.5px;cursor:pointer;
+  text-decoration:underline;padding:6px;
+}
+.tour-skip-btn{display:block;margin:14px auto 0;}
+
+.tour-dim-overlay{
+  position:fixed;inset:0;z-index:1000;background:rgba(5,6,10,0.7);
+  opacity:0;pointer-events:none;transition:opacity .3s var(--ease);
+}
+.tour-dim-overlay.show{opacity:1;pointer-events:auto;}
+
+.tour-spotlight{
+  position:relative !important;z-index:1001 !important;
+  box-shadow:0 0 0 9999px rgba(5,6,10,0.7), 0 0 0 3px var(--gold), 0 0 22px 2px rgba(232,184,75,.55) !important;
+  border-radius:14px;
+  transition:box-shadow .35s var(--ease);
+  animation:tourSpotlightPulse 1.8s ease-in-out infinite;
+}
+@keyframes tourSpotlightPulse{
+  0%,100%{box-shadow:0 0 0 9999px rgba(5,6,10,0.7), 0 0 0 3px var(--gold), 0 0 22px 2px rgba(232,184,75,.55);}
+  50%{box-shadow:0 0 0 9999px rgba(5,6,10,0.7), 0 0 0 3px var(--gold), 0 0 32px 6px rgba(232,184,75,.35);}
+}
+
+.tour-tooltip{
+  position:fixed;z-index:1002;background:var(--surface);border:1px solid var(--gold);
+  border-radius:14px;padding:16px 18px;max-width:270px;box-shadow:var(--shadow-lg);
+  opacity:0;pointer-events:none;
+  transition:top .4s var(--ease), left .4s var(--ease), opacity .25s var(--ease);
+}
+.tour-tooltip.show{opacity:1;pointer-events:auto;}
+.tour-tooltip-text{font-size:13px;line-height:1.5;color:var(--text);margin-bottom:14px;}
+.tour-tooltip-actions{display:flex;justify-content:space-between;align-items:center;gap:10px;}
+.tour-tooltip-arrow{
+  position:absolute;width:12px;height:12px;background:var(--surface);
+  border-left:1px solid var(--gold);border-top:1px solid var(--gold);
+  transform:rotate(45deg);display:none;
+}
+.tour-tooltip-arrow.top{top:-7px;transform:rotate(45deg);display:block;}
+.tour-tooltip-arrow.bottom{bottom:-7px;transform:rotate(225deg);display:block;}
 
 .dialog-overlay{z-index:700;}
 .dialog-modal{
@@ -1384,15 +1445,6 @@ table.tradelist tr:hover td{background:var(--surface2);}
 </nav>
 </div>
 
-<div class="onboarding-banner" id="onboardingBanner" style="display:none;">
-  <div class="onboarding-icon"><img src="icon-192.png" alt=""></div>
-  <div class="onboarding-text">
-    <div class="onboarding-title" id="onboardingTitle">Zacznij swój dziennik transakcji</div>
-    <div class="onboarding-sub" id="onboardingSub">Dodaj swoją pierwszą transakcję, a Wick zacznie sam liczyć statystyki i krzywą kapitału.</div>
-  </div>
-  <button class="btn primary" id="onboardingAddBtn">+ <span id="onboardingAddBtnText">Dodaj transakcję</span></button>
-</div>
-
 <div class="stats-row" id="statsRow"></div>
 
 
@@ -1719,7 +1771,11 @@ table.tradelist tr:hover td{background:var(--surface2);}
             <input type="hidden" id="f-confidence" value="0">
           </div>
         </div>
-        <div class="field full"><label id="fLabelNotes">Opis / notatki</label><textarea id="f-notes" placeholder="Co zadziałało, co poprawić, emocje podczas transakcji..."></textarea></div>
+        <div class="field full">
+          <label id="fLabelNotes">Opis / notatki</label>
+          <textarea id="f-notes" maxlength="2000" placeholder="Co zadziałało, co poprawić, emocje podczas transakcji..."></textarea>
+          <div class="char-counter" id="notesCharCounter">0 / 2000</div>
+        </div>
         <div class="field full">
           <label id="fLabelImage">Zrzuty ekranu / wykresy (maks. 5)</label>
           <div class="image-grid" id="imageGrid"></div>
@@ -1775,6 +1831,28 @@ table.tradelist tr:hover td{background:var(--surface2);}
       <button class="btn ghost" id="tradeDetailEditBtn"><span id="tradeDetailEditText">Edytuj</span></button>
       <button class="btn danger" id="tradeDetailDeleteBtn"><span id="tradeDetailDeleteText">Usuń</span></button>
     </div>
+  </div>
+</div>
+
+<!-- ONBOARDING TOUR -->
+<div class="tour-overlay" id="tourWelcomeOverlay">
+  <div class="tour-welcome-card">
+    <div class="tour-welcome-icon"><img src="icon-192.png" alt=""></div>
+    <div class="tour-welcome-title"><span id="tourWelcomeGreeting">Cześć</span>, <span id="tourWelcomeName"></span>!</div>
+    <div class="tour-welcome-sub" id="tourWelcomeSub">Zanim zaczniesz, szybko oprowadzimy Cię po appce.</div>
+    <button class="btn primary" id="tourWelcomeOkBtn" style="width:100%;justify-content:center;">OK, zaczynajmy</button>
+    <button class="tour-skip-btn" id="tourWelcomeSkipBtn">Pomiń</button>
+  </div>
+</div>
+
+<div class="tour-dim-overlay" id="tourDimOverlay"></div>
+
+<div class="tour-tooltip" id="tourTooltip">
+  <div class="tour-tooltip-arrow" id="tourTooltipArrow"></div>
+  <div class="tour-tooltip-text" id="tourTooltipText"></div>
+  <div class="tour-tooltip-actions">
+    <button class="tour-skip-link" id="tourSkipBtn">Pomiń</button>
+    <button class="btn primary" id="tourNextBtn" style="padding:8px 16px;">Dalej</button>
   </div>
 </div>
 
@@ -1953,6 +2031,13 @@ const I18N = {
     allYears:'Wszystkie lata',
     onboardingTitle:'Zacznij swój dziennik transakcji', onboardingSub:'Dodaj swoją pierwszą transakcję, a Wick zacznie sam liczyć statystyki i krzywą kapitału.',
     onboardingAddBtnText:'Dodaj transakcję',
+    tourWelcomeGreeting:'Cześć', tourWelcomeSub:'Zanim zaczniesz, szybko oprowadzimy Cię po appce.',
+    tourWelcomeOkBtn:'OK, zaczynajmy', tourSkipBtn:'Pomiń',
+    tourStepMenu:'Kliknij tutaj, żeby otworzyć menu.',
+    tourStepAccounts:'W zakładce "Konta" możesz założyć kilka niezależnych kont handlowych i przełączać się między nimi.',
+    tourStepStats:'"Statystyki" liczą się same: Win Rate, krzywa kapitału i inne dane na podstawie Twoich transakcji.',
+    tourStepTrades:'W "Transakcjach" znajdziesz pełną listę zapisanych transakcji - możesz je filtrować i sortować.',
+    tourNextBtn:'Dalej', tourFinishBtn:'Rozumiem',
     offlineBanner:'Brak połączenia z internetem. Niektóre funkcje mogą nie działać.',
     onlineBanner:'Połączenie przywrócone.',
     alertOffline:'Wygląda na to, że nie masz teraz połączenia z internetem. Spróbuj ponownie, gdy wrócisz online.',
@@ -2065,6 +2150,13 @@ const I18N = {
     allYears:'All years',
     onboardingTitle:'Start your trade journal', onboardingSub:'Add your first trade and Wick will start tracking your stats and equity curve automatically.',
     onboardingAddBtnText:'Add trade',
+    tourWelcomeGreeting:'Hi', tourWelcomeSub:'Before you start, let\'s quickly show you around the app.',
+    tourWelcomeOkBtn:'OK, let\'s go', tourSkipBtn:'Skip',
+    tourStepMenu:'Tap here to open the menu.',
+    tourStepAccounts:'The "Accounts" tab lets you run several independent trading accounts and switch between them.',
+    tourStepStats:'"Statistics" calculate themselves: win rate, equity curve and more, based on your trades.',
+    tourStepTrades:'"Trades" shows the full list of your logged trades - you can filter and sort them.',
+    tourNextBtn:'Next', tourFinishBtn:'Got it',
     offlineBanner:'No internet connection. Some features may not work.',
     onlineBanner:'Connection restored.',
     alertOffline:'It looks like you are offline right now. Please try again once you are back online.',
@@ -2177,6 +2269,13 @@ const I18N = {
     allYears:'Alle Jahre',
     onboardingTitle:'Starte dein Handelstagebuch', onboardingSub:'Füge deinen ersten Trade hinzu, und Wick berechnet automatisch deine Statistiken und Eigenkapitalkurve.',
     onboardingAddBtnText:'Trade hinzufügen',
+    tourWelcomeGreeting:'Hallo', tourWelcomeSub:'Bevor du loslegst, zeigen wir dir kurz die App.',
+    tourWelcomeOkBtn:'OK, los geht\'s', tourSkipBtn:'Überspringen',
+    tourStepMenu:'Tippe hier, um das Menü zu öffnen.',
+    tourStepAccounts:'Im Bereich "Konten" kannst du mehrere unabhängige Handelskonten führen und zwischen ihnen wechseln.',
+    tourStepStats:'"Statistiken" berechnen sich selbst: Win Rate, Eigenkapitalkurve und mehr, basierend auf deinen Trades.',
+    tourStepTrades:'Unter "Trades" findest du die vollständige Liste deiner erfassten Trades - filter- und sortierbar.',
+    tourNextBtn:'Weiter', tourFinishBtn:'Verstanden',
     offlineBanner:'Keine Internetverbindung. Manche Funktionen funktionieren eventuell nicht.',
     onlineBanner:'Verbindung wiederhergestellt.',
     alertOffline:'Es sieht so aus, als hättest du gerade keine Internetverbindung. Bitte versuche es erneut, sobald du wieder online bist.',
@@ -2402,6 +2501,7 @@ async function loadAllData(){
 
   dataLoaded = true;
   checkDailyReminder();
+  maybeStartOnboardingTour();
   })();
   try{
     await loadAllData._inFlight;
@@ -2910,6 +3010,7 @@ function openModal(edit){
     renderImageGrid();
     updateBeToggleVisual();
   }
+  updateNotesCharCounter();
 }
 function setConfidence(val){
   document.getElementById('f-confidence').value = val;
@@ -2918,6 +3019,17 @@ function setConfidence(val){
   });
   if(val > 0) document.getElementById('confidencePanel').classList.remove('invalid');
 }
+function updateNotesCharCounter(){
+  const el = document.getElementById('f-notes');
+  const counter = document.getElementById('notesCharCounter');
+  const len = el.value.length;
+  const max = 2000;
+  counter.textContent = `${len} / ${max}`;
+  counter.classList.toggle('near-limit', len >= max*0.9 && len < max);
+  counter.classList.toggle('at-limit', len >= max);
+}
+document.getElementById('f-notes').addEventListener('input', updateNotesCharCounter);
+
 document.getElementById('f-pnl').addEventListener('input', ()=>{
   document.getElementById('f-rr').classList.remove('invalid');
 });
@@ -2947,7 +3059,6 @@ function closeModal(){
   pendingRemovedPaths = [];
 }
 document.getElementById('addTradeBtn').addEventListener('click', ()=>openModal(null));
-document.getElementById('onboardingAddBtn').addEventListener('click', ()=>openModal(null));
 document.getElementById('closeModal').addEventListener('click', closeModal);
 document.getElementById('cancelBtn').addEventListener('click', closeModal);
 overlay.addEventListener('click', e=>{ if(e.target===overlay) closeModal(); });
@@ -3352,11 +3463,6 @@ function renderRadar(){
   const wrap = document.getElementById('radarWrap');
   const statsBox = document.getElementById('eqStats');
   const totalBox = document.getElementById('eqTotal');
-
-  const onboardingSeenKey = 'tj_onboarding_seen_' + (currentUser ? currentUser.id : 'anon');
-  const onboardingAlreadySeen = localStorage.getItem(onboardingSeenKey) === '1';
-  document.getElementById('onboardingBanner').style.display = (!trades.length && !onboardingAlreadySeen) ? 'flex' : 'none';
-  if(!onboardingAlreadySeen) localStorage.setItem(onboardingSeenKey, '1');
 
   if(!trades.length){
     wrap.innerHTML = `<div class="empty-state" style="padding:34px 10px;"><div class="big">${t('noData')}</div>${t('noDataEquitySub')}</div>`;
@@ -4058,6 +4164,9 @@ function openDrawer(){
 function closeDrawer(){
   document.getElementById('sideDrawer').classList.remove('open');
   document.getElementById('drawerOverlay').classList.remove('open');
+  // jeśli szuflada zamknęła się w trakcie tury (np. klik bezpośrednio w podświetlony
+  // element zamiast w "Dalej") - kończymy turę czysto, zamiast zostawić przyciemnienie
+  if(tourStepIndex > 0) endTour();
 }
 document.getElementById('menuBtn').addEventListener('click', openDrawer);
 document.getElementById('drawerOverlay').addEventListener('click', closeDrawer);
@@ -4065,6 +4174,128 @@ document.getElementById('drawerHeader').addEventListener('click', ()=>{
   closeDrawer();
   showScreen('accounts');
   setActiveDrawerNav('accounts');
+});
+
+/* ============ ONBOARDING TOUR ============ */
+let tourSteps = [];
+let tourStepIndex = -1;
+let tourMenuClickHandled = false;
+
+function tourStorageKey(){
+  return 'tj_tour_done_' + (currentUser ? currentUser.id : 'anon');
+}
+function hasTourBeenDone(){
+  return localStorage.getItem(tourStorageKey()) === '1';
+}
+function markTourDone(){
+  localStorage.setItem(tourStorageKey(), '1');
+}
+
+function maybeStartOnboardingTour(){
+  if(hasTourBeenDone()) return;
+  // pokazujemy tylko, gdy konto wygląda na świeże (bez transakcji i bez dodatkowych kont) -
+  // istniejącym użytkownikom (np. po odzyskaniu dostępu, czyszczeniu danych przeglądarki)
+  // nie chcemy pokazywać "powitania" jakby byli nowi
+  if(allTrades.length === 0 && accounts.length <= 1){
+    showTourWelcome();
+  } else {
+    markTourDone();
+  }
+}
+
+function showTourWelcome(){
+  const username = (currentUser && currentUser.user_metadata && currentUser.user_metadata.username) || '';
+  document.getElementById('tourWelcomeName').textContent = username;
+  document.getElementById('tourWelcomeOverlay').classList.add('show');
+}
+
+document.getElementById('tourWelcomeOkBtn').addEventListener('click', ()=>{
+  document.getElementById('tourWelcomeOverlay').classList.remove('show');
+  startTourSpotlight();
+});
+document.getElementById('tourWelcomeSkipBtn').addEventListener('click', ()=>{
+  document.getElementById('tourWelcomeOverlay').classList.remove('show');
+  markTourDone();
+});
+
+function startTourSpotlight(){
+  tourMenuClickHandled = false;
+  tourSteps = [
+    { selector: '#menuBtn', textKey: 'tourStepMenu', requireClick: true }
+  ];
+  tourStepIndex = 0;
+  document.getElementById('tourDimOverlay').classList.add('show');
+  showTourStep();
+}
+
+function showTourStep(){
+  clearTourSpotlight();
+  const step = tourSteps[tourStepIndex];
+  if(!step){ endTour(); return; }
+  const el = document.querySelector(step.selector);
+  if(!el){ advanceTourStep(); return; }
+  el.classList.add('tour-spotlight');
+  positionTourTooltip(el, step);
+}
+
+function clearTourSpotlight(){
+  document.querySelectorAll('.tour-spotlight').forEach(el=> el.classList.remove('tour-spotlight'));
+}
+
+function positionTourTooltip(el, step){
+  const tooltip = document.getElementById('tourTooltip');
+  const arrow = document.getElementById('tourTooltipArrow');
+  document.getElementById('tourTooltipText').textContent = t(step.textKey);
+  const nextBtn = document.getElementById('tourNextBtn');
+  nextBtn.style.display = step.requireClick ? 'none' : '';
+  nextBtn.textContent = step.isLast ? t('tourFinishBtn') : t('tourNextBtn');
+  tooltip.classList.add('show');
+
+  requestAnimationFrame(()=>{
+    const rect = el.getBoundingClientRect();
+    const tw = tooltip.offsetWidth, th = tooltip.offsetHeight;
+    let top = rect.bottom + 18;
+    let placeBelow = true;
+    if(top + th > window.innerHeight - 20){ top = rect.top - th - 18; placeBelow = false; }
+    let left = rect.left;
+    if(left + tw > window.innerWidth - 16) left = window.innerWidth - tw - 16;
+    if(left < 16) left = 16;
+    tooltip.style.top = top + 'px';
+    tooltip.style.left = left + 'px';
+    arrow.className = 'tour-tooltip-arrow ' + (placeBelow ? 'top' : 'bottom');
+    const arrowLeft = Math.max(16, Math.min(tw - 28, (rect.left + rect.width/2) - left - 6));
+    arrow.style.left = arrowLeft + 'px';
+  });
+}
+
+function advanceTourStep(){
+  tourStepIndex++;
+  if(tourStepIndex >= tourSteps.length){ endTour(); return; }
+  showTourStep();
+}
+document.getElementById('tourNextBtn').addEventListener('click', advanceTourStep);
+document.getElementById('tourSkipBtn').addEventListener('click', endTour);
+
+function endTour(){
+  clearTourSpotlight();
+  document.getElementById('tourDimOverlay').classList.remove('show');
+  document.getElementById('tourTooltip').classList.remove('show');
+  markTourDone();
+  tourStepIndex = -1;
+  tourSteps = [];
+}
+
+// klik w ikonę menu podczas tury: dogrywamy kroki wewnątrz szuflady i przechodzimy dalej
+document.getElementById('menuBtn').addEventListener('click', ()=>{
+  if(tourStepIndex === 0 && !tourMenuClickHandled){
+    tourMenuClickHandled = true;
+    tourSteps = tourSteps.concat([
+      { selector: '.drawer-nav button[data-screen="accounts"]', textKey: 'tourStepAccounts' },
+      { selector: '.drawer-nav button[data-screen="stats"]', textKey: 'tourStepStats' },
+      { selector: '.drawer-nav button[data-screen="trades"]', textKey: 'tourStepTrades', isLast: true }
+    ]);
+    setTimeout(advanceTourStep, 380); // poczekaj aż animacja otwarcia szuflady się skończy
+  }
 });
 
 function setActiveDrawerNav(screenKey){
@@ -4444,9 +4675,11 @@ function applyStaticTexts(){
   document.getElementById('splashSub').textContent = t('splashSub');
   document.getElementById('brandTagline').textContent = t('tagline');
   document.getElementById('authGateDesc').textContent = t('authGateDesc');
-  document.getElementById('onboardingTitle').textContent = t('onboardingTitle');
-  document.getElementById('onboardingSub').textContent = t('onboardingSub');
-  document.getElementById('onboardingAddBtnText').textContent = t('onboardingAddBtnText');
+  document.getElementById('tourWelcomeGreeting').textContent = t('tourWelcomeGreeting');
+  document.getElementById('tourWelcomeSub').textContent = t('tourWelcomeSub');
+  document.getElementById('tourWelcomeOkBtn').textContent = t('tourWelcomeOkBtn');
+  document.getElementById('tourWelcomeSkipBtn').textContent = t('tourSkipBtn');
+  document.getElementById('tourSkipBtn').textContent = t('tourSkipBtn');
   document.getElementById('authGateLoginText').textContent = t('googleLogin');
   document.getElementById('addTradeBtnText').textContent = t('addTrade');
   document.getElementById('subNavDashboard').textContent = t('tabDashboard');
