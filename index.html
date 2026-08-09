@@ -72,7 +72,7 @@
   --scrollbar-thumb-hover:#B9BFCE;
 }
 *{box-sizing:border-box;margin:0;padding:0;}
-html{scroll-behavior:smooth;}
+html{scroll-behavior:smooth;overscroll-behavior-y:contain;}
 
 /* Wyłącz zaznaczanie tekstu / menu "Kopiuj" po długim przytrzymaniu na interfejsie appki,
    żeby czuło się jak natywna appka, a nie strona w przeglądarce. Pola do wpisywania danych
@@ -100,6 +100,7 @@ body{
   -webkit-font-smoothing:antialiased;
   animation:pageIn .5s var(--ease);
   transition:background .25s var(--ease),color .25s var(--ease);
+  overscroll-behavior-y:contain;
 }
 @keyframes pageIn{from{opacity:0;}to{opacity:1;}}
 ::-webkit-scrollbar{width:9px;height:9px;}
