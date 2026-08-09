@@ -1102,7 +1102,6 @@ table.tradelist tr:hover td{background:var(--surface2);}
   .week-total{font-size:10px;}
 }
 </style>
-<script src="https://challenges.cloudflare.com/turnstile/v0/api.js?onload=onTurnstileLoad" async defer></script>
 </head>
 <body>
 
@@ -1160,7 +1159,6 @@ table.tradelist tr:hover td{background:var(--surface2);}
         </label>
         <a href="#" id="authForgotLink" style="color:var(--muted);text-decoration:none;">Zapomniałeś hasła?</a>
       </div>
-      <div id="loginTurnstile" style="display:flex;justify-content:center;margin-bottom:14px;"></div>
       <button type="submit" class="btn primary" id="authLoginSubmit" style="width:100%;justify-content:center;padding:12px;">Zaloguj</button>
     </form>
 
@@ -1201,7 +1199,6 @@ table.tradelist tr:hover td{background:var(--surface2);}
           </button>
         </div>
       </div>
-      <div id="registerTurnstile" style="display:flex;justify-content:center;margin-bottom:14px;"></div>
       <button type="submit" class="btn primary" id="authRegisterSubmit" style="width:100%;justify-content:center;padding:12px;">Zarejestruj</button>
     </form>
 
@@ -1751,29 +1748,6 @@ table.tradelist tr:hover td{background:var(--surface2);}
 /* ============ DATA LAYER (Supabase) ============ */
 const SUPABASE_URL = 'https://ifjwlttariefurtljeyb.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImlmandsdHRhcmllZnVydGxqZXliIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODU2NzkxMTIsImV4cCI6MjEwMTI1NTExMn0.0JeSoUVmfHQoe04YIknl6gfgBshA2320ih0whUgP62k';
-
-// Wklej tutaj swój Site Key z Cloudflare Turnstile (dash.cloudflare.com -> Turnstile).
-// Dopóki tu jest ten placeholder, appka działa normalnie - captcha po prostu się nie pokazuje.
-const TURNSTILE_SITE_KEY = '0x4AAAAAAEKjJ0rvg6P_GDWD';
-let loginTurnstileWidgetId = null;
-let registerTurnstileWidgetId = null;
-function turnstileConfigured(){
-  return !!TURNSTILE_SITE_KEY && !TURNSTILE_SITE_KEY.includes('WKLEJ') && typeof turnstile !== 'undefined';
-}
-window.onTurnstileLoad = function(){
-  if(!turnstileConfigured()) return;
-  const loginEl = document.getElementById('loginTurnstile');
-  const registerEl = document.getElementById('registerTurnstile');
-  if(loginEl) loginTurnstileWidgetId = turnstile.render(loginEl, { sitekey: TURNSTILE_SITE_KEY });
-  if(registerEl) registerTurnstileWidgetId = turnstile.render(registerEl, { sitekey: TURNSTILE_SITE_KEY });
-};
-function getTurnstileToken(widgetId){
-  if(!turnstileConfigured() || widgetId===null) return undefined;
-  return turnstile.getResponse(widgetId) || undefined;
-}
-function resetTurnstile(widgetId){
-  if(turnstileConfigured() && widgetId!==null) turnstile.reset(widgetId);
-}
 const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
   auth: {
     storage: {
@@ -2444,12 +2418,10 @@ document.getElementById('loginForm').addEventListener('submit', async (e)=>{
   const password = document.getElementById('authLoginPassword').value;
   const remember = document.getElementById('authRemember').checked;
   setRemember(remember);
-  const captchaToken = getTurnstileToken(loginTurnstileWidgetId);
   const btn = document.getElementById('authLoginSubmit');
   btn.disabled = true;
-  const { error } = await sb.auth.signInWithPassword({ email, password, options: { captchaToken } });
+  const { error } = await sb.auth.signInWithPassword({ email, password });
   btn.disabled = false;
-  resetTurnstile(loginTurnstileWidgetId);
   if(error) showAuthError(mapAuthError(error.message));
 });
 
@@ -2463,15 +2435,13 @@ document.getElementById('registerForm').addEventListener('submit', async (e)=>{
   if(pw1 !== pw2){ showAuthError(t('authPasswordMismatch')); return; }
   if(pw1.length < 6){ showAuthError(t('authPasswordTooShort')); return; }
   setRemember(true);
-  const captchaToken = getTurnstileToken(registerTurnstileWidgetId);
   const btn = document.getElementById('authRegisterSubmit');
   btn.disabled = true;
   const { data, error } = await sb.auth.signUp({
     email, password: pw1,
-    options: { data: { username }, emailRedirectTo: window.location.href, captchaToken }
+    options: { data: { username }, emailRedirectTo: window.location.href }
   });
   btn.disabled = false;
-  resetTurnstile(registerTurnstileWidgetId);
   if(error){ showAuthError(mapAuthError(error.message)); return; }
   if(!data.session){
     switchAuthMode('login');
@@ -2484,9 +2454,7 @@ document.getElementById('authForgotLink').addEventListener('click', async (e)=>{
   clearAuthMessages();
   const email = document.getElementById('authLoginEmail').value.trim();
   if(!email){ showAuthError(t('authEnterEmailFirst')); return; }
-  const captchaToken = getTurnstileToken(loginTurnstileWidgetId);
-  const { error } = await sb.auth.resetPasswordForEmail(email, { redirectTo: window.location.href, captchaToken });
-  resetTurnstile(loginTurnstileWidgetId);
+  const { error } = await sb.auth.resetPasswordForEmail(email, { redirectTo: window.location.href });
   if(error) showAuthError(mapAuthError(error.message));
   else showAuthSuccess(t('authResetSent'));
 });
