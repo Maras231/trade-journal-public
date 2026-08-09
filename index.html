@@ -2462,6 +2462,13 @@ document.getElementById('registerForm').addEventListener('submit', async (e)=>{
   });
   btn.disabled = false;
   if(error){ showAuthError(mapAuthError(error.message)); return; }
+  // Supabase ze względów bezpieczeństwa nie zwraca błędu, gdy e-mail już istnieje -
+  // udaje "sukces" bez sesji. Jedyny sposób, żeby to wykryć: przy istniejącym,
+  // potwierdzonym koncie tablica "identities" w odpowiedzi jest pusta.
+  if(data.user && Array.isArray(data.user.identities) && data.user.identities.length === 0){
+    showAuthError(t('authUserExists'));
+    return;
+  }
   if(!data.session){
     switchAuthMode('login');
     showAuthSuccess(t('authCheckEmail'));
