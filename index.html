@@ -401,6 +401,7 @@ table.tradelist tr:hover td{background:var(--surface2);}
 .pagination-btns{display:flex;gap:8px;}
 .pagination-btns .btn:disabled{opacity:.4;cursor:not-allowed;}
 .pagination-btns .btn:disabled:hover{border-color:var(--border);color:var(--text);transform:none;box-shadow:none;}
+.btn:disabled{opacity:.55;cursor:wait;pointer-events:none;}
 
 /* ---------- MODAL ---------- */
 .modal-overlay{
@@ -531,7 +532,8 @@ table.tradelist tr:hover td{background:var(--surface2);}
   cursor:pointer;transition:transform .18s var(--ease),border-color .18s var(--ease);display:block;
 }
 .td-images img:hover{transform:scale(1.03);border-color:var(--gold);}
-.trade-detail-row{display:flex;justify-content:flex-end;gap:10px;margin-top:22px;padding-top:18px;border-top:1px solid var(--border);}
+.trade-detail-row{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-top:22px;padding-top:18px;border-top:1px solid var(--border);flex-wrap:wrap;}
+.trade-detail-row .td-actions-right{display:flex;gap:10px;flex-wrap:wrap;margin-left:auto;}
 
 .lightbox{
   position:fixed;inset:0;background:rgba(2,3,7,0.94);z-index:600;
@@ -1543,7 +1545,10 @@ table.tradelist tr:hover td{background:var(--surface2);}
   <div class="panel" id="monthDetailPanel" style="display:none;margin-top:18px;">
     <div class="month-detail-head">
       <h2 id="monthDetailTitle"></h2>
-      <button class="btn ghost" id="monthDetailClose">✕ Zamknij</button>
+      <div style="display:flex;gap:10px;flex-wrap:wrap;">
+        <button class="btn ghost" id="monthDetailShareBtn"><span id="monthDetailShareText">Udostępnij</span></button>
+        <button class="btn ghost" id="monthDetailClose">✕ Zamknij</button>
+      </div>
     </div>
     <div class="stats-row" id="monthStatsRow"></div>
     <div class="panel" style="margin-top:14px;padding:16px 18px;max-width:620px;">
@@ -1884,8 +1889,11 @@ table.tradelist tr:hover td{background:var(--surface2);}
       <div class="td-images" id="tradeDetailImages"></div>
     </div>
     <div class="trade-detail-row">
-      <button class="btn ghost" id="tradeDetailEditBtn"><span id="tradeDetailEditText">Edytuj</span></button>
-      <button class="btn danger" id="tradeDetailDeleteBtn"><span id="tradeDetailDeleteText">Usuń</span></button>
+      <button class="btn ghost" id="tradeDetailShareBtn"><span id="tradeDetailShareText">Udostępnij</span></button>
+      <div class="td-actions-right">
+        <button class="btn ghost" id="tradeDetailEditBtn"><span id="tradeDetailEditText">Edytuj</span></button>
+        <button class="btn danger" id="tradeDetailDeleteBtn"><span id="tradeDetailDeleteText">Usuń</span></button>
+      </div>
     </div>
   </div>
 </div>
@@ -2085,6 +2093,8 @@ const I18N = {
     alertImageUploadFail:'Nie udało się wysłać zdjęcia. Sprawdź połączenie z internetem.',
     settingsContactTitle:'Kontakt',
     undoLabel:'Cofnij', tradeDeletedToast:'Transakcja usunięta.', tradeSavedToast:'Transakcja zapisana.',
+    shareLabel:'Udostępnij', shareCopied:'Obrazek skopiowany do schowka. Możesz go wkleić na Discordzie i gdzie indziej.',
+    shareDownloaded:'Obrazek zapisany.', shareFailed:'Nie udało się wygenerować obrazka. Spróbuj ponownie.',
     allYears:'Wszystkie lata',
     onboardingTitle:'Zacznij swój dziennik transakcji', onboardingSub:'Dodaj swoją pierwszą transakcję, a Wick zacznie sam liczyć statystyki i krzywą kapitału.',
     onboardingAddBtnText:'Dodaj transakcję',
@@ -2214,6 +2224,8 @@ const I18N = {
     alertImageUploadFail:'Failed to upload the image. Check your internet connection.',
     settingsContactTitle:'Contact',
     undoLabel:'Undo', tradeDeletedToast:'Trade deleted.', tradeSavedToast:'Trade saved.',
+    shareLabel:'Share', shareCopied:'Image copied to clipboard. Paste it into Discord or anywhere else.',
+    shareDownloaded:'Image saved.', shareFailed:'Could not generate the image. Please try again.',
     allYears:'All years',
     onboardingTitle:'Start your trade journal', onboardingSub:'Add your first trade and Wick will start tracking your stats and equity curve automatically.',
     onboardingAddBtnText:'Add trade',
@@ -2343,6 +2355,8 @@ const I18N = {
     alertImageUploadFail:'Das Bild konnte nicht hochgeladen werden. Prüfe deine Internetverbindung.',
     settingsContactTitle:'Kontakt',
     undoLabel:'Rückgängig', tradeDeletedToast:'Trade gelöscht.', tradeSavedToast:'Trade gespeichert.',
+    shareLabel:'Teilen', shareCopied:'Bild in die Zwischenablage kopiert. Füge es in Discord oder anderswo ein.',
+    shareDownloaded:'Bild gespeichert.', shareFailed:'Bild konnte nicht erstellt werden. Bitte versuche es erneut.',
     allYears:'Alle Jahre',
     onboardingTitle:'Starte dein Handelstagebuch', onboardingSub:'Füge deinen ersten Trade hinzu, und Wick berechnet automatisch deine Statistiken und Eigenkapitalkurve.',
     onboardingAddBtnText:'Trade hinzufügen',
@@ -3822,6 +3836,15 @@ document.getElementById('monthDetailClose').addEventListener('click', ()=>{
   selectedSummaryMonth = null;
   renderMonthsSummary();
 });
+document.getElementById('monthDetailShareBtn').addEventListener('click', (e)=>{
+  if(!selectedSummaryMonth) return;
+  const map = getMonthsWithTrades();
+  const list = map[selectedSummaryMonth];
+  if(!list) return;
+  const stats = computeMonthStats(list);
+  const monthKey = selectedSummaryMonth;
+  runShareFlow(e.currentTarget, ()=>generateMonthShareCard(monthKey, list, stats), `wick-${monthKey}.png`);
+});
 
 /* ============ CALENDAR ============ */
 function dstr(d){ return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`; }
@@ -4206,6 +4229,231 @@ function showSuccessToast(message, durationMs){
   }, durationMs);
 }
 
+/* ============ UDOSTĘPNIANIE WYNIKÓW JAKO OBRAZEK ============ */
+function shareRoundRect(ctx, x, y, w, h, r){
+  ctx.beginPath();
+  ctx.moveTo(x+r, y);
+  ctx.arcTo(x+w, y, x+w, y+h, r);
+  ctx.arcTo(x+w, y+h, x, y+h, r);
+  ctx.arcTo(x, y+h, x, y, r);
+  ctx.arcTo(x, y, x+w, y, r);
+  ctx.closePath();
+}
+function loadImageForShare(src){
+  return new Promise((resolve, reject)=>{
+    const img = new Image();
+    img.crossOrigin = 'anonymous';
+    img.onload = ()=> resolve(img);
+    img.onerror = reject;
+    img.src = src;
+  });
+}
+function shareCardHeaderFooter(ctx, W, H, logoImg){
+  // tło
+  ctx.fillStyle = '#0B0E14';
+  ctx.fillRect(0,0,W,H);
+  const grad = ctx.createRadialGradient(W*0.88, H*0.05, 40, W*0.88, H*0.05, W*0.65);
+  grad.addColorStop(0, 'rgba(232,184,75,0.16)');
+  grad.addColorStop(1, 'rgba(232,184,75,0)');
+  ctx.fillStyle = grad;
+  ctx.fillRect(0,0,W,H);
+
+  // logo + wordmark
+  ctx.drawImage(logoImg, 64, 62, 56, 56);
+  ctx.fillStyle = '#E7EAF2';
+  ctx.font = "700 32px 'Space Grotesk', sans-serif";
+  ctx.textBaseline = 'middle';
+  ctx.fillText('Wick', 134, 90);
+
+  // stopka
+  ctx.font = "400 22px 'Inter', sans-serif";
+  ctx.fillStyle = '#7C8399';
+  ctx.textBaseline = 'alphabetic';
+  ctx.fillText('wickapp.online', 64, H-56);
+}
+async function generateTradeShareCard(tr){
+  await document.fonts.ready;
+  const logoImg = await loadImageForShare('icon-192.png');
+  const W = 1080, H = 1080;
+  const canvas = document.createElement('canvas');
+  canvas.width = W; canvas.height = H;
+  const ctx = canvas.getContext('2d');
+  shareCardHeaderFooter(ctx, W, H, logoImg);
+
+  const isPos = tr.pnl >= 0;
+  const accentColor = isPos ? '#3ADD9C' : '#FF6B6B';
+
+  // symbol + kierunek
+  ctx.textBaseline = 'alphabetic';
+  ctx.font = "700 52px 'Space Grotesk', sans-serif";
+  ctx.fillStyle = '#E7EAF2';
+  ctx.fillText(tr.symbol, 64, 260);
+
+  const dirLabel = (tr.direction || '').toUpperCase();
+  ctx.font = "700 26px 'Inter', sans-serif";
+  const dirColor = tr.direction==='long' ? '#3ADD9C' : '#FF6B6B';
+  const dirW = ctx.measureText(dirLabel).width + 44;
+  shareRoundRect(ctx, 64, 285, dirW, 46, 23);
+  ctx.fillStyle = dirColor + '26';
+  ctx.fill();
+  ctx.strokeStyle = dirColor + '80';
+  ctx.lineWidth = 1.5;
+  ctx.stroke();
+  ctx.fillStyle = dirColor;
+  ctx.fillText(dirLabel, 64+22, 285+31);
+
+  // duży wynik P/L
+  const pnlText = (isPos?'+':'') + fmt(tr.pnl);
+  ctx.font = "800 128px 'JetBrains Mono', monospace";
+  ctx.fillStyle = accentColor;
+  ctx.fillText(pnlText, 60, 560);
+
+  // mniejsze staty: RR, data, pewność
+  let statsY = 680;
+  const stats = [];
+  if(tr.rr !== null && tr.rr !== undefined && tr.rr !== ''){
+    stats.push({label:'RR', value: (tr.rr>=0?'+':'')+parseFloat(tr.rr).toFixed(2)+'R'});
+  }
+  const dateObj = new Date(tr.date+'T00:00:00');
+  stats.push({label:t('date'), value: dateObj.toLocaleDateString(currentLang==='pl'?'pl-PL':(currentLang==='de'?'de-DE':'en-US'), {year:'numeric', month:'long', day:'numeric'})});
+  if(tr.confidence){ stats.push({label:t('confidence'), value: '★'.repeat(tr.confidence) + '☆'.repeat(5-tr.confidence)}); }
+
+  let statX = 64;
+  stats.forEach(s=>{
+    ctx.font = "600 20px 'Inter', sans-serif";
+    ctx.fillStyle = '#7C8399';
+    ctx.fillText(s.label.toUpperCase(), statX, statsY);
+    ctx.font = "700 30px 'JetBrains Mono', monospace";
+    ctx.fillStyle = '#E7EAF2';
+    ctx.fillText(s.value, statX, statsY+42);
+    statX += Math.max(ctx.measureText(s.value).width, ctx.measureText(s.label.toUpperCase()).width) + 60;
+  });
+
+  return canvas;
+}
+async function generateMonthShareCard(monthKey, list, stats){
+  await document.fonts.ready;
+  const logoImg = await loadImageForShare('icon-192.png');
+  const W = 1080, H = 1080;
+  const canvas = document.createElement('canvas');
+  canvas.width = W; canvas.height = H;
+  const ctx = canvas.getContext('2d');
+  shareCardHeaderFooter(ctx, W, H, logoImg);
+
+  const [y, m] = monthKey.split('-');
+  const monthLabel = `${monthNames()[parseInt(m,10)-1]} ${y}`;
+  ctx.textBaseline = 'alphabetic';
+  ctx.font = "700 46px 'Space Grotesk', sans-serif";
+  ctx.fillStyle = '#7C8399';
+  ctx.fillText(monthLabel, 64, 220);
+
+  const isPos = stats.totalPnl >= 0;
+  const accentColor = isPos ? '#3ADD9C' : '#FF6B6B';
+  const pnlText = (isPos?'+':'') + fmt(stats.totalPnl);
+  ctx.font = "800 118px 'JetBrains Mono', monospace";
+  ctx.fillStyle = accentColor;
+  ctx.fillText(pnlText, 60, 380);
+
+  // krzywa kapitału (uproszczona, mała) na tej samej danej co appka
+  let equity = 0;
+  const pts = [0];
+  const sorted = list.slice().sort((a,b)=> a.date.localeCompare(b.date));
+  sorted.forEach(t=>{ equity += t.pnl; pts.push(equity); });
+  if(pts.length > 1){
+    const chartX = 64, chartY = 440, chartW = W-128, chartH = 220;
+    const minV = Math.min(0, ...pts), maxV = Math.max(0, ...pts);
+    const range = (maxV - minV) || 1;
+    ctx.beginPath();
+    pts.forEach((v,i)=>{
+      const px = chartX + (i/(pts.length-1))*chartW;
+      const py = chartY + chartH - ((v-minV)/range)*chartH;
+      if(i===0) ctx.moveTo(px,py); else ctx.lineTo(px,py);
+    });
+    ctx.strokeStyle = accentColor;
+    ctx.lineWidth = 5;
+    ctx.lineJoin = 'round';
+    ctx.lineCap = 'round';
+    ctx.stroke();
+    // wypełnienie pod krzywą
+    ctx.lineTo(chartX+chartW, chartY+chartH);
+    ctx.lineTo(chartX, chartY+chartH);
+    ctx.closePath();
+    const fillGrad = ctx.createLinearGradient(0, chartY, 0, chartY+chartH);
+    fillGrad.addColorStop(0, accentColor + '33');
+    fillGrad.addColorStop(1, accentColor + '00');
+    ctx.fillStyle = fillGrad;
+    ctx.fill();
+  }
+
+  // staty: win rate / trades / winstreak
+  const statsRow = [
+    {label:t('winRate'), value: (stats.total-stats.beCount) ? stats.winRate.toFixed(1)+'%' : '—'},
+    {label:t('tradeCount'), value: String(stats.total)},
+    {label:t('wins'), value: String(stats.winsCount)},
+  ];
+  let statX = 64, statY = 780;
+  statsRow.forEach(s=>{
+    ctx.font = "600 20px 'Inter', sans-serif";
+    ctx.fillStyle = '#7C8399';
+    ctx.fillText(s.label.toUpperCase(), statX, statY);
+    ctx.font = "700 34px 'JetBrains Mono', monospace";
+    ctx.fillStyle = '#E7EAF2';
+    ctx.fillText(s.value, statX, statY+44);
+    statX += 300;
+  });
+
+  return canvas;
+}
+async function shareCanvasAsImage(canvas, filename){
+  const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/png'));
+  if(!blob) return 'failed';
+
+  const file = new File([blob], filename, {type:'image/png'});
+  if(navigator.canShare && navigator.canShare({files:[file]})){
+    try{
+      await navigator.share({files:[file], title:'Wick'});
+      return 'shared';
+    }catch(e){
+      if(e && e.name === 'AbortError') return 'cancelled';
+      // spadnij dalej do kopiowania do schowka, jeśli udostępnianie się nie powiodło z innego powodu
+    }
+  }
+
+  if(navigator.clipboard && window.ClipboardItem){
+    try{
+      await navigator.clipboard.write([new ClipboardItem({'image/png': blob})]);
+      return 'copied';
+    }catch(e){}
+  }
+
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  setTimeout(()=> URL.revokeObjectURL(url), 4000);
+  return 'downloaded';
+}
+async function runShareFlow(btn, generatorFn, filename){
+  if(btn.disabled) return;
+  const original = btn.innerHTML;
+  btn.disabled = true;
+  try{
+    const canvas = await generatorFn();
+    const result = await shareCanvasAsImage(canvas, filename);
+    if(result === 'copied') showSuccessToast(t('shareCopied'));
+    else if(result === 'downloaded') showSuccessToast(t('shareDownloaded'));
+    else if(result === 'failed') customAlert(t('shareFailed'), {danger:true});
+    // 'shared' i 'cancelled' nie wymagają dodatkowego komunikatu
+  }catch(e){
+    console.error('Błąd generowania obrazka do udostępnienia:', e);
+    customAlert(t('shareFailed'), {danger:true});
+  }
+  btn.disabled = false;
+  btn.innerHTML = original;
+}
+
 window.deleteTrade = async function(id){
   const tr = allTrades.find(x=>x.id===id);
   if(!tr) return;
@@ -4281,6 +4529,7 @@ function openTradeDetail(id){
 
   document.getElementById('tradeDetailEditText').textContent = t('editLabel');
   document.getElementById('tradeDetailDeleteText').textContent = t('deleteLabel');
+  document.getElementById('tradeDetailShareText').textContent = t('shareLabel');
   document.getElementById('tradeDetailOverlay').classList.add('open');
 }
 function closeTradeDetail(){ document.getElementById('tradeDetailOverlay').classList.remove('open'); }
@@ -4293,6 +4542,11 @@ document.getElementById('tradeDetailEditBtn').addEventListener('click', ()=>{
 document.getElementById('tradeDetailDeleteBtn').addEventListener('click', ()=>{
   closeTradeDetail();
   deleteTrade(detailTradeId);
+});
+document.getElementById('tradeDetailShareBtn').addEventListener('click', (e)=>{
+  const tr = allTrades.find(x=>x.id===detailTradeId);
+  if(!tr) return;
+  runShareFlow(e.currentTarget, ()=>generateTradeShareCard(tr), `wick-${tr.symbol}-${tr.date}.png`);
 });
 
 function openLightbox(images, index){
@@ -4894,6 +5148,7 @@ function applyStaticTexts(){
   document.getElementById('splashSub').textContent = t('splashSub');
   document.getElementById('brandTagline').textContent = t('tagline');
   document.getElementById('authGateDesc').textContent = t('authGateDesc');
+  document.getElementById('monthDetailShareText').textContent = t('shareLabel');
   document.getElementById('tourWelcomeGreeting').textContent = t('tourWelcomeGreeting');
   document.getElementById('tourWelcomeSub').textContent = t('tourWelcomeSub');
   document.getElementById('tourWelcomeOkBtn').textContent = t('tourWelcomeOkBtn');
