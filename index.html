@@ -4719,7 +4719,13 @@ document.getElementById('settingsNotifyTimeInput').addEventListener('change', (e
 });
 document.getElementById('settingsResetDeviceBtn').addEventListener('click', async ()=>{
   if(!await customConfirm(t('confirmResetDevice'))) return;
-  Object.keys(localStorage).filter(k=>k.startsWith('tj_')).forEach(k=> localStorage.removeItem(k));
+  const preserve = [LANG_KEY, REMEMBER_KEY];
+  Object.keys(localStorage).forEach(k=>{
+    if(!k.startsWith('tj_')) return;
+    if(preserve.includes(k)) return;
+    if(k.startsWith('tj_tour_done_')) return; // nie odpalamy samouczka ponownie przy zwykłym czyszczeniu ustawień
+    localStorage.removeItem(k);
+  });
   await customAlert(t('resetDeviceDone'));
   window.location.reload();
 });
@@ -4887,7 +4893,6 @@ function renderLangOptions(){
   const wrap = document.getElementById('langOptions');
   wrap.innerHTML = LANGS.map(l=>`
     <button type="button" class="lang-option ${l.code===langGateSelection?'selected':''}" data-lang="${l.code}">
-      <span class="lang-flag">${l.flag}</span>
       <span class="lang-name">${l.native}</span>
       <span class="lang-radio"></span>
     </button>
