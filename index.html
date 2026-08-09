@@ -1794,8 +1794,8 @@ table.tradelist tr:hover td{background:var(--surface2);}
         <div class="field"><label id="fLabelDirection">Kierunek</label>
           <select id="f-direction"><option value="long">Long</option><option value="short">Short</option></select>
         </div>
-        <div class="field"><label id="fLabelPnl">Wynik P/L ($)</label><input type="number" step="0.01" id="f-pnl" placeholder="np. 250 lub -100" required></div>
-        <div class="field"><label id="fLabelRR">RR (risk/reward, np. 2 lub -1)</label><input type="number" step="any" id="f-rr" required placeholder="np. 2"></div>
+        <div class="field"><label id="fLabelPnl">Wynik P/L ($)</label><input type="text" inputmode="decimal" pattern="-?[0-9]*\.?[0-9]*" step="0.01" id="f-pnl" placeholder="np. 250 lub -100" required></div>
+        <div class="field"><label id="fLabelRR">RR (risk/reward, np. 2 lub -1)</label><input type="text" inputmode="decimal" pattern="-?[0-9]*\.?[0-9]*" step="any" id="f-rr" required placeholder="np. 2"></div>
         <div class="field full">
           <label class="be-toggle" id="beToggleLabel" for="f-breakeven">
             <input type="checkbox" id="f-breakeven">
@@ -2076,7 +2076,7 @@ const I18N = {
     notifyUnsupported:'Twoja przeglądarka nie obsługuje powiadomień.',
     alertImageUploadFail:'Nie udało się wysłać zdjęcia. Sprawdź połączenie z internetem.',
     settingsContactTitle:'Kontakt',
-    undoLabel:'Cofnij', tradeDeletedToast:'Transakcja usunięta.',
+    undoLabel:'Cofnij', tradeDeletedToast:'Transakcja usunięta.', tradeSavedToast:'Transakcja zapisana.',
     allYears:'Wszystkie lata',
     onboardingTitle:'Zacznij swój dziennik transakcji', onboardingSub:'Dodaj swoją pierwszą transakcję, a Wick zacznie sam liczyć statystyki i krzywą kapitału.',
     onboardingAddBtnText:'Dodaj transakcję',
@@ -2204,7 +2204,7 @@ const I18N = {
     notifyUnsupported:'Your browser does not support notifications.',
     alertImageUploadFail:'Failed to upload the image. Check your internet connection.',
     settingsContactTitle:'Contact',
-    undoLabel:'Undo', tradeDeletedToast:'Trade deleted.',
+    undoLabel:'Undo', tradeDeletedToast:'Trade deleted.', tradeSavedToast:'Trade saved.',
     allYears:'All years',
     onboardingTitle:'Start your trade journal', onboardingSub:'Add your first trade and Wick will start tracking your stats and equity curve automatically.',
     onboardingAddBtnText:'Add trade',
@@ -2332,7 +2332,7 @@ const I18N = {
     notifyUnsupported:'Dein Browser unterstützt keine Benachrichtigungen.',
     alertImageUploadFail:'Das Bild konnte nicht hochgeladen werden. Prüfe deine Internetverbindung.',
     settingsContactTitle:'Kontakt',
-    undoLabel:'Rückgängig', tradeDeletedToast:'Trade gelöscht.',
+    undoLabel:'Rückgängig', tradeDeletedToast:'Trade gelöscht.', tradeSavedToast:'Trade gespeichert.',
     allYears:'Alle Jahre',
     onboardingTitle:'Starte dein Handelstagebuch', onboardingSub:'Füge deinen ersten Trade hinzu, und Wick berechnet automatisch deine Statistiken und Eigenkapitalkurve.',
     onboardingAddBtnText:'Trade hinzufügen',
@@ -3353,6 +3353,7 @@ document.getElementById('tradeForm').addEventListener('submit', async e=>{
   closeModal();
   renderAll();
   updateDrawerAccountInfo();
+  showSuccessToast(t('tradeSavedToast'));
   await saveTradeToDb(data);
   if(toDelete.length) sb.storage.from(IMAGES_BUCKET).remove(toDelete).catch(()=>{});
 });
@@ -4144,6 +4145,30 @@ function showUndoToast(message, durationMs, onExpire, onUndo){
     toast.classList.remove('show');
     onUndo();
   };
+}
+function showSuccessToast(message, durationMs){
+  durationMs = durationMs || 2200;
+  const toast = document.getElementById('undoToast');
+  document.getElementById('undoToastText').textContent = message;
+  const progress = document.getElementById('undoToastProgress');
+  const btn = document.getElementById('undoToastBtn');
+
+  if(toast._pendingExpire){ toast._pendingExpire(); }
+  clearTimeout(toast._timeoutId);
+
+  btn.style.display = 'none';
+  toast.classList.add('show');
+  progress.style.transition = 'none';
+  progress.style.width = '100%';
+  void progress.offsetWidth; // wymuś reflow
+  progress.style.transition = `width ${durationMs}ms linear`;
+  progress.style.width = '0%';
+
+  toast._pendingExpire = null;
+  toast._timeoutId = setTimeout(()=>{
+    toast.classList.remove('show');
+    btn.style.display = '';
+  }, durationMs);
 }
 
 window.deleteTrade = async function(id){
