@@ -73,6 +73,24 @@
 }
 *{box-sizing:border-box;margin:0;padding:0;}
 html{scroll-behavior:smooth;}
+
+/* Wyłącz zaznaczanie tekstu / menu "Kopiuj" po długim przytrzymaniu na interfejsie appki,
+   żeby czuło się jak natywna appka, a nie strona w przeglądarce. Pola do wpisywania danych
+   (input/textarea) i treść notatek mają to świadomie przywrócone niżej. */
+*{
+  -webkit-user-select:none;
+  -moz-user-select:none;
+  user-select:none;
+  -webkit-touch-callout:none;
+  -webkit-tap-highlight-color:transparent;
+}
+input, textarea, [contenteditable="true"], .td-notes{
+  -webkit-user-select:text;
+  -moz-user-select:text;
+  user-select:text;
+  -webkit-touch-callout:default;
+}
+
 body{
   background: var(--body-bg-1), var(--body-bg-2);
   color:var(--text);
