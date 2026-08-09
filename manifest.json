@@ -1,4 +1,5 @@
 {
+  "id": "/",
   "name": "Wick: Trade Journal",
   "short_name": "Wick: Trade Journal",
   "description": "Twój dziennik transakcji i analityka",
@@ -8,6 +9,7 @@
   "background_color": "#0B0E14",
   "theme_color": "#0B0E14",
   "orientation": "portrait-primary",
+  "categories": ["finance", "productivity"],
   "icons": [
     {
       "src": "icon-192.png",
