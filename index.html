@@ -4248,119 +4248,198 @@ function loadImageForShare(src){
     img.src = src;
   });
 }
-function shareCardHeaderFooter(ctx, W, H, logoImg){
+function shareDrawImageCover(ctx, img, x, y, w, h, radius){
+  ctx.save();
+  shareRoundRect(ctx, x, y, w, h, radius);
+  ctx.clip();
+  const imgRatio = img.width / img.height;
+  const boxRatio = w / h;
+  let dw, dh, dx, dy;
+  if(imgRatio > boxRatio){ dh = h; dw = h * imgRatio; dx = x - (dw-w)/2; dy = y; }
+  else { dw = w; dh = w / imgRatio; dx = x; dy = y - (dh-h)/2; }
+  ctx.drawImage(img, dx, dy, dw, dh);
+  ctx.restore();
+  ctx.save();
+  shareRoundRect(ctx, x, y, w, h, radius);
+  ctx.strokeStyle = 'rgba(255,255,255,0.14)';
+  ctx.lineWidth = 2;
+  ctx.stroke();
+  ctx.restore();
+}
+function shareCardRoundOutput(sourceCanvas, radius){
+  const out = document.createElement('canvas');
+  out.width = sourceCanvas.width; out.height = sourceCanvas.height;
+  const ctx = out.getContext('2d');
+  shareRoundRect(ctx, 0.5, 0.5, out.width-1, out.height-1, radius);
+  ctx.clip();
+  ctx.drawImage(sourceCanvas, 0, 0);
+  // subtelna złota obwódka na krawędzi całej karty
+  ctx.save();
+  shareRoundRect(ctx, 1, 1, out.width-2, out.height-2, radius);
+  ctx.strokeStyle = 'rgba(232,184,75,0.28)';
+  ctx.lineWidth = 2;
+  ctx.stroke();
+  ctx.restore();
+  return out;
+}
+function shareCardHeaderFooter(ctx, W, H, logoImg, glyphImg){
   // tło
   ctx.fillStyle = '#0B0E14';
   ctx.fillRect(0,0,W,H);
-  const grad = ctx.createRadialGradient(W*0.88, H*0.05, 40, W*0.88, H*0.05, W*0.65);
-  grad.addColorStop(0, 'rgba(232,184,75,0.16)');
+  const grad = ctx.createRadialGradient(W*0.92, H*0.02, 40, W*0.92, H*0.02, W*0.7);
+  grad.addColorStop(0, 'rgba(232,184,75,0.18)');
   grad.addColorStop(1, 'rgba(232,184,75,0)');
   ctx.fillStyle = grad;
   ctx.fillRect(0,0,W,H);
+  const grad2 = ctx.createRadialGradient(W*0.02, H*0.98, 40, W*0.02, H*0.98, W*0.5);
+  grad2.addColorStop(0, 'rgba(60,80,120,0.14)');
+  grad2.addColorStop(1, 'rgba(60,80,120,0)');
+  ctx.fillStyle = grad2;
+  ctx.fillRect(0,0,W,H);
+
+  // duży, bardzo przygaszony glif w tle (watermark) dla głębi
+  if(glyphImg){
+    ctx.save();
+    ctx.globalAlpha = 0.06;
+    const wmH = H*0.85;
+    const wmW = wmH * (glyphImg.width/glyphImg.height);
+    ctx.drawImage(glyphImg, W-wmW*0.75, H-wmH*0.9, wmW, wmH);
+    ctx.restore();
+  }
 
   // logo + wordmark
-  ctx.drawImage(logoImg, 64, 62, 56, 56);
+  ctx.drawImage(logoImg, 68, 66, 58, 58);
   ctx.fillStyle = '#E7EAF2';
-  ctx.font = "700 32px 'Space Grotesk', sans-serif";
+  ctx.font = "700 34px 'Space Grotesk', sans-serif";
   ctx.textBaseline = 'middle';
-  ctx.fillText('Wick', 134, 90);
+  ctx.fillText('Wick', 140, 96);
 
   // stopka
-  ctx.font = "400 22px 'Inter', sans-serif";
+  ctx.font = "400 23px 'Inter', sans-serif";
   ctx.fillStyle = '#7C8399';
   ctx.textBaseline = 'alphabetic';
-  ctx.fillText('wickapp.online', 64, H-56);
+  ctx.fillText('wickapp.online', 68, H-60);
 }
 async function generateTradeShareCard(tr){
   await document.fonts.ready;
   const logoImg = await loadImageForShare('icon-192.png');
-  const W = 1080, H = 1080;
+  const glyphImg = await loadImageForShare('logo-glyph.png').catch(()=>null);
+
+  let tradeImg = null;
+  const imgs = getTradeImages(tr);
+  if(imgs.length){
+    try{ tradeImg = await loadImageForShare(imageUrl(imgs[0])); }
+    catch(e){ tradeImg = null; }
+  }
+
+  const W = 1320, H = 1000;
   const canvas = document.createElement('canvas');
   canvas.width = W; canvas.height = H;
   const ctx = canvas.getContext('2d');
-  shareCardHeaderFooter(ctx, W, H, logoImg);
+  shareCardHeaderFooter(ctx, W, H, logoImg, glyphImg);
 
   const isPos = tr.pnl >= 0;
   const accentColor = isPos ? '#3ADD9C' : '#FF6B6B';
+  const hasImage = !!tradeImg;
+  const padX = 68;
+  const contentW = hasImage ? 660 : (W - padX*2);
 
   // symbol + kierunek
   ctx.textBaseline = 'alphabetic';
-  ctx.font = "700 52px 'Space Grotesk', sans-serif";
+  ctx.font = "700 56px 'Space Grotesk', sans-serif";
   ctx.fillStyle = '#E7EAF2';
-  ctx.fillText(tr.symbol, 64, 260);
+  ctx.fillText(tr.symbol, padX, 280);
 
   const dirLabel = (tr.direction || '').toUpperCase();
-  ctx.font = "700 26px 'Inter', sans-serif";
+  ctx.font = "700 27px 'Inter', sans-serif";
   const dirColor = tr.direction==='long' ? '#3ADD9C' : '#FF6B6B';
-  const dirW = ctx.measureText(dirLabel).width + 44;
-  shareRoundRect(ctx, 64, 285, dirW, 46, 23);
-  ctx.fillStyle = dirColor + '26';
+  const dirArrow = tr.direction==='long' ? '▲ ' : '▼ ';
+  const dirText = dirArrow + dirLabel;
+  const dirW = ctx.measureText(dirText).width + 46;
+  shareRoundRect(ctx, padX, 306, dirW, 48, 24);
+  ctx.fillStyle = dirColor + '24';
   ctx.fill();
   ctx.strokeStyle = dirColor + '80';
   ctx.lineWidth = 1.5;
   ctx.stroke();
   ctx.fillStyle = dirColor;
-  ctx.fillText(dirLabel, 64+22, 285+31);
+  ctx.fillText(dirText, padX+23, 306+32);
 
   // duży wynik P/L
   const pnlText = (isPos?'+':'') + fmt(tr.pnl);
-  ctx.font = "800 128px 'JetBrains Mono', monospace";
+  let pnlFontSize = hasImage ? 108 : 130;
+  ctx.font = `800 ${pnlFontSize}px 'JetBrains Mono', monospace`;
+  // zmniejsz automatycznie, jeśli liczba jest zbyt szeroka na dostępną kolumnę
+  while(ctx.measureText(pnlText).width > contentW - 8 && pnlFontSize > 60){
+    pnlFontSize -= 4;
+    ctx.font = `800 ${pnlFontSize}px 'JetBrains Mono', monospace`;
+  }
   ctx.fillStyle = accentColor;
-  ctx.fillText(pnlText, 60, 560);
+  ctx.fillText(pnlText, padX-4, 460);
 
-  // mniejsze staty: RR, data, pewność
-  let statsY = 680;
-  const stats = [];
+  // mniejsze staty: RR, data, pewność (w kolumnie, żeby ładnie mieściły się obok zdjęcia)
+  let statsY = 560;
+  const statsList = [];
   if(tr.rr !== null && tr.rr !== undefined && tr.rr !== ''){
-    stats.push({label:'RR', value: (tr.rr>=0?'+':'')+parseFloat(tr.rr).toFixed(2)+'R'});
+    statsList.push({label:'RR', value: (tr.rr>=0?'+':'')+parseFloat(tr.rr).toFixed(2)+'R'});
   }
   const dateObj = new Date(tr.date+'T00:00:00');
-  stats.push({label:t('date'), value: dateObj.toLocaleDateString(currentLang==='pl'?'pl-PL':(currentLang==='de'?'de-DE':'en-US'), {year:'numeric', month:'long', day:'numeric'})});
-  if(tr.confidence){ stats.push({label:t('confidence'), value: '★'.repeat(tr.confidence) + '☆'.repeat(5-tr.confidence)}); }
+  statsList.push({label:t('date'), value: dateObj.toLocaleDateString(currentLang==='pl'?'pl-PL':(currentLang==='de'?'de-DE':'en-US'), {year:'numeric', month:'long', day:'numeric'})});
+  if(tr.confidence){ statsList.push({label:t('confidence'), value: '★'.repeat(tr.confidence) + '☆'.repeat(5-tr.confidence)}); }
 
-  let statX = 64;
-  stats.forEach(s=>{
+  statsList.forEach(s=>{
     ctx.font = "600 20px 'Inter', sans-serif";
     ctx.fillStyle = '#7C8399';
-    ctx.fillText(s.label.toUpperCase(), statX, statsY);
-    ctx.font = "700 30px 'JetBrains Mono', monospace";
+    ctx.fillText(s.label.toUpperCase(), padX, statsY);
+    ctx.font = "700 32px 'JetBrains Mono', monospace";
     ctx.fillStyle = '#E7EAF2';
-    ctx.fillText(s.value, statX, statsY+42);
-    statX += Math.max(ctx.measureText(s.value).width, ctx.measureText(s.label.toUpperCase()).width) + 60;
+    ctx.fillText(s.value, padX, statsY+42);
+    statsY += 92;
   });
 
-  return canvas;
+  // zdjęcie transakcji po prawej stronie karty
+  if(hasImage){
+    const imgBoxX = padX + contentW + 44;
+    const imgBoxY = 68;
+    const imgBoxW = W - imgBoxX - padX;
+    const imgBoxH = H - imgBoxY - 64;
+    shareDrawImageCover(ctx, tradeImg, imgBoxX, imgBoxY, imgBoxW, imgBoxH, 22);
+  }
+
+  return shareCardRoundOutput(canvas, 32);
 }
 async function generateMonthShareCard(monthKey, list, stats){
   await document.fonts.ready;
   const logoImg = await loadImageForShare('icon-192.png');
-  const W = 1080, H = 1080;
+  const glyphImg = await loadImageForShare('logo-glyph.png').catch(()=>null);
+  const W = 1320, H = 1000;
   const canvas = document.createElement('canvas');
   canvas.width = W; canvas.height = H;
   const ctx = canvas.getContext('2d');
-  shareCardHeaderFooter(ctx, W, H, logoImg);
+  shareCardHeaderFooter(ctx, W, H, logoImg, glyphImg);
 
+  const padX = 68;
   const [y, m] = monthKey.split('-');
   const monthLabel = `${monthNames()[parseInt(m,10)-1]} ${y}`;
   ctx.textBaseline = 'alphabetic';
-  ctx.font = "700 46px 'Space Grotesk', sans-serif";
+  ctx.font = "700 48px 'Space Grotesk', sans-serif";
   ctx.fillStyle = '#7C8399';
-  ctx.fillText(monthLabel, 64, 220);
+  ctx.fillText(monthLabel, padX, 240);
 
   const isPos = stats.totalPnl >= 0;
   const accentColor = isPos ? '#3ADD9C' : '#FF6B6B';
   const pnlText = (isPos?'+':'') + fmt(stats.totalPnl);
-  ctx.font = "800 118px 'JetBrains Mono', monospace";
+  ctx.font = "800 130px 'JetBrains Mono', monospace";
   ctx.fillStyle = accentColor;
-  ctx.fillText(pnlText, 60, 380);
+  ctx.fillText(pnlText, padX-4, 400);
 
-  // krzywa kapitału (uproszczona, mała) na tej samej danej co appka
+  // krzywa kapitału (uproszczona, na tej samej danej co appka), szeroka na całą kartę
   let equity = 0;
   const pts = [0];
   const sorted = list.slice().sort((a,b)=> a.date.localeCompare(b.date));
   sorted.forEach(t=>{ equity += t.pnl; pts.push(equity); });
   if(pts.length > 1){
-    const chartX = 64, chartY = 440, chartW = W-128, chartH = 220;
+    const chartX = padX, chartY = 470, chartW = W-padX*2, chartH = 260;
     const minV = Math.min(0, ...pts), maxV = Math.max(0, ...pts);
     const range = (maxV - minV) || 1;
     ctx.beginPath();
@@ -4370,11 +4449,10 @@ async function generateMonthShareCard(monthKey, list, stats){
       if(i===0) ctx.moveTo(px,py); else ctx.lineTo(px,py);
     });
     ctx.strokeStyle = accentColor;
-    ctx.lineWidth = 5;
+    ctx.lineWidth = 6;
     ctx.lineJoin = 'round';
     ctx.lineCap = 'round';
     ctx.stroke();
-    // wypełnienie pod krzywą
     ctx.lineTo(chartX+chartW, chartY+chartH);
     ctx.lineTo(chartX, chartY+chartH);
     ctx.closePath();
@@ -4385,25 +4463,28 @@ async function generateMonthShareCard(monthKey, list, stats){
     ctx.fill();
   }
 
-  // staty: win rate / trades / winstreak
+  // staty: win rate / trades / wygrane, równo rozłożone na szerokość karty
   const statsRow = [
     {label:t('winRate'), value: (stats.total-stats.beCount) ? stats.winRate.toFixed(1)+'%' : '—'},
     {label:t('tradeCount'), value: String(stats.total)},
     {label:t('wins'), value: String(stats.winsCount)},
+    {label:t('losses'), value: String(stats.lossesCount)},
   ];
-  let statX = 64, statY = 780;
-  statsRow.forEach(s=>{
+  const colW = (W - padX*2) / statsRow.length;
+  let statY = 830;
+  statsRow.forEach((s,i)=>{
+    const sx = padX + i*colW;
     ctx.font = "600 20px 'Inter', sans-serif";
     ctx.fillStyle = '#7C8399';
-    ctx.fillText(s.label.toUpperCase(), statX, statY);
-    ctx.font = "700 34px 'JetBrains Mono', monospace";
+    ctx.fillText(s.label.toUpperCase(), sx, statY);
+    ctx.font = "700 36px 'JetBrains Mono', monospace";
     ctx.fillStyle = '#E7EAF2';
-    ctx.fillText(s.value, statX, statY+44);
-    statX += 300;
+    ctx.fillText(s.value, sx, statY+46);
   });
 
-  return canvas;
+  return shareCardRoundOutput(canvas, 32);
 }
+
 async function shareCanvasAsImage(canvas, filename){
   const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/png'));
   if(!blob) return 'failed';
