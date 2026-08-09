@@ -1,0 +1,8 @@
+[{
+      "relation": ["delegate_permission/common.handle_all_urls"],
+      "target": {
+        "namespace": "android_app",
+        "package_name": "online.wickapp.twa",
+        "sha256_cert_fingerprints": ["E0:F3:0D:9D:1C:BE:C4:25:0D:91:CF:5F:2B:B7:C0:E1:73:61:CF:FF:92:80:DA:CA:D0:4A:F4:99:D2:4B:B9:8B"]
+      }
+    }]
