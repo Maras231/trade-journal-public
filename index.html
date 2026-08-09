@@ -211,6 +211,20 @@ nav.tabs button:hover:not(.active){color:var(--text);}
 .stat-card:hover::before{opacity:.7;}
 .stat-card .label{color:var(--muted);font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:.6px;margin-bottom:8px;}
 .stat-card .value{font-family:'JetBrains Mono',monospace;font-size:24px;font-weight:700;font-feature-settings:"tnum";letter-spacing:-.2px;}
+
+/* ============ SKELETON LOADING ============ */
+.skeleton{
+  background:linear-gradient(90deg, var(--surface2) 25%, var(--border) 37%, var(--surface2) 63%);
+  background-size:400% 100%;
+  animation:skeletonShimmer 1.6s ease infinite;
+  border-radius:6px;
+}
+@keyframes skeletonShimmer{
+  0%{background-position:100% 50%;}
+  100%{background-position:0% 50%;}
+}
+.stat-card.skeleton-card:hover{transform:none;box-shadow:var(--shadow-sm);}
+.stat-card.skeleton-card::before{display:none;}
 /* Strzałki przy wartościach zysk/strata - nie tylko kolor, żeby było czytelne
    też dla osób z daltonizmem (nie rozróżniających czerwony/zielony) */
 .pos::before{content:'▲';font-size:.72em;margin-right:3px;position:relative;top:-1px;display:inline-block;}
@@ -230,7 +244,7 @@ nav.tabs button:hover:not(.active){color:var(--text);}
 .panel h2{font-family:'Space Grotesk',sans-serif;font-size:15px;margin-bottom:14px;font-weight:600;letter-spacing:.1px;}
 
 /* radar */
-.equity-wrap{display:flex;justify-content:center;overflow:visible;}
+.equity-wrap{display:flex;justify-content:center;overflow:visible;min-height:180px;}
 .eq-tooltip{
   position:absolute;transform:translate(-50%,-130%);
   background:var(--surface2);border:1px solid var(--border);border-radius:8px;
@@ -1424,7 +1438,7 @@ table.tradelist tr:hover td{background:var(--surface2);}
 
 <header class="top">
   <div class="brand">
-    <button class="menu-btn" id="menuBtn" type="button" title="Menu">
+    <button class="menu-btn" id="menuBtn" type="button" title="Menu" aria-label="Menu">
       <div class="mark"><img src="icon-192.png" alt="Wick"></div>
     </button>
     <div>
@@ -1451,7 +1465,14 @@ table.tradelist tr:hover td{background:var(--surface2);}
 </nav>
 </div>
 
-<div class="stats-row" id="statsRow"></div>
+<div class="stats-row" id="statsRow">
+  <div class="stat-card skeleton-card"><div class="skeleton" style="height:11px;width:60%;margin-bottom:10px;"></div><div class="skeleton" style="height:20px;width:45%;"></div></div>
+  <div class="stat-card skeleton-card"><div class="skeleton" style="height:11px;width:60%;margin-bottom:10px;"></div><div class="skeleton" style="height:20px;width:45%;"></div></div>
+  <div class="stat-card skeleton-card"><div class="skeleton" style="height:11px;width:60%;margin-bottom:10px;"></div><div class="skeleton" style="height:20px;width:45%;"></div></div>
+  <div class="stat-card skeleton-card"><div class="skeleton" style="height:11px;width:60%;margin-bottom:10px;"></div><div class="skeleton" style="height:20px;width:45%;"></div></div>
+  <div class="stat-card skeleton-card"><div class="skeleton" style="height:11px;width:60%;margin-bottom:10px;"></div><div class="skeleton" style="height:20px;width:45%;"></div></div>
+  <div class="stat-card skeleton-card"><div class="skeleton" style="height:11px;width:60%;margin-bottom:10px;"></div><div class="skeleton" style="height:20px;width:45%;"></div></div>
+</div>
 
 
 <section id="tab-dashboard">
@@ -1461,7 +1482,7 @@ table.tradelist tr:hover td{background:var(--surface2);}
         <h2 id="eqCurveTitle">Krzywa kapitału</h2>
         <div class="eq-total" id="eqTotal"></div>
       </div>
-      <div id="radarWrap" class="equity-wrap"></div>
+      <div id="radarWrap" class="equity-wrap"><div class="skeleton" style="height:100%;width:100%;border-radius:10px;"></div></div>
       <div class="eq-stats" id="eqStats"></div>
     </div>
 
@@ -1496,7 +1517,12 @@ table.tradelist tr:hover td{background:var(--surface2);}
         <option value="pnl-asc">P/L ↑</option>
       </select>
     </div>
-    <div id="tradesTableWrap"></div>
+    <div id="tradesTableWrap">
+      <div class="skeleton" style="height:38px;margin-bottom:8px;"></div>
+      <div class="skeleton" style="height:38px;margin-bottom:8px;"></div>
+      <div class="skeleton" style="height:38px;margin-bottom:8px;"></div>
+      <div class="skeleton" style="height:38px;"></div>
+    </div>
   </div>
 </section>
 
@@ -1785,11 +1811,11 @@ table.tradelist tr:hover td{background:var(--surface2);}
             <span class="confidence-panel-title" id="confTitle">Pewność transakcji</span>
             <span class="confidence-panel-sub" id="confSub">Jak mocno wierzyłeś w ten setup przed wejściem: 5 gwiazdek = mega pewność, 1 = strzał na pół gwizdka.</span>
             <div class="confidence-stars" id="confidenceStars">
-              <button type="button" class="star-btn" data-val="1">★</button>
-              <button type="button" class="star-btn" data-val="2">★</button>
-              <button type="button" class="star-btn" data-val="3">★</button>
-              <button type="button" class="star-btn" data-val="4">★</button>
-              <button type="button" class="star-btn" data-val="5">★</button>
+              <button type="button" class="star-btn" data-val="1" aria-label="1">★</button>
+              <button type="button" class="star-btn" data-val="2" aria-label="2">★</button>
+              <button type="button" class="star-btn" data-val="3" aria-label="3">★</button>
+              <button type="button" class="star-btn" data-val="4" aria-label="4">★</button>
+              <button type="button" class="star-btn" data-val="5" aria-label="5">★</button>
             </div>
             <input type="hidden" id="f-confidence" value="0">
           </div>
@@ -1891,10 +1917,10 @@ table.tradelist tr:hover td{background:var(--surface2);}
 
 <!-- LIGHTBOX -->
 <div class="lightbox" id="lightbox">
-  <button class="lightbox-close" id="lightboxClose">✕</button>
-  <button class="lightbox-nav prev" id="lightboxPrev" style="display:none;">‹</button>
+  <button class="lightbox-close" id="lightboxClose" aria-label="Zamknij">✕</button>
+  <button class="lightbox-nav prev" id="lightboxPrev" style="display:none;" aria-label="Poprzednie zdjęcie">‹</button>
   <img id="lightboxImg" src="" alt="">
-  <button class="lightbox-nav next" id="lightboxNext" style="display:none;">›</button>
+  <button class="lightbox-nav next" id="lightboxNext" style="display:none;" aria-label="Następne zdjęcie">›</button>
   <div class="lightbox-counter" id="lightboxCounter" style="display:none;"></div>
 </div>
 
@@ -2075,6 +2101,10 @@ const I18N = {
     settingsResetDeviceSub:'Resetuje motyw, język i inne lokalne ustawienia. Nie usuwa konta ani transakcji.',
     settingsResetDeviceBtn:'Wyczyść', confirmResetDevice:'Zresetować lokalne ustawienia appki na tym urządzeniu? Twoje konto i transakcje pozostaną nietknięte.',
     resetDeviceDone:'Gotowe. Lokalne ustawienia wyczyszczone.',
+    confirmDiscardTrade:'Masz niezapisane zmiany w tej transakcji. Na pewno odrzucić?',
+    sessionExpired:'Twoja sesja wygasła. Zaloguj się ponownie, aby kontynuować.',
+    menu:'Menu',
+    closeLabel:'Zamknij', prevImageLabel:'Poprzednie zdjęcie', nextImageLabel:'Następne zdjęcie',
     rrSignMismatch:'Znak RR musi zgadzać się ze znakiem P/L. Jeśli P/L jest ujemne, RR też musi być ujemne (i odwrotnie dla dodatniego).',
   },
   en: {
@@ -2199,6 +2229,10 @@ const I18N = {
     settingsResetDeviceSub:'Resets theme, language and other local settings. Does not delete your account or trades.',
     settingsResetDeviceBtn:'Clear', confirmResetDevice:'Reset local app settings on this device? Your account and trades will remain untouched.',
     resetDeviceDone:'Done. Local settings cleared.',
+    confirmDiscardTrade:'You have unsaved changes on this trade. Discard them?',
+    sessionExpired:'Your session has expired. Please log in again to continue.',
+    menu:'Menu',
+    closeLabel:'Close', prevImageLabel:'Previous image', nextImageLabel:'Next image',
     rrSignMismatch:'The RR sign must match the P/L sign. If P/L is negative, RR must be negative too (and vice versa for positive).',
   },
   de: {
@@ -2323,6 +2357,10 @@ const I18N = {
     settingsResetDeviceSub:'Setzt Theme, Sprache und andere lokale Einstellungen zurück. Konto und Trades bleiben unberührt.',
     settingsResetDeviceBtn:'Löschen', confirmResetDevice:'Lokale App-Einstellungen auf diesem Gerät zurücksetzen? Dein Konto und deine Trades bleiben unberührt.',
     resetDeviceDone:'Fertig. Lokale Einstellungen gelöscht.',
+    confirmDiscardTrade:'Du hast ungespeicherte Änderungen an diesem Trade. Verwerfen?',
+    sessionExpired:'Deine Sitzung ist abgelaufen. Bitte melde dich erneut an, um fortzufahren.',
+    menu:'Menü',
+    closeLabel:'Schließen', prevImageLabel:'Vorheriges Bild', nextImageLabel:'Nächstes Bild',
     rrSignMismatch:'Das Vorzeichen von RR muss zum Vorzeichen von P/L passen. Bei negativem P/L muss auch RR negativ sein (und umgekehrt bei positivem).',
   }
 };
@@ -2566,30 +2604,62 @@ window.addEventListener('online', ()=> updateConnectionBanner(true));
 window.addEventListener('offline', ()=> updateConnectionBanner(false));
 if(!navigator.onLine) updateConnectionBanner(false);
 
+function isAuthError(error){
+  if(!error) return false;
+  const msg = (error.message || '').toLowerCase();
+  return error.status === 401 || error.code === 'PGRST301' || msg.includes('jwt') || msg.includes('token') || msg.includes('not authenticated') || msg.includes('invalid claim');
+}
+let sessionExpiredHandling = false;
+async function handleSessionExpired(){
+  if(sessionExpiredHandling) return; // nie pokazuj kilku takich samych alertów naraz
+  sessionExpiredHandling = true;
+  await customAlert(t('sessionExpired'), {danger:true});
+  try{ await sb.auth.signOut(); }catch(e){}
+  window.location.reload();
+}
 function friendlyDbErrorMsg(defaultKey){
   return (!navigator.onLine) ? t('alertOffline') : t(defaultKey);
 }
 async function saveTradeToDb(tr){
   const { error } = await sb.from('trades').upsert(tradeToRow(tr));
-  if(error){ console.error('Błąd zapisu transakcji:', error); customAlert(friendlyDbErrorMsg('alertSaveFail'), {danger:true}); }
+  if(error){
+    console.error('Błąd zapisu transakcji:', error);
+    if(isAuthError(error)){ handleSessionExpired(); return; }
+    customAlert(friendlyDbErrorMsg('alertSaveFail'), {danger:true});
+  }
 }
 async function deleteTradeFromDb(id){
   const { error } = await sb.from('trades').delete().eq('id', id).eq('user_id', currentUser.id);
-  if(error){ console.error('Błąd usuwania transakcji:', error); customAlert(friendlyDbErrorMsg('alertDeleteFail'), {danger:true}); }
+  if(error){
+    console.error('Błąd usuwania transakcji:', error);
+    if(isAuthError(error)){ handleSessionExpired(); return; }
+    customAlert(friendlyDbErrorMsg('alertDeleteFail'), {danger:true});
+  }
 }
 async function saveMonthNoteToDb(accountId, month, text){
   const { error } = await sb.from('month_notes').upsert({
     user_id: currentUser.id, account_id: accountId, month, text, updated_at: new Date().toISOString()
   });
-  if(error){ console.error('Błąd zapisu notatki:', error); }
+  if(error){
+    console.error('Błąd zapisu notatki:', error);
+    if(isAuthError(error)) handleSessionExpired();
+  }
 }
 async function saveAccountToDb(a){
   const { error } = await sb.from('accounts').upsert(accountToRow(a));
-  if(error){ console.error('Błąd zapisu konta:', error); customAlert(friendlyDbErrorMsg('alertAccountSaveFail'), {danger:true}); }
+  if(error){
+    console.error('Błąd zapisu konta:', error);
+    if(isAuthError(error)){ handleSessionExpired(); return; }
+    customAlert(friendlyDbErrorMsg('alertAccountSaveFail'), {danger:true});
+  }
 }
 async function deleteAccountFromDb(id){
   const { error } = await sb.from('accounts').delete().eq('id', id).eq('user_id', currentUser.id);
-  if(error){ console.error('Błąd usuwania konta:', error); customAlert(friendlyDbErrorMsg('alertAccountDeleteFail'), {danger:true}); }
+  if(error){
+    console.error('Błąd usuwania konta:', error);
+    if(isAuthError(error)){ handleSessionExpired(); return; }
+    customAlert(friendlyDbErrorMsg('alertAccountDeleteFail'), {danger:true});
+  }
 }
 
 /* ---------- AUTH ---------- */
@@ -3015,6 +3085,7 @@ document.addEventListener('click', ()=>closeDpPanel());
 
 /* ============ MODAL ============ */
 const overlay = document.getElementById('modalOverlay');
+let modalOpenSnapshot = null;
 function openModal(edit){
   overlay.classList.add('open');
   document.getElementById('f-rr').classList.remove('invalid');
@@ -3049,6 +3120,26 @@ function openModal(edit){
     updateBeToggleVisual();
   }
   updateNotesCharCounter();
+  modalOpenSnapshot = captureModalSnapshot();
+}
+function captureModalSnapshot(){
+  return JSON.stringify({
+    date: dpSelected,
+    symbol: document.getElementById('f-symbol').value,
+    direction: document.getElementById('f-direction').value,
+    pnl: document.getElementById('f-pnl').value,
+    rr: document.getElementById('f-rr').value,
+    notes: document.getElementById('f-notes').value,
+    breakeven: document.getElementById('f-breakeven').checked,
+    confidence: document.getElementById('f-confidence').value,
+    images: currentImages
+  });
+}
+async function attemptCloseModal(){
+  if(modalOpenSnapshot !== null && captureModalSnapshot() !== modalOpenSnapshot){
+    if(!await customConfirm(t('confirmDiscardTrade'), {danger:true})) return;
+  }
+  closeModal();
 }
 function setConfidence(val){
   document.getElementById('f-confidence').value = val;
@@ -3095,11 +3186,12 @@ function closeModal(){
   }
   pendingUploadedPaths = [];
   pendingRemovedPaths = [];
+  modalOpenSnapshot = null;
 }
 document.getElementById('addTradeBtn').addEventListener('click', ()=>openModal(null));
-document.getElementById('closeModal').addEventListener('click', closeModal);
-document.getElementById('cancelBtn').addEventListener('click', closeModal);
-overlay.addEventListener('click', e=>{ if(e.target===overlay) closeModal(); });
+document.getElementById('closeModal').addEventListener('click', attemptCloseModal);
+document.getElementById('cancelBtn').addEventListener('click', attemptCloseModal);
+overlay.addEventListener('click', e=>{ if(e.target===overlay) attemptCloseModal(); });
 
 /* ============ image upload (Supabase Storage) ============ */
 const IMAGES_BUCKET = 'trade-images';
@@ -3167,7 +3259,7 @@ function renderImageGrid(){
   let html = currentImages.map((path, i)=>`
     <div class="image-slot">
       <img src="${imageUrl(path)}">
-      <button type="button" class="img-remove" data-idx="${i}">✕</button>
+      <button type="button" class="img-remove" data-idx="${i}" aria-label="${t('deleteLabel')}">✕</button>
     </div>`).join('');
   if(currentImages.length < MAX_IMAGES){
     html += `<div class="image-slot-add" id="addImageTile">
@@ -3975,8 +4067,8 @@ function renderTradesTable(){
           <td class="pnl-cell ${t2.breakeven ? 'be' : (tradeValue(t2,displayMode)>=0?'pos':'neg')}">${fmtValue(tradeValue(t2,displayMode), displayMode)}</td>
           <td>
             <div class="row-actions">
-              <button class="icon-btn" data-edit="${t2.id}">✎</button>
-              <button class="icon-btn" data-del="${t2.id}">🗑</button>
+              <button class="icon-btn" data-edit="${t2.id}" aria-label="${t('editLabel')}">✎</button>
+              <button class="icon-btn" data-del="${t2.id}" aria-label="${t('deleteLabel')}">🗑</button>
             </div>
           </td>
         </tr>
@@ -4437,8 +4529,8 @@ function renderAccountsScreen(){
       <div class="a-balance ${live>=a.balance?'pos':'neg'}">${fmt(live)}</div>
       <div class="a-sub">${accTrades.length} ${t('tradesLower')} · ${t('startingBalance')}: ${fmt(a.balance)}</div>
       <div class="a-actions">
-        <button class="icon-btn" data-edit="${a.id}">✎</button>
-        <button class="icon-btn" data-del="${a.id}">🗑</button>
+        <button class="icon-btn" data-edit="${a.id}" aria-label="${t('editLabel')}">✎</button>
+        <button class="icon-btn" data-del="${a.id}" aria-label="${t('deleteLabel')}">🗑</button>
       </div>
     </div>`;
   }).join('');
@@ -4863,6 +4955,13 @@ function applyStaticTexts(){
   document.getElementById('settingsResetDeviceTitle').textContent = t('settingsResetDeviceTitle');
   document.getElementById('settingsResetDeviceSub').textContent = t('settingsResetDeviceSub');
   document.getElementById('settingsResetDeviceBtn').textContent = t('settingsResetDeviceBtn');
+  document.querySelectorAll('#confidenceStars .star-btn').forEach(btn=>{
+    btn.setAttribute('aria-label', t('confidence') + ' ' + btn.dataset.val);
+  });
+  document.getElementById('menuBtn').setAttribute('aria-label', t('menu'));
+  document.getElementById('lightboxClose').setAttribute('aria-label', t('closeLabel'));
+  document.getElementById('lightboxPrev').setAttribute('aria-label', t('prevImageLabel'));
+  document.getElementById('lightboxNext').setAttribute('aria-label', t('nextImageLabel'));
   document.getElementById('profileTotalTradesLabel').textContent = t('profileTotalTradesLabel');
   document.getElementById('profilePasswordTitle').textContent = t('profilePasswordTitle');
   document.getElementById('profileNewPasswordLabel').textContent = t('profileNewPasswordLabel');
