@@ -4248,24 +4248,6 @@ function loadImageForShare(src){
     img.src = src;
   });
 }
-function shareDrawImageCover(ctx, img, x, y, w, h, radius){
-  ctx.save();
-  shareRoundRect(ctx, x, y, w, h, radius);
-  ctx.clip();
-  const imgRatio = img.width / img.height;
-  const boxRatio = w / h;
-  let dw, dh, dx, dy;
-  if(imgRatio > boxRatio){ dh = h; dw = h * imgRatio; dx = x - (dw-w)/2; dy = y; }
-  else { dw = w; dh = w / imgRatio; dx = x; dy = y - (dh-h)/2; }
-  ctx.drawImage(img, dx, dy, dw, dh);
-  ctx.restore();
-  ctx.save();
-  shareRoundRect(ctx, x, y, w, h, radius);
-  ctx.strokeStyle = 'rgba(255,255,255,0.14)';
-  ctx.lineWidth = 2;
-  ctx.stroke();
-  ctx.restore();
-}
 function shareCardRoundOutput(sourceCanvas, radius){
   const out = document.createElement('canvas');
   out.width = sourceCanvas.width; out.height = sourceCanvas.height;
@@ -4320,19 +4302,62 @@ function shareCardHeaderFooter(ctx, W, H, logoImg, glyphImg){
   ctx.textBaseline = 'alphabetic';
   ctx.fillText('wickapp.online', 68, H-60);
 }
+function shareDrawCandlesticks(ctx, areaX0, areaY0, areaX1, areaY1, accentColor, isWin){
+  const n = 8;
+  const usableH = areaY1 - areaY0;
+  const candleW = (areaX1-areaX0) / (n*1.65);
+  const gap = candleW*0.65;
+
+  // trend rosnący dla zysku, malejący dla straty, z lekkim szumem
+  let price = isWin ? 0.15 : 0.85;
+  const heights = [];
+  for(let i=0;i<n;i++){
+    price += isWin ? (Math.random()*0.29 - 0.05) : -(Math.random()*0.29 - 0.05);
+    heights.push(price);
+  }
+  const minp = Math.min(...heights), maxp = Math.max(...heights);
+  const rng = (maxp-minp) || 1;
+
+  let x = areaX0;
+  for(let i=0;i<n;i++){
+    const norm = (heights[i]-minp)/rng;
+    let cyCenter = areaY1 - 40 - norm*(usableH-80);
+    const bodyH = 46 + Math.random()*(usableH*0.28);
+    const wickExtra = 20 + Math.random()*(usableH*0.14);
+    const wickH = bodyH + wickExtra;
+    const top = cyCenter - wickH/2, bot = cyCenter + wickH/2;
+    if(top < areaY0) cyCenter += (areaY0-top);
+    if(bot > areaY1) cyCenter -= (bot-areaY1);
+
+    const isLastTwo = i >= n-2;
+    const col = isLastTwo ? accentColor : (Math.random()>0.4 ? accentColor : '#7C8399');
+    ctx.globalAlpha = isLastTwo ? 0.92 : 0.5;
+    ctx.strokeStyle = col;
+    ctx.lineWidth = 5;
+    ctx.beginPath();
+    ctx.moveTo(x+candleW/2, cyCenter-wickH/2);
+    ctx.lineTo(x+candleW/2, cyCenter+wickH/2);
+    ctx.stroke();
+    ctx.fillStyle = col;
+    shareRoundRect(ctx, x, cyCenter-bodyH/2, candleW, bodyH, 4);
+    ctx.fill();
+    x += candleW + gap;
+  }
+  ctx.globalAlpha = 1;
+
+  ctx.strokeStyle = 'rgba(255,255,255,0.09)';
+  ctx.lineWidth = 1;
+  ctx.beginPath();
+  ctx.moveTo(areaX0-14, areaY0+30);
+  ctx.lineTo(areaX1+14, areaY0+30);
+  ctx.stroke();
+}
 async function generateTradeShareCard(tr){
   await document.fonts.ready;
   const logoImg = await loadImageForShare('icon-192.png');
   const glyphImg = await loadImageForShare('logo-glyph.png').catch(()=>null);
 
-  let tradeImg = null;
-  const imgs = getTradeImages(tr);
-  if(imgs.length){
-    try{ tradeImg = await loadImageForShare(imageUrl(imgs[0])); }
-    catch(e){ tradeImg = null; }
-  }
-
-  const W = 1320, H = 1000;
+  const W = 1160, H = 860;
   const canvas = document.createElement('canvas');
   canvas.width = W; canvas.height = H;
   const ctx = canvas.getContext('2d');
@@ -4340,106 +4365,99 @@ async function generateTradeShareCard(tr){
 
   const isPos = tr.pnl >= 0;
   const accentColor = isPos ? '#3ADD9C' : '#FF6B6B';
-  const hasImage = !!tradeImg;
-  const padX = 68;
-  const contentW = hasImage ? 660 : (W - padX*2);
+  const padX = 60;
+  const contentW = 560;
 
-  // symbol + kierunek
+  // symbol + kierunek (karta zawsze po angielsku, niezależnie od języka appki)
   ctx.textBaseline = 'alphabetic';
-  ctx.font = "700 56px 'Space Grotesk', sans-serif";
+  ctx.font = "700 50px 'Space Grotesk', sans-serif";
   ctx.fillStyle = '#E7EAF2';
-  ctx.fillText(tr.symbol, padX, 280);
+  ctx.fillText(tr.symbol, padX, 246);
 
   const dirLabel = (tr.direction || '').toUpperCase();
-  ctx.font = "700 27px 'Inter', sans-serif";
-  const dirColor = tr.direction==='long' ? '#3ADD9C' : '#FF6B6B';
+  ctx.font = "700 24px 'Inter', sans-serif";
   const dirArrow = tr.direction==='long' ? '▲ ' : '▼ ';
   const dirText = dirArrow + dirLabel;
-  const dirW = ctx.measureText(dirText).width + 46;
-  shareRoundRect(ctx, padX, 306, dirW, 48, 24);
-  ctx.fillStyle = dirColor + '24';
+  const dirW = ctx.measureText(dirText).width + 40;
+  shareRoundRect(ctx, padX, 270, dirW, 42, 21);
+  ctx.fillStyle = accentColor + '32';
   ctx.fill();
-  ctx.strokeStyle = dirColor + '80';
+  ctx.strokeStyle = accentColor + '80';
   ctx.lineWidth = 1.5;
   ctx.stroke();
-  ctx.fillStyle = dirColor;
-  ctx.fillText(dirText, padX+23, 306+32);
+  ctx.fillStyle = accentColor;
+  ctx.fillText(dirText, padX+20, 270+29);
 
   // duży wynik P/L
   const pnlText = (isPos?'+':'') + fmt(tr.pnl);
-  let pnlFontSize = hasImage ? 108 : 130;
+  let pnlFontSize = 96;
   ctx.font = `800 ${pnlFontSize}px 'JetBrains Mono', monospace`;
-  // zmniejsz automatycznie, jeśli liczba jest zbyt szeroka na dostępną kolumnę
-  while(ctx.measureText(pnlText).width > contentW - 8 && pnlFontSize > 60){
+  while(ctx.measureText(pnlText).width > contentW - 8 && pnlFontSize > 56){
     pnlFontSize -= 4;
     ctx.font = `800 ${pnlFontSize}px 'JetBrains Mono', monospace`;
   }
   ctx.fillStyle = accentColor;
-  ctx.fillText(pnlText, padX-4, 460);
+  ctx.fillText(pnlText, padX-4, 426);
 
-  // mniejsze staty: RR, data, pewność (w kolumnie, żeby ładnie mieściły się obok zdjęcia)
-  let statsY = 560;
+  // mniejsze staty: RR, data, pewność - w jednej linii, zawsze po angielsku
+  let statX = padX;
+  const statY = 500;
   const statsList = [];
   if(tr.rr !== null && tr.rr !== undefined && tr.rr !== ''){
     statsList.push({label:'RR', value: (tr.rr>=0?'+':'')+parseFloat(tr.rr).toFixed(2)+'R'});
   }
   const dateObj = new Date(tr.date+'T00:00:00');
-  statsList.push({label:t('date'), value: dateObj.toLocaleDateString(currentLang==='pl'?'pl-PL':(currentLang==='de'?'de-DE':'en-US'), {year:'numeric', month:'long', day:'numeric'})});
-  if(tr.confidence){ statsList.push({label:t('confidence'), value: '★'.repeat(tr.confidence) + '☆'.repeat(5-tr.confidence)}); }
+  statsList.push({label:'DATE', value: dateObj.toLocaleDateString('en-US', {year:'numeric', month:'short', day:'numeric'})});
+  if(tr.confidence){ statsList.push({label:'CONFIDENCE', value: '★'.repeat(tr.confidence) + '☆'.repeat(5-tr.confidence)}); }
 
   statsList.forEach(s=>{
-    ctx.font = "600 20px 'Inter', sans-serif";
+    ctx.font = "600 18px 'Inter', sans-serif";
     ctx.fillStyle = '#7C8399';
-    ctx.fillText(s.label.toUpperCase(), padX, statsY);
-    ctx.font = "700 32px 'JetBrains Mono', monospace";
+    ctx.fillText(s.label, statX, statY);
+    ctx.font = "700 26px 'JetBrains Mono', monospace";
     ctx.fillStyle = '#E7EAF2';
-    ctx.fillText(s.value, padX, statsY+42);
-    statsY += 92;
+    ctx.fillText(s.value, statX, statY+30);
+    statX += Math.max(ctx.measureText(s.value).width, ctx.measureText(s.label).width) + 46;
   });
 
-  // zdjęcie transakcji po prawej stronie karty
-  if(hasImage){
-    const imgBoxX = padX + contentW + 44;
-    const imgBoxY = 68;
-    const imgBoxW = W - imgBoxX - padX;
-    const imgBoxH = H - imgBoxY - 64;
-    shareDrawImageCover(ctx, tradeImg, imgBoxX, imgBoxY, imgBoxW, imgBoxH, 22);
-  }
+  // dekoracyjne świece po prawej stronie, kolor/kierunek dopasowany do wyniku transakcji
+  shareDrawCandlesticks(ctx, padX+contentW+40, 150, W-56, H-110, accentColor, isPos);
 
-  return shareCardRoundOutput(canvas, 32);
+  return shareCardRoundOutput(canvas, 30);
 }
 async function generateMonthShareCard(monthKey, list, stats){
   await document.fonts.ready;
   const logoImg = await loadImageForShare('icon-192.png');
   const glyphImg = await loadImageForShare('logo-glyph.png').catch(()=>null);
-  const W = 1320, H = 1000;
+  const W = 1160, H = 860;
   const canvas = document.createElement('canvas');
   canvas.width = W; canvas.height = H;
   const ctx = canvas.getContext('2d');
   shareCardHeaderFooter(ctx, W, H, logoImg, glyphImg);
 
-  const padX = 68;
+  const padX = 60;
   const [y, m] = monthKey.split('-');
-  const monthLabel = `${monthNames()[parseInt(m,10)-1]} ${y}`;
+  // karta zawsze po angielsku, niezależnie od języka appki
+  const monthLabel = new Date(parseInt(y,10), parseInt(m,10)-1, 1).toLocaleDateString('en-US', {month:'long', year:'numeric'});
   ctx.textBaseline = 'alphabetic';
-  ctx.font = "700 48px 'Space Grotesk', sans-serif";
+  ctx.font = "700 42px 'Space Grotesk', sans-serif";
   ctx.fillStyle = '#7C8399';
-  ctx.fillText(monthLabel, padX, 240);
+  ctx.fillText(monthLabel, padX, 208);
 
   const isPos = stats.totalPnl >= 0;
   const accentColor = isPos ? '#3ADD9C' : '#FF6B6B';
   const pnlText = (isPos?'+':'') + fmt(stats.totalPnl);
-  ctx.font = "800 130px 'JetBrains Mono', monospace";
+  ctx.font = "800 112px 'JetBrains Mono', monospace";
   ctx.fillStyle = accentColor;
-  ctx.fillText(pnlText, padX-4, 400);
+  ctx.fillText(pnlText, padX-4, 344);
 
-  // krzywa kapitału (uproszczona, na tej samej danej co appka), szeroka na całą kartę
+  // krzywa kapitału (na tej samej danej co appka), szeroka na całą kartę
   let equity = 0;
   const pts = [0];
   const sorted = list.slice().sort((a,b)=> a.date.localeCompare(b.date));
   sorted.forEach(t=>{ equity += t.pnl; pts.push(equity); });
   if(pts.length > 1){
-    const chartX = padX, chartY = 470, chartW = W-padX*2, chartH = 260;
+    const chartX = padX, chartY = 400, chartW = W-padX*2, chartH = 220;
     const minV = Math.min(0, ...pts), maxV = Math.max(0, ...pts);
     const range = (maxV - minV) || 1;
     ctx.beginPath();
@@ -4463,26 +4481,26 @@ async function generateMonthShareCard(monthKey, list, stats){
     ctx.fill();
   }
 
-  // staty: win rate / trades / wygrane, równo rozłożone na szerokość karty
+  // staty: win rate / trades / wygrane / przegrane - zawsze po angielsku
   const statsRow = [
-    {label:t('winRate'), value: (stats.total-stats.beCount) ? stats.winRate.toFixed(1)+'%' : '—'},
-    {label:t('tradeCount'), value: String(stats.total)},
-    {label:t('wins'), value: String(stats.winsCount)},
-    {label:t('losses'), value: String(stats.lossesCount)},
+    {label:'WIN RATE', value: (stats.total-stats.beCount) ? stats.winRate.toFixed(1)+'%' : '—'},
+    {label:'TRADES', value: String(stats.total)},
+    {label:'WINS', value: String(stats.winsCount)},
+    {label:'LOSSES', value: String(stats.lossesCount)},
   ];
   const colW = (W - padX*2) / statsRow.length;
-  let statY = 830;
+  const statY = 700;
   statsRow.forEach((s,i)=>{
     const sx = padX + i*colW;
-    ctx.font = "600 20px 'Inter', sans-serif";
+    ctx.font = "600 18px 'Inter', sans-serif";
     ctx.fillStyle = '#7C8399';
-    ctx.fillText(s.label.toUpperCase(), sx, statY);
-    ctx.font = "700 36px 'JetBrains Mono', monospace";
+    ctx.fillText(s.label, sx, statY);
+    ctx.font = "700 32px 'JetBrains Mono', monospace";
     ctx.fillStyle = '#E7EAF2';
-    ctx.fillText(s.value, sx, statY+46);
+    ctx.fillText(s.value, sx, statY+40);
   });
 
-  return shareCardRoundOutput(canvas, 32);
+  return shareCardRoundOutput(canvas, 30);
 }
 
 async function shareCanvasAsImage(canvas, filename){
