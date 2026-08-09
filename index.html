@@ -72,7 +72,7 @@
   --scrollbar-thumb-hover:#B9BFCE;
 }
 *{box-sizing:border-box;margin:0;padding:0;}
-html{scroll-behavior:smooth;overscroll-behavior-y:contain;}
+html{scroll-behavior:smooth;overscroll-behavior-y:contain;background:#0B0E14;}
 
 /* Wyłącz zaznaczanie tekstu / menu "Kopiuj" po długim przytrzymaniu na interfejsie appki,
    żeby czuło się jak natywna appka, a nie strona w przeglądarce. Pola do wpisywania danych
@@ -211,6 +211,11 @@ nav.tabs button:hover:not(.active){color:var(--text);}
 .stat-card:hover::before{opacity:.7;}
 .stat-card .label{color:var(--muted);font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:.6px;margin-bottom:8px;}
 .stat-card .value{font-family:'JetBrains Mono',monospace;font-size:24px;font-weight:700;font-feature-settings:"tnum";letter-spacing:-.2px;}
+/* Strzałki przy wartościach zysk/strata - nie tylko kolor, żeby było czytelne
+   też dla osób z daltonizmem (nie rozróżniających czerwony/zielony) */
+.pos::before{content:'▲';font-size:.72em;margin-right:3px;position:relative;top:-1px;display:inline-block;}
+.neg::before{content:'▼';font-size:.72em;margin-right:3px;position:relative;top:-1px;display:inline-block;}
+
 .stat-card .value.pos{color:var(--profit);}
 .stat-card .value.neg{color:var(--loss);}
 
@@ -345,6 +350,27 @@ table.tradelist tr:hover td{background:var(--surface2);}
 }
 .icon-btn:hover{color:var(--gold);border-color:var(--gold);transform:translateY(-1px);}
 .empty-state{text-align:center;padding:50px 20px;color:var(--muted);}
+
+.onboarding-banner{
+  display:flex;align-items:center;gap:18px;flex-wrap:wrap;
+  background:linear-gradient(135deg, rgba(232,184,75,0.08), rgba(232,184,75,0.02));
+  border:1px solid rgba(232,184,75,0.28);border-radius:16px;
+  padding:20px 22px;margin-bottom:20px;
+}
+.onboarding-icon{
+  width:52px;height:52px;flex:none;border-radius:14px;
+  background:var(--surface2);border:1px solid var(--border);
+  display:flex;align-items:center;justify-content:center;padding:11px;
+}
+.onboarding-icon img{width:100%;height:100%;object-fit:contain;}
+.onboarding-text{flex:1;min-width:220px;}
+.onboarding-title{font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:16px;margin-bottom:4px;}
+.onboarding-sub{color:var(--muted);font-size:13px;line-height:1.5;}
+.onboarding-banner .btn{flex:none;white-space:nowrap;}
+@media(max-width:640px){
+  .onboarding-banner{flex-direction:column;text-align:center;padding:22px 18px;}
+  .onboarding-banner .btn{width:100%;justify-content:center;}
+}
 .empty-state .big{font-family:'Space Grotesk',sans-serif;font-size:16px;color:var(--text);margin-bottom:6px;}
 
 .pagination{
@@ -530,6 +556,16 @@ table.tradelist tr:hover td{background:var(--surface2);}
 .toast-progress{
   position:absolute;bottom:0;left:0;height:2px;background:var(--gold);width:100%;
 }
+
+.connection-banner{
+  position:fixed;top:0;left:0;right:0;z-index:900;
+  text-align:center;font-size:12.5px;font-weight:700;padding:9px 16px;
+  transform:translateY(-100%);transition:transform .3s var(--ease);
+  color:#151102;
+}
+.connection-banner.show{transform:translateY(0);}
+.connection-banner.offline{background:linear-gradient(90deg,#E8B84B,#c98f2b);}
+.connection-banner.online{background:var(--profit);color:#04150c;}
 
 .dialog-overlay{z-index:700;}
 .dialog-modal{
@@ -1145,7 +1181,7 @@ table.tradelist tr:hover td{background:var(--surface2);}
   <div class="modal auth-card" style="max-width:400px;padding:36px 30px;">
     <div class="auth-logo"><img src="logo-glyph.png" alt="Wick"></div>
     <h2 id="authTitle" style="text-align:center;margin-bottom:6px;">Witaj w Wick</h2>
-    <p id="authGateDesc" style="color:var(--muted);font-size:12.5px;text-align:center;margin-bottom:20px;line-height:1.4;">Zaloguj się, aby zobaczyć swój dziennik transakcji.</p>
+    <p id="authGateDesc" style="color:var(--muted);font-size:12.5px;text-align:center;margin-bottom:20px;line-height:1.4;">Zaloguj się, aby zobaczyć swój dziennik transakcji. Twoje dane są prywatne i widoczne tylko dla Ciebie.</p>
 
     <div class="auth-tabs" id="authTabs">
       <button type="button" class="active" id="authTabLogin">Zaloguj</button>
@@ -1346,6 +1382,15 @@ table.tradelist tr:hover td{background:var(--surface2);}
   <button data-mode="rr">RR</button>
 
 </nav>
+</div>
+
+<div class="onboarding-banner" id="onboardingBanner" style="display:none;">
+  <div class="onboarding-icon"><img src="icon-192.png" alt=""></div>
+  <div class="onboarding-text">
+    <div class="onboarding-title" id="onboardingTitle">Zacznij swój dziennik transakcji</div>
+    <div class="onboarding-sub" id="onboardingSub">Dodaj swoją pierwszą transakcję, a Wick zacznie sam liczyć statystyki i krzywą kapitału.</div>
+  </div>
+  <button class="btn primary" id="onboardingAddBtn">+ <span id="onboardingAddBtnText">Dodaj transakcję</span></button>
 </div>
 
 <div class="stats-row" id="statsRow"></div>
@@ -1733,6 +1778,9 @@ table.tradelist tr:hover td{background:var(--surface2);}
   </div>
 </div>
 
+<!-- CONNECTION STATUS BANNER -->
+<div class="connection-banner" id="connectionBanner"></div>
+
 <!-- UNDO TOAST -->
 <div class="toast" id="undoToast">
   <span id="undoToastText">Transakcja usunięta.</span>
@@ -1847,7 +1895,7 @@ const I18N = {
     splashSub:'Dziennik transakcji',
     logoutTooltip:'Wyloguj', themeTooltip:'Zmień motyw', langTooltip:'Zmień język',
     authLoginTitle:'Witaj w Wick', authRegisterTitle:'Rejestracja',
-    authGateDesc:'Zaloguj się, aby zobaczyć swój dziennik transakcji.',
+    authGateDesc:'Zaloguj się, aby zobaczyć swój dziennik transakcji. Twoje dane są prywatne i widoczne tylko dla Ciebie.',
     authGateDescRegister:'Załóż konto, aby zacząć prowadzić swój dziennik transakcji.',
     authNewUser:'Nowy?', authHaveAccount:'Masz już konto?',
     authGoRegister:'Zarejestruj się', authGoLogin:'Zaloguj się',
@@ -1903,6 +1951,11 @@ const I18N = {
     settingsContactTitle:'Kontakt',
     undoLabel:'Cofnij', tradeDeletedToast:'Transakcja usunięta.',
     allYears:'Wszystkie lata',
+    onboardingTitle:'Zacznij swój dziennik transakcji', onboardingSub:'Dodaj swoją pierwszą transakcję, a Wick zacznie sam liczyć statystyki i krzywą kapitału.',
+    onboardingAddBtnText:'Dodaj transakcję',
+    offlineBanner:'Brak połączenia z internetem. Niektóre funkcje mogą nie działać.',
+    onlineBanner:'Połączenie przywrócone.',
+    alertOffline:'Wygląda na to, że nie masz teraz połączenia z internetem. Spróbuj ponownie, gdy wrócisz online.',
     futureDateNotAllowed:'Nie można dodać transakcji z datą w przyszłości.',
     settingsAboutTitle:'O aplikacji', settingsVersionTitle:'Wersja aplikacji',
     monthsShort:'Miesiące', weekStartMonday:'Poniedziałek', weekStartSunday:'Niedziela',
@@ -1913,7 +1966,7 @@ const I18N = {
   },
   en: {
     tagline:'Your trade journal & analytics',
-    authGateDesc:'Sign in to see your trade journal.',
+    authGateDesc:'Sign in to see your trade journal. Your data is private and visible only to you.',
     googleLogin:'Sign in with Google',
     addTrade:'Add Trade',
     tabDashboard:'Dashboard', tabTrades:'Trade Log', tabMonths:'Monthly Summary',
@@ -2010,6 +2063,11 @@ const I18N = {
     settingsContactTitle:'Contact',
     undoLabel:'Undo', tradeDeletedToast:'Trade deleted.',
     allYears:'All years',
+    onboardingTitle:'Start your trade journal', onboardingSub:'Add your first trade and Wick will start tracking your stats and equity curve automatically.',
+    onboardingAddBtnText:'Add trade',
+    offlineBanner:'No internet connection. Some features may not work.',
+    onlineBanner:'Connection restored.',
+    alertOffline:'It looks like you are offline right now. Please try again once you are back online.',
     futureDateNotAllowed:'You cannot add a trade with a future date.',
     settingsAboutTitle:'About', settingsVersionTitle:'App version',
     monthsShort:'Months', weekStartMonday:'Monday', weekStartSunday:'Sunday',
@@ -2020,7 +2078,7 @@ const I18N = {
   },
   de: {
     tagline:'Dein Handelstagebuch & Analysen',
-    authGateDesc:'Melde dich an, um dein Handelstagebuch zu sehen.',
+    authGateDesc:'Melde dich an, um dein Handelstagebuch zu sehen. Deine Daten sind privat und nur für dich sichtbar.',
     googleLogin:'Mit Google anmelden',
     addTrade:'Trade hinzufügen',
     tabDashboard:'Dashboard', tabTrades:'Handelsprotokoll', tabMonths:'Monatsübersicht',
@@ -2117,6 +2175,11 @@ const I18N = {
     settingsContactTitle:'Kontakt',
     undoLabel:'Rückgängig', tradeDeletedToast:'Trade gelöscht.',
     allYears:'Alle Jahre',
+    onboardingTitle:'Starte dein Handelstagebuch', onboardingSub:'Füge deinen ersten Trade hinzu, und Wick berechnet automatisch deine Statistiken und Eigenkapitalkurve.',
+    onboardingAddBtnText:'Trade hinzufügen',
+    offlineBanner:'Keine Internetverbindung. Manche Funktionen funktionieren eventuell nicht.',
+    onlineBanner:'Verbindung wiederhergestellt.',
+    alertOffline:'Es sieht so aus, als hättest du gerade keine Internetverbindung. Bitte versuche es erneut, sobald du wieder online bist.',
     futureDateNotAllowed:'Du kannst keinen Trade mit einem zukünftigen Datum hinzufügen.',
     settingsAboutTitle:'Über die App', settingsVersionTitle:'App-Version',
     monthsShort:'Monate', weekStartMonday:'Montag', weekStartSunday:'Sonntag',
@@ -2347,13 +2410,34 @@ async function loadAllData(){
   }
 }
 
+let connectionBannerTimeout = null;
+function updateConnectionBanner(isOnline){
+  const el = document.getElementById('connectionBanner');
+  clearTimeout(connectionBannerTimeout);
+  if(!isOnline){
+    el.textContent = t('offlineBanner');
+    el.className = 'connection-banner show offline';
+  } else if(el.classList.contains('offline')){
+    // był offline, teraz wrócił - pokaż na chwilę potwierdzenie, potem schowaj
+    el.textContent = t('onlineBanner');
+    el.className = 'connection-banner show online';
+    connectionBannerTimeout = setTimeout(()=>{ el.classList.remove('show'); }, 2500);
+  }
+}
+window.addEventListener('online', ()=> updateConnectionBanner(true));
+window.addEventListener('offline', ()=> updateConnectionBanner(false));
+if(!navigator.onLine) updateConnectionBanner(false);
+
+function friendlyDbErrorMsg(defaultKey){
+  return (!navigator.onLine) ? t('alertOffline') : t(defaultKey);
+}
 async function saveTradeToDb(tr){
   const { error } = await sb.from('trades').upsert(tradeToRow(tr));
-  if(error){ console.error('Błąd zapisu transakcji:', error); customAlert(t('alertSaveFail'), {danger:true}); }
+  if(error){ console.error('Błąd zapisu transakcji:', error); customAlert(friendlyDbErrorMsg('alertSaveFail'), {danger:true}); }
 }
 async function deleteTradeFromDb(id){
   const { error } = await sb.from('trades').delete().eq('id', id).eq('user_id', currentUser.id);
-  if(error){ console.error('Błąd usuwania transakcji:', error); customAlert(t('alertDeleteFail'), {danger:true}); }
+  if(error){ console.error('Błąd usuwania transakcji:', error); customAlert(friendlyDbErrorMsg('alertDeleteFail'), {danger:true}); }
 }
 async function saveMonthNoteToDb(accountId, month, text){
   const { error } = await sb.from('month_notes').upsert({
@@ -2363,11 +2447,11 @@ async function saveMonthNoteToDb(accountId, month, text){
 }
 async function saveAccountToDb(a){
   const { error } = await sb.from('accounts').upsert(accountToRow(a));
-  if(error){ console.error('Błąd zapisu konta:', error); customAlert(t('alertAccountSaveFail'), {danger:true}); }
+  if(error){ console.error('Błąd zapisu konta:', error); customAlert(friendlyDbErrorMsg('alertAccountSaveFail'), {danger:true}); }
 }
 async function deleteAccountFromDb(id){
   const { error } = await sb.from('accounts').delete().eq('id', id).eq('user_id', currentUser.id);
-  if(error){ console.error('Błąd usuwania konta:', error); customAlert(t('alertAccountDeleteFail'), {danger:true}); }
+  if(error){ console.error('Błąd usuwania konta:', error); customAlert(friendlyDbErrorMsg('alertAccountDeleteFail'), {danger:true}); }
 }
 
 /* ---------- AUTH ---------- */
@@ -2863,6 +2947,7 @@ function closeModal(){
   pendingRemovedPaths = [];
 }
 document.getElementById('addTradeBtn').addEventListener('click', ()=>openModal(null));
+document.getElementById('onboardingAddBtn').addEventListener('click', ()=>openModal(null));
 document.getElementById('closeModal').addEventListener('click', closeModal);
 document.getElementById('cancelBtn').addEventListener('click', closeModal);
 overlay.addEventListener('click', e=>{ if(e.target===overlay) closeModal(); });
@@ -3267,6 +3352,11 @@ function renderRadar(){
   const wrap = document.getElementById('radarWrap');
   const statsBox = document.getElementById('eqStats');
   const totalBox = document.getElementById('eqTotal');
+
+  const onboardingSeenKey = 'tj_onboarding_seen_' + (currentUser ? currentUser.id : 'anon');
+  const onboardingAlreadySeen = localStorage.getItem(onboardingSeenKey) === '1';
+  document.getElementById('onboardingBanner').style.display = (!trades.length && !onboardingAlreadySeen) ? 'flex' : 'none';
+  if(!onboardingAlreadySeen) localStorage.setItem(onboardingSeenKey, '1');
 
   if(!trades.length){
     wrap.innerHTML = `<div class="empty-state" style="padding:34px 10px;"><div class="big">${t('noData')}</div>${t('noDataEquitySub')}</div>`;
@@ -4354,6 +4444,9 @@ function applyStaticTexts(){
   document.getElementById('splashSub').textContent = t('splashSub');
   document.getElementById('brandTagline').textContent = t('tagline');
   document.getElementById('authGateDesc').textContent = t('authGateDesc');
+  document.getElementById('onboardingTitle').textContent = t('onboardingTitle');
+  document.getElementById('onboardingSub').textContent = t('onboardingSub');
+  document.getElementById('onboardingAddBtnText').textContent = t('onboardingAddBtnText');
   document.getElementById('authGateLoginText').textContent = t('googleLogin');
   document.getElementById('addTradeBtnText').textContent = t('addTrade');
   document.getElementById('subNavDashboard').textContent = t('tabDashboard');
