@@ -1886,16 +1886,6 @@ table.tradelist tr:hover td{background:var(--surface2);}
         <label id="accBalanceLabel">Kapitał początkowy ($)</label>
         <input type="number" step="0.01" id="accBalance" required placeholder="np. 50000" value="0">
       </div>
-      <div class="form-grid" style="margin-bottom:8px;">
-        <div class="field">
-          <label id="accMaxDailyLossLabel">Max dzienna strata (%)</label>
-          <input type="number" step="0.1" min="0" max="100" id="accMaxDailyLoss" placeholder="opcjonalnie">
-        </div>
-        <div class="field">
-          <label id="accMaxDrawdownLabel">Max całkowity drawdown (%)</label>
-          <input type="number" step="0.1" min="0" max="100" id="accMaxDrawdown" placeholder="opcjonalnie">
-        </div>
-      </div>
       <div class="modal-actions">
         <button type="button" class="btn ghost" id="accCancelBtn">Anuluj</button>
         <button type="submit" class="btn primary" id="accSaveBtn">Zapisz</button>
@@ -2100,7 +2090,6 @@ const I18N = {
     defaultAccountName:'Konto Główne', activeAccount:'Aktywne', startingBalance:'Kapitał początkowy',
     addAccount:'Dodaj konto', newAccountTitle:'Nowe konto', editAccountTitle:'Edytuj konto',
     accNameLabel:'Nazwa konta (maks. 20 znaków)', accBalanceLabel:'Kapitał początkowy ($)',
-    accMaxDailyLossLabel:'Max dzienna strata (%)', accMaxDrawdownLabel:'Max całkowity drawdown (%)', accLimitOptional:'opcjonalnie',
     cannotDeleteLastAccount:'Nie możesz usunąć jedynego konta.', confirmDeleteAccount:'Usunąć to konto wraz z jego transakcjami?',
     maxAccountsReached:'Możesz mieć maksymalnie 5 kont. Usuń jedno, aby dodać nowe.',
     alertAccountSaveFail:'Nie udało się zapisać konta w bazie danych.', alertAccountDeleteFail:'Nie udało się usunąć konta z bazy danych.',
@@ -2232,7 +2221,6 @@ const I18N = {
     defaultAccountName:'Main Account', activeAccount:'Active', startingBalance:'Starting balance',
     addAccount:'Add account', newAccountTitle:'New account', editAccountTitle:'Edit account',
     accNameLabel:'Account name (max 20 characters)', accBalanceLabel:'Starting balance ($)',
-    accMaxDailyLossLabel:'Max daily loss (%)', accMaxDrawdownLabel:'Max total drawdown (%)', accLimitOptional:'optional',
     cannotDeleteLastAccount:'You cannot delete your only account.', confirmDeleteAccount:'Delete this account along with its trades?',
     maxAccountsReached:'You can have up to 5 accounts. Delete one to add a new one.',
     alertAccountSaveFail:'Failed to save the account to the database.', alertAccountDeleteFail:'Failed to delete the account from the database.',
@@ -2364,7 +2352,6 @@ const I18N = {
     defaultAccountName:'Hauptkonto', activeAccount:'Aktiv', startingBalance:'Startkapital',
     addAccount:'Konto hinzufügen', newAccountTitle:'Neues Konto', editAccountTitle:'Konto bearbeiten',
     accNameLabel:'Kontoname (max. 20 Zeichen)', accBalanceLabel:'Startkapital ($)',
-    accMaxDailyLossLabel:'Max. Tagesverlust (%)', accMaxDrawdownLabel:'Max. Gesamt-Drawdown (%)', accLimitOptional:'optional',
     cannotDeleteLastAccount:'Du kannst dein einziges Konto nicht löschen.', confirmDeleteAccount:'Dieses Konto samt seiner Trades löschen?',
     maxAccountsReached:'Du kannst maximal 5 Konten haben. Lösche eines, um ein neues hinzuzufügen.',
     alertAccountSaveFail:'Das Konto konnte nicht in der Datenbank gespeichert werden.', alertAccountDeleteFail:'Das Konto konnte nicht aus der Datenbank gelöscht werden.',
@@ -2573,8 +2560,6 @@ function rowToAccount(row){
     id: row.id,
     name: row.name,
     balance: Number(row.balance) || 0,
-    maxDailyLossPct: (row.max_daily_loss_pct===null || row.max_daily_loss_pct===undefined) ? null : Number(row.max_daily_loss_pct),
-    maxDrawdownPct: (row.max_drawdown_pct===null || row.max_drawdown_pct===undefined) ? null : Number(row.max_drawdown_pct),
     createdAt: row.created_at ? new Date(row.created_at).getTime() : Date.now(),
     updatedAt: row.updated_at ? new Date(row.updated_at).getTime() : Date.now()
   };
@@ -2585,8 +2570,6 @@ function accountToRow(a){
     user_id: currentUser.id,
     name: a.name,
     balance: a.balance,
-    max_daily_loss_pct: (a.maxDailyLossPct===undefined) ? null : a.maxDailyLossPct,
-    max_drawdown_pct: (a.maxDrawdownPct===undefined) ? null : a.maxDrawdownPct,
     updated_at: new Date().toISOString()
   };
 }
@@ -4995,10 +4978,6 @@ function renderAccountsScreen(){
       <div class="a-name">${escapeHtml(a.name)}</div>
       <div class="a-balance ${live>=a.balance?'pos':'neg'}">${fmt(live)}</div>
       <div class="a-sub">${accTrades.length} ${tradesWordLower(accTrades.length)} · ${t('startingBalance')}: ${fmt(a.balance)}</div>
-      ${(a.maxDailyLossPct!=null || a.maxDrawdownPct!=null) ? `<div class="a-sub" style="margin-top:3px;">${[
-        a.maxDailyLossPct!=null ? `${t('accMaxDailyLossLabel')}: ${a.maxDailyLossPct}%` : null,
-        a.maxDrawdownPct!=null ? `${t('accMaxDrawdownLabel')}: ${a.maxDrawdownPct}%` : null
-      ].filter(Boolean).join(' · ')}</div>` : ''}
       <div class="a-actions">
         <button class="icon-btn" data-edit="${a.id}" aria-label="${t('editLabel')}">✎</button>
         <button class="icon-btn" data-del="${a.id}" aria-label="${t('deleteLabel')}">🗑</button>
@@ -5058,15 +5037,11 @@ function openAccountModal(edit){
     document.getElementById('accId').value = edit.id;
     document.getElementById('accName').value = edit.name;
     document.getElementById('accBalance').value = edit.balance;
-    document.getElementById('accMaxDailyLoss').value = (edit.maxDailyLossPct===null || edit.maxDailyLossPct===undefined) ? '' : edit.maxDailyLossPct;
-    document.getElementById('accMaxDrawdown').value = (edit.maxDrawdownPct===null || edit.maxDrawdownPct===undefined) ? '' : edit.maxDrawdownPct;
   } else {
     document.getElementById('accountModalTitle').textContent = t('newAccountTitle');
     document.getElementById('accountForm').reset();
     document.getElementById('accId').value = '';
     document.getElementById('accBalance').value = 0;
-    document.getElementById('accMaxDailyLoss').value = '';
-    document.getElementById('accMaxDrawdown').value = '';
   }
 }
 function closeAccountModal(){ document.getElementById('accountModalOverlay').classList.remove('open'); }
@@ -5078,25 +5053,16 @@ document.getElementById('accountForm').addEventListener('submit', async (e)=>{
   const id = document.getElementById('accId').value;
   const name = document.getElementById('accName').value.trim().slice(0,20);
   const balance = parseFloat(document.getElementById('accBalance').value) || 0;
-  // oba limity ryzyka są opcjonalne - puste pole = brak limitu (null), nie 0
-  const dailyLossRaw = document.getElementById('accMaxDailyLoss').value;
-  const drawdownRaw = document.getElementById('accMaxDrawdown').value;
-  const maxDailyLossPct = dailyLossRaw !== '' ? Math.min(100, Math.max(0, parseFloat(dailyLossRaw))) : null;
-  const maxDrawdownPct = drawdownRaw !== '' ? Math.min(100, Math.max(0, parseFloat(drawdownRaw))) : null;
   if(id){
     const acc = accounts.find(a=>a.id===id);
-    if(acc){
-      acc.name = name; acc.balance = balance;
-      acc.maxDailyLossPct = maxDailyLossPct; acc.maxDrawdownPct = maxDrawdownPct;
-      acc.updatedAt = Date.now(); await saveAccountToDb(acc);
-    }
+    if(acc){ acc.name = name; acc.balance = balance; acc.updatedAt = Date.now(); await saveAccountToDb(acc); }
   } else {
     if(accounts.length >= MAX_ACCOUNTS){
       closeAccountModal();
       await customAlert(t('maxAccountsReached'));
       return;
     }
-    const acc = { id: uid(), name, balance, maxDailyLossPct, maxDrawdownPct, createdAt: Date.now(), updatedAt: Date.now() };
+    const acc = { id: uid(), name, balance, createdAt: Date.now(), updatedAt: Date.now() };
     accounts.push(acc);
     if(!currentAccountId){ currentAccountId = acc.id; localStorage.setItem(ACCOUNT_KEY, acc.id); refreshScopedTrades(); }
     await saveAccountToDb(acc);
@@ -5412,10 +5378,6 @@ function applyStaticTexts(){
   document.getElementById('profileDeleteBtn').textContent = t('profileDeleteBtn');
   document.getElementById('accNameLabel').textContent = t('accNameLabel');
   document.getElementById('accBalanceLabel').textContent = t('accBalanceLabel');
-  document.getElementById('accMaxDailyLossLabel').textContent = t('accMaxDailyLossLabel');
-  document.getElementById('accMaxDrawdownLabel').textContent = t('accMaxDrawdownLabel');
-  document.getElementById('accMaxDailyLoss').placeholder = t('accLimitOptional');
-  document.getElementById('accMaxDrawdown').placeholder = t('accLimitOptional');
   document.getElementById('accCancelBtn').textContent = t('cancel');
   document.getElementById('accSaveBtn').textContent = t('saveTrade');
   document.getElementById('settingsThemeTitle').textContent = t('settingsThemeTitle');
