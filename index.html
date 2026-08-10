@@ -3986,6 +3986,9 @@ function isStoragePath(value){
 }
 
 const fImage = document.getElementById('f-image');
+// próbuje zapisać jako WebP (25-35% mniejszy plik niż JPEG przy tej samej jakości) -
+// jeśli przeglądarka tego nie wspiera (starsze Safari na iOS), canvas.toBlob zwraca
+// pusty/null blob dla WebP, więc bezpiecznie spadamy z powrotem na JPEG
 function resizeImageToBlob(file, maxDim, quality){
   return new Promise((resolve)=>{
     const reader = new FileReader();
@@ -4000,7 +4003,15 @@ function resizeImageToBlob(file, maxDim, quality){
         const canvas = document.createElement('canvas');
         canvas.width = w; canvas.height = h;
         canvas.getContext('2d').drawImage(img, 0, 0, w, h);
-        canvas.toBlob((blob)=> resolve(blob), 'image/jpeg', quality);
+        canvas.toBlob((webpBlob)=>{
+          if(webpBlob && webpBlob.size > 0){
+            resolve({ blob: webpBlob, ext: 'webp', contentType: 'image/webp' });
+          } else {
+            canvas.toBlob((jpegBlob)=>{
+              resolve(jpegBlob ? { blob: jpegBlob, ext: 'jpg', contentType: 'image/jpeg' } : null);
+            }, 'image/jpeg', quality);
+          }
+        }, 'image/webp', quality);
       };
       img.onerror = ()=> resolve(null);
       img.src = ev.target.result;
@@ -4011,10 +4022,11 @@ function resizeImageToBlob(file, maxDim, quality){
 async function handleImageFiles(fileList){
   const files = Array.from(fileList).slice(0, MAX_IMAGES - currentImages.length);
   for(const file of files){
-    const blob = await resizeImageToBlob(file, 1280, 0.78);
-    if(!blob) continue;
-    const path = `${currentUser.id}/${pendingTradeId}/${Date.now()}_${Math.random().toString(36).slice(2,8)}.jpg`;
-    const { error } = await sb.storage.from(IMAGES_BUCKET).upload(path, blob, { contentType: 'image/jpeg', upsert: false });
+    const result = await resizeImageToBlob(file, 1100, 0.72);
+    if(!result) continue;
+    const { blob, ext, contentType } = result;
+    const path = `${currentUser.id}/${pendingTradeId}/${Date.now()}_${Math.random().toString(36).slice(2,8)}.${ext}`;
+    const { error } = await sb.storage.from(IMAGES_BUCKET).upload(path, blob, { contentType, upsert: false });
     if(error){ console.error('Błąd wysyłania zdjęcia:', error); customAlert(t('alertImageUploadFail'), {danger:true}); continue; }
     currentImages.push(path);
     pendingUploadedPaths.push(path);
@@ -5817,7 +5829,7 @@ document.querySelectorAll('.drawer-nav button[data-screen]').forEach(btn=>{
 // losowany deterministycznie z dzisiejszej daty, więc jest ten sam cały dzień i zmienia
 // się dopiero następnego dnia, zamiast migać innym cytatem przy każdym otwarciu appki
 const DAILY_QUOTES = [
-  "It's going to happen because you're going to make it happen.",
+ "It's going to happen because you're going to make it happen.",
   "Remember why you started.",
   "You were born to win.",
   "Sometimes you win, sometimes you learn.",
