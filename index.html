@@ -2020,7 +2020,7 @@ const I18N = {
     cancel:'Anuluj', saveTrade:'Zapisz transakcję', clear:'Wyczyść', today:'Dzisiaj', pickDate:'Wybierz datę',
     newTradeTitle:'Nowa transakcja', editTradeTitle:'Edytuj transakcję',
     winRate:'Win Rate', totalPL:'Total P&L', totalRR:'Total RR', winstreak:'Winstreak',
-    avgWin:'Avg Win', avgLoss:'Avg Loss', tradesLabel:'Transakcje', tradesLower:'transakcji',
+    avgWin:'Avg Win', avgLoss:'Avg Loss', tradesLabel:'Transakcje', tradesLabelOne:'Transakcja', tradesLower:'transakcje', tradesLowerOne:'transakcja',
     peak:'Szczyt', maxDrawdown:'Maks. obsunięcie',
     noData:'Brak danych', noDataEquitySub:'Dodaj transakcje, aby zobaczyć krzywą kapitału.',
     noDataMonthsSub:'Dodaj transakcje, aby zobaczyć podsumowania miesięczne.',
@@ -2152,7 +2152,7 @@ const I18N = {
     cancel:'Cancel', saveTrade:'Save trade', clear:'Clear', today:'Today', pickDate:'Pick a date',
     newTradeTitle:'New trade', editTradeTitle:'Edit trade',
     winRate:'Win Rate', totalPL:'Total P&L', totalRR:'Total RR', winstreak:'Winstreak',
-    avgWin:'Avg Win', avgLoss:'Avg Loss', tradesLabel:'Trades', tradesLower:'trades',
+    avgWin:'Avg Win', avgLoss:'Avg Loss', tradesLabel:'Trades', tradesLabelOne:'Trade', tradesLower:'trades', tradesLowerOne:'trade',
     peak:'Peak', maxDrawdown:'Max Drawdown',
     noData:'No data', noDataEquitySub:'Add trades to see your equity curve.',
     noDataMonthsSub:'Add trades to see monthly summaries.',
@@ -2283,7 +2283,7 @@ const I18N = {
     cancel:'Abbrechen', saveTrade:'Trade speichern', clear:'Löschen', today:'Heute', pickDate:'Datum wählen',
     newTradeTitle:'Neuer Trade', editTradeTitle:'Trade bearbeiten',
     winRate:'Win Rate', totalPL:'Gesamt G/V', totalRR:'Gesamt RR', winstreak:'Gewinnserie',
-    avgWin:'Ø Gewinn', avgLoss:'Ø Verlust', tradesLabel:'Trades', tradesLower:'Trades',
+    avgWin:'Ø Gewinn', avgLoss:'Ø Verlust', tradesLabel:'Trades', tradesLabelOne:'Trade', tradesLower:'Trades', tradesLowerOne:'Trade',
     peak:'Hoch', maxDrawdown:'Max. Drawdown',
     noData:'Keine Daten', noDataEquitySub:'Füge Trades hinzu, um deine Eigenkapitalkurve zu sehen.',
     noDataMonthsSub:'Füge Trades hinzu, um Monatsübersichten zu sehen.',
@@ -2393,6 +2393,14 @@ function t(key){
   const dict = I18N[currentLang] || I18N.en;
   if(dict[key] !== undefined) return dict[key];
   return I18N.en[key] !== undefined ? I18N.en[key] : key;
+}
+// "Transakcja" przy dokładnie 1, "Transakcje" przy 0 lub więcej niż 1 (i analogicznie
+// wersja z małej litery) - żeby liczba transakcji zawsze zgadzała się gramatycznie
+function tradesWord(count){
+  return count === 1 ? t('tradesLabelOne') : t('tradesLabel');
+}
+function tradesWordLower(count){
+  return count === 1 ? t('tradesLowerOne') : t('tradesLower');
 }
 function monthNames(){
   return {
@@ -3445,7 +3453,7 @@ function renderStatCards(){
     {label:t('winstreak'), value: s.scoredCount? (s.winStreak>0 ? s.winStreak+' 🔥' : '0') : '—', cls: s.winStreak>0?'pos':''},
     {label:t('avgWin'), value: s.scoredCount? fmtValue(s.avgWin, displayMode):'—', cls:'pos'},
     {label:t('avgLoss'), value: s.scoredCount? fmtValue(-s.avgLoss, displayMode):'—', cls:'neg'},
-    {label:t('tradesLabel'), value: s.total + (s.beCount? ` <span style="color:var(--muted);font-size:13px;">(${s.beCount} BE)</span>` : ''), cls:''},
+    {label:tradesWord(s.total), value: s.total + (s.beCount? ` <span style="color:var(--muted);font-size:13px;">(${s.beCount} BE)</span>` : ''), cls:''},
   ];
   document.getElementById('statsRow').innerHTML = cards.map(c=>`
     <div class="stat-card">
@@ -3634,7 +3642,7 @@ function renderRadar(){
   statsBox.innerHTML = `
     <div class="eq-stat"><div class="eq-stat-label">${t('peak')}</div><div class="eq-stat-val pos">${fmt(peak)}</div></div>
     <div class="eq-stat"><div class="eq-stat-label">${t('maxDrawdown')}</div><div class="eq-stat-val neg">${fmt(maxDD)}</div></div>
-    <div class="eq-stat"><div class="eq-stat-label">${t('tradesLabel')}</div><div class="eq-stat-val">${count}</div></div>
+    <div class="eq-stat"><div class="eq-stat-label">${tradesWord(count)}</div><div class="eq-stat-val">${count}</div></div>
   `;
 }
 
@@ -3717,7 +3725,7 @@ function renderMonthsSummary(){
       return `<div class="month-card year-card" data-year="${year}">
         <div class="m-name">${year}</div>
         <div class="m-pnl ${s.totalPnl>=0?'pos':'neg'}">${fmt(s.totalPnl)}</div>
-        <div class="m-sub">${monthKeys.length} ${t('monthsShort').toLowerCase()} · ${s.total} ${t('tradesLower')}</div>
+        <div class="m-sub">${monthKeys.length} ${t('monthsShort').toLowerCase()} · ${s.total} ${tradesWordLower(s.total)}</div>
       </div>`;
     }).join('');
     grid.querySelectorAll('.year-card').forEach(card=>{
@@ -3744,7 +3752,7 @@ function renderMonthsSummary(){
     return `<div class="month-card ${key===selectedSummaryMonth?'active':''}" data-month="${key}">
       <div class="m-name">${name}</div>
       <div class="m-pnl ${s.totalPnl>=0?'pos':'neg'}">${fmt(s.totalPnl)}</div>
-      <div class="m-sub">${s.total} ${t('tradesLower')} · WR ${s.total? s.winRate.toFixed(0):'0'}%</div>
+      <div class="m-sub">${s.total} ${tradesWordLower(s.total)} · WR ${s.total? s.winRate.toFixed(0):'0'}%</div>
     </div>`;
   }).join('');
   grid.querySelectorAll('.month-card[data-month]').forEach(card=>{
@@ -3887,7 +3895,7 @@ function renderCalendar(){
   Object.values(byDay).forEach(v=>{monthPnl+=v.pnl; monthCount+=v.count; monthVal+=v.val; monthValCount+=v.valCount;});
   const summaryLabel = displayMode==='rr' ? 'RR' : 'P/L';
   const summaryVal = displayMode==='rr' ? (monthValCount? fmtValue(monthVal,'rr') : '—') : fmt(monthPnl);
-  document.getElementById('calSummary').innerHTML = `${summaryLabel}: <span style="color:${monthPnl>=0?'var(--profit)':'var(--loss)'}">${summaryVal}</span> &nbsp;·&nbsp; ${t('tradesLabel')}: ${monthCount}`;
+  document.getElementById('calSummary').innerHTML = `${summaryLabel}: <span style="color:${monthPnl>=0?'var(--profit)':'var(--loss)'}">${summaryVal}</span> &nbsp;·&nbsp; ${tradesWord(monthCount)}: ${monthCount}`;
 
   const todayStr = new Date().toISOString().slice(0,10);
 
@@ -3944,7 +3952,7 @@ function renderCalendar(){
           : `${otherInfo.pnl>=0?'+':''}${Math.round(otherInfo.pnl)}`) : '';
         html += `<td class="${ocls}" data-date="${dateStr}">
           <div class="daynum">${dateObj.getDate()} <span class="mo-abbr">${monthAbbr()[dateObj.getMonth()]}</span></div>
-          ${otherInfo ? `<div class="pnl">${oDisplay}</div><div class="count">${otherInfo.count} ${t('tradesLower')}</div>` : ''}
+          ${otherInfo ? `<div class="pnl">${oDisplay}</div><div class="count">${otherInfo.count} ${tradesWordLower(otherInfo.count)}</div>` : ''}
         </td>`;
         return;
       }
@@ -3959,7 +3967,7 @@ function renderCalendar(){
         : `${info.pnl>=0?'+':''}${Math.round(info.pnl)}`) : '';
       html += `<td class="${cls.trim()}" data-date="${dateStr}">
         <div class="daynum">${dateObj.getDate()}</div>
-        ${info ? `<div class="pnl">${cellDisplay}</div><div class="count">${info.count} ${t('tradesLower')}</div>` : ''}
+        ${info ? `<div class="pnl">${cellDisplay}</div><div class="count">${info.count} ${tradesWordLower(info.count)}</div>` : ''}
       </td>`;
     });
 
@@ -3997,7 +4005,7 @@ function renderDayDetail(){
   if(!selectedDate){ box.innerHTML=''; return; }
   const dayTrades = trades.filter(t=>t.date===selectedDate);
   if(!dayTrades.length){ box.innerHTML = `<div class="dd-title">${t('noTradesOn')} ${selectedDate}</div>`; return; }
-  box.innerHTML = `<div class="dd-title">${t('tradesLabel')} · ${selectedDate}</div>` +
+  box.innerHTML = `<div class="dd-title">${tradesWord(dayTrades.length)} · ${selectedDate}</div>` +
     dayTrades.map(t2=>`
       <div class="trade-row-clickable" data-tradeid="${t2.id}" style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-top:1px solid var(--border);">
         <div>
@@ -4135,7 +4143,7 @@ function renderTradesTable(){
     </tbody>
   </table>
   <div class="pagination">
-    <span class="pagination-info">${list.length} ${t('tradesLower')} · ${t('page')} ${tradesPage} / ${totalPages}</span>
+    <span class="pagination-info">${list.length} ${tradesWordLower(list.length)} · ${t('page')} ${tradesPage} / ${totalPages}</span>
     <div class="pagination-btns">
       <button class="btn ghost" id="pagePrev" ${tradesPage<=1?'disabled':''}>‹ ${t('back')}</button>
       <button class="btn ghost" id="pageNext" ${tradesPage>=totalPages?'disabled':''}>${t('next')} ›</button>
@@ -5033,7 +5041,7 @@ function renderAccountsScreen(){
       ${a.id===currentAccountId ? `<span class="a-badge">${t('activeAccount')}</span>` : ''}
       <div class="a-name">${escapeHtml(a.name)}</div>
       <div class="a-balance ${live>=a.balance?'pos':'neg'}">${fmt(live)}</div>
-      <div class="a-sub">${accTrades.length} ${t('tradesLower')} · ${t('startingBalance')}: ${fmt(a.balance)}</div>
+      <div class="a-sub">${accTrades.length} ${tradesWordLower(accTrades.length)} · ${t('startingBalance')}: ${fmt(a.balance)}</div>
       <div class="a-actions">
         <button class="icon-btn" data-edit="${a.id}" aria-label="${t('editLabel')}">✎</button>
         <button class="icon-btn" data-del="${a.id}" aria-label="${t('deleteLabel')}">🗑</button>
