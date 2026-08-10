@@ -1546,7 +1546,6 @@ table.tradelist tr:hover td{background:var(--surface2);}
     <div class="month-detail-head">
       <h2 id="monthDetailTitle"></h2>
       <div style="display:flex;gap:10px;flex-wrap:wrap;">
-        <button class="btn ghost" id="monthDetailShareBtn"><span id="monthDetailShareText">Udostępnij</span></button>
         <button class="btn ghost" id="monthDetailClose">✕ Zamknij</button>
       </div>
     </div>
@@ -3844,15 +3843,6 @@ document.getElementById('monthDetailClose').addEventListener('click', ()=>{
   selectedSummaryMonth = null;
   renderMonthsSummary();
 });
-document.getElementById('monthDetailShareBtn').addEventListener('click', (e)=>{
-  if(!selectedSummaryMonth) return;
-  const map = getMonthsWithTrades();
-  const list = map[selectedSummaryMonth];
-  if(!list) return;
-  const stats = computeMonthStats(list);
-  const monthKey = selectedSummaryMonth;
-  runShareFlow(e.currentTarget, ()=>generateMonthShareCard(monthKey, list, stats), `wick-${monthKey}.png`);
-});
 
 /* ============ CALENDAR ============ */
 function dstr(d){ return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`; }
@@ -4514,91 +4504,6 @@ async function generateTradeShareCard(tr){
 
   // dekoracyjne świece po prawej
   shareDrawCandlesticks(ctx, padX+contentW+30, 150, W-58, H-118, accentColor);
-
-  return shareCardRoundOutput(canvas, 34, accentColor);
-}
-
-async function generateMonthShareCard(monthKey, list, stats){
-  await document.fonts.ready;
-  const logoImg = await loadImageForShare('icon-192.png');
-
-  const isPos = stats.totalPnl >= 0;
-  const accentColor = isPos ? '#3ADD9C' : '#FF6B6B';
-
-  const W = 1160, H = 860;
-  const canvas = document.createElement('canvas');
-  canvas.width = W; canvas.height = H;
-  const ctx = canvas.getContext('2d');
-
-  drawCardBackground(ctx, W, H, accentColor);
-  const padX = 64;
-  drawCardChrome(ctx, W, H, logoImg, accentColor, padX);
-
-  const [y, m] = monthKey.split('-');
-  const monthLabel = new Date(parseInt(y,10), parseInt(m,10)-1, 1).toLocaleDateString('en-US', {month:'long', year:'numeric'});
-  ctx.textBaseline = 'alphabetic';
-  ctx.font = "700 44px 'Space Grotesk', sans-serif";
-  ctx.fillStyle = '#7C8399';
-  ctx.fillText(monthLabel, padX, 236);
-
-  const pnlText = (isPos?'+':'') + fmt(stats.totalPnl);
-  const pnlY = 392;
-  ctx.font = "800 128px 'JetBrains Mono', monospace";
-  ctx.save();
-  ctx.filter = 'blur(18px)';
-  ctx.fillStyle = rgbaFromHex(accentColor, 0.5);
-  ctx.fillText(pnlText, padX-4, pnlY);
-  ctx.restore();
-  ctx.fillStyle = accentColor;
-  ctx.fillText(pnlText, padX-4, pnlY);
-
-  // krzywa kapitału na tej samej danej co appka
-  let equity = 0;
-  const pts = [0];
-  const sorted = list.slice().sort((a,b)=> a.date.localeCompare(b.date));
-  sorted.forEach(t=>{ equity += t.pnl; pts.push(equity); });
-  if(pts.length > 1){
-    const chartX = padX, chartY = 460, chartW = W-padX*2, chartH = 250;
-    const minV = Math.min(0, ...pts), maxV = Math.max(0, ...pts);
-    const range = (maxV - minV) || 1;
-    ctx.beginPath();
-    pts.forEach((v,i)=>{
-      const px = chartX + (i/(pts.length-1))*chartW;
-      const py = chartY + chartH - ((v-minV)/range)*chartH;
-      if(i===0) ctx.moveTo(px,py); else ctx.lineTo(px,py);
-    });
-    ctx.strokeStyle = accentColor;
-    ctx.lineWidth = 6;
-    ctx.lineJoin = 'round';
-    ctx.lineCap = 'round';
-    ctx.stroke();
-    ctx.lineTo(chartX+chartW, chartY+chartH);
-    ctx.lineTo(chartX, chartY+chartH);
-    ctx.closePath();
-    const fillGrad = ctx.createLinearGradient(0, chartY, 0, chartY+chartH);
-    fillGrad.addColorStop(0, rgbaFromHex(accentColor, 0.20));
-    fillGrad.addColorStop(1, rgbaFromHex(accentColor, 0));
-    ctx.fillStyle = fillGrad;
-    ctx.fill();
-  }
-
-  const statsRow = [
-    {label:'WIN RATE', value: (stats.total-stats.beCount) ? stats.winRate.toFixed(1)+'%' : '—'},
-    {label:'TRADES', value: String(stats.total)},
-    {label:'WINS', value: String(stats.winsCount)},
-    {label:'LOSSES', value: String(stats.lossesCount)},
-  ];
-  const colW = (W - padX*2) / statsRow.length;
-  const statY = 800;
-  statsRow.forEach((s,i)=>{
-    const sx = padX + i*colW;
-    ctx.font = "700 15px 'Inter', sans-serif";
-    ctx.fillStyle = 'rgba(117,124,145,0.85)';
-    drawLetterSpaced(ctx, s.label, sx, statY-38, 1.6);
-    ctx.font = "700 34px 'JetBrains Mono', monospace";
-    ctx.fillStyle = '#EBEEF5';
-    ctx.fillText(s.value, sx, statY);
-  });
 
   return shareCardRoundOutput(canvas, 34, accentColor);
 }
@@ -5348,7 +5253,6 @@ function applyStaticTexts(){
   document.getElementById('splashSub').textContent = t('splashSub');
   document.getElementById('brandTagline').textContent = t('tagline');
   document.getElementById('authGateDesc').textContent = t('authGateDesc');
-  document.getElementById('monthDetailShareText').textContent = t('shareLabel');
   document.getElementById('tourWelcomeGreeting').textContent = t('tourWelcomeGreeting');
   document.getElementById('tourWelcomeSub').textContent = t('tourWelcomeSub');
   document.getElementById('tourWelcomeOkBtn').textContent = t('tourWelcomeOkBtn');
