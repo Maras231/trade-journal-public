@@ -1073,6 +1073,16 @@ table.tradelist tr:hover td{background:var(--surface2);}
   transition:transform .3s var(--ease), visibility 0s linear 0s;
 }
 .side-drawer.dragging{transition:none;}
+/* gdy krok onboardingu podświetla coś WEWNĄTRZ szuflady: cała szuflada musi wejść ponad
+   globalne przyciemnienie tła (.tour-dim-overlay ma z-index:1000), bo inaczej - przez
+   własny stacking context szuflady od "transform" - nic w środku nie mogłoby się wybić
+   ponad nie, niezależnie od z-index. Pozostałe przyciski w szufladzie przygaszamy osobno,
+   żeby kontrast "jasne = to o czym mówi dymek, reszta ciemna" nadal działał w środku. */
+.side-drawer.drawer-tour-active{z-index:1001;}
+.side-drawer.drawer-tour-active .drawer-header,
+.side-drawer.drawer-tour-active .drawer-nav button:not(.tour-spotlight){
+  opacity:.3;transition:opacity .3s var(--ease);
+}
 
 .drawer-header{
   padding:4px 20px 18px;margin:0 16px 14px;border-bottom:1px solid var(--border);
@@ -5718,11 +5728,18 @@ function showTourStep(){
   const el = document.querySelector(step.selector);
   if(!el){ advanceTourStep(); return; }
   el.classList.add('tour-spotlight');
+  // .side-drawer ma własny transform, co tworzy osobny stacking context w CSS - żaden
+  // z-index w środku nie wybije się wtedy ponad globalne przyciemnienie tła, więc gdy
+  // cel jest w szufladzie, podnosimy CAŁĄ szufladę ponad przyciemnienie, a resztę jej
+  // przycisków przygaszamy osobno (patrz .drawer-tour-active w CSS)
+  const drawer = el.closest('.side-drawer');
+  if(drawer) drawer.classList.add('drawer-tour-active');
   positionTourTooltip(el, step);
 }
 
 function clearTourSpotlight(){
   document.querySelectorAll('.tour-spotlight').forEach(el=> el.classList.remove('tour-spotlight'));
+  document.getElementById('sideDrawer').classList.remove('drawer-tour-active');
 }
 
 function positionTourTooltip(el, step){
