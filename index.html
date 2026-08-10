@@ -1781,7 +1781,7 @@ table.tradelist tr:hover td{background:var(--surface2);}
     <button type="button" class="achievements-row" id="openAchievementsBtn">
       <span class="achievements-row-left">
         <span class="achievements-row-icon">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="6"/><path d="M9 13.5 7 22l5-3 5 3-2-8.5"/></svg>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8.5 13.6 6 21.6l2.6-.9L10 22l1.1-6.3"/><path d="M15.5 13.6 18 21.6l-2.6-.9L14 22l-1.1-6.3"/><circle cx="12" cy="9" r="6.25"/><path d="M12 5.5l1.1 2.22 2.42.36-1.76 1.7.43 2.44L12 11.1l-2.19 1.13.43-2.44-1.76-1.7 2.42-.36L12 5.5z" fill="currentColor" stroke="none"/></svg>
         </span>
         <span id="achievementsRowLabel">Osiągnięcia</span>
       </span>
@@ -2087,7 +2087,7 @@ table.tradelist tr:hover td{background:var(--surface2);}
 
     <div id="achievementsDetailView" style="display:none;">
       <div class="achievement-detail-icon" id="achievementDetailIcon">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="6"/><path d="M9 13.5 7 22l5-3 5 3-2-8.5"/></svg>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M8.5 13.6 6 21.6l2.6-.9L10 22l1.1-6.3"/><path d="M15.5 13.6 18 21.6l-2.6-.9L14 22l-1.1-6.3"/><circle cx="12" cy="9" r="6.25"/><path d="M12 5.5l1.1 2.22 2.42.36-1.76 1.7.43 2.44L12 11.1l-2.19 1.13.43-2.44-1.76-1.7 2.42-.36L12 5.5z" fill="currentColor" stroke="none"/></svg>
       </div>
       <div class="achievement-detail-name" id="achievementDetailName"></div>
       <div class="achievement-detail-desc" id="achievementDetailDesc"></div>
@@ -2155,7 +2155,7 @@ table.tradelist tr:hover td{background:var(--surface2);}
 <!-- ACHIEVEMENT TOAST - czysty, spokojny komunikat, nie na cały ekran -->
 <div class="toast achievement-toast" id="achievementToast">
   <div class="achievement-toast-icon">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="6"/><path d="M9 13.5 7 22l5-3 5 3-2-8.5"/></svg>
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8.5 13.6 6 21.6l2.6-.9L10 22l1.1-6.3"/><path d="M15.5 13.6 18 21.6l-2.6-.9L14 22l-1.1-6.3"/><circle cx="12" cy="9" r="6.25"/><path d="M12 5.5l1.1 2.22 2.42.36-1.76 1.7.43 2.44L12 11.1l-2.19 1.13.43-2.44-1.76-1.7 2.42-.36L12 5.5z" fill="currentColor" stroke="none"/></svg>
   </div>
   <div class="achievement-toast-text">
     <div class="achievement-toast-title" id="achievementToastTitle">Odznaka odblokowana!</div>
@@ -2357,10 +2357,32 @@ const I18N = {
     achTrades100Name:'Setka', achTrades100Desc:'Zapisz 100 transakcji',
     achStreak7Name:'Tydzień z rzędu', achStreak7Desc:'Osiągnij streak logowania 7 dni',
     achStreak30Name:'Żelazna dyscyplina', achStreak30Desc:'Osiągnij streak logowania 30 dni',
-    achMultiAccountName:'Wiele frontów', achMultiAccountDesc:'Załóż drugie konto handlowe',
     achProfitableMonthName:'Na plusie', achProfitableMonthDesc:'Zamknij dowolny miesiąc na plusie',
     achDetailedNotesName:'Analityk', achDetailedNotesDesc:'Napisz szczegółową notatkę (100+ znaków) do transakcji',
     achScreenshotName:'Dokumentalista', achScreenshotDesc:'Dodaj zrzut ekranu do transakcji',
+    achTrades500Name:'Pięćsetka', achTrades500Desc:'Zapisz 500 transakcji',
+    achStreak3Name:'Trzy dni', achStreak3Desc:'Osiągnij streak logowania 3 dni',
+    achStreak14Name:'Dwa tygodnie', achStreak14Desc:'Osiągnij streak logowania 14 dni',
+    achJournalStreak5Name:'Nawyk', achJournalStreak5Desc:'Dodawaj transakcje 5 dni z rzędu',
+    achTwoGreenMonthsName:'Dwa pod rząd', achTwoGreenMonthsDesc:'Zakończ dwa kolejne miesiące na plusie',
+    achComebackName:'Comeback', achComebackDesc:'Miesiąc na minusie, a zaraz po nim miesiąc na plusie',
+    achProfit10kName:'Pierwsza dycha tysięcy', achProfit10kDesc:'Osiągnij łączny zysk $10 000',
+    achBigWin1000Name:'Grubsza ryba', achBigWin1000Desc:'Zamknij pojedynczą transakcję z zyskiem $1000+',
+    achWinrate60Name:'Snajper', achWinrate60Desc:'Osiągnij win rate powyżej 60% (min. 20 transakcji)',
+    achRR3Name:'Duży strzał', achRR3Desc:'Zamknij transakcję z RR 3.0 lub wyższym',
+    achRR5Name:'Bardzo duży strzał', achRR5Desc:'Zamknij transakcję z RR 5.0 lub wyższym',
+    achRR10Name:'Ekstremalny strzał', achRR10Desc:'Zamknij transakcję z RR 10.0 lub wyższym',
+    achConfidence5WinName:'Pełna pewność', achConfidence5WinDesc:'Zamknij na plusie transakcję ocenioną na 5 gwiazdek pewności',
+    achReflectionLossName:'Refleksja', achReflectionLossDesc:'Napisz szczegółową notatkę (100+ znaków) do przegranej transakcji',
+    achCompleteMonthScreenshotsName:'Kompletny miesiąc', achCompleteMonthScreenshotsDesc:'Dołącz zrzut ekranu do każdej transakcji w zakończonym miesiącu',
+    achNotes90PctName:'Bez wymówek', achNotes90PctDesc:'Uzupełnij notatki w 90%+ swoich transakcji (min. 10 transakcji)',
+    achMaxAccountsName:'Pełny komplet', achMaxAccountsDesc:'Załóż maksymalną liczbę 5 kont',
+    achCustomColorName:'Kolorowo', achCustomColorDesc:'Ustaw własny kolor konta',
+    achSymbols5Name:'Wszechstronny', achSymbols5Desc:'Zapisz transakcje na 5 różnych instrumentach',
+    achBulkActionName:'Porządkowanie', achBulkActionDesc:'Użyj masowego usuwania lub przenoszenia transakcji',
+    achSharedCardName:'Współdzielę wyniki', achSharedCardDesc:'Wygeneruj i udostępnij kartę transakcji',
+    achLightThemeName:'Tryb dzienny', achLightThemeDesc:'Przełącz appkę na jasny motyw',
+    achAccountAge30Name:'Pierwszy miesiąc', achAccountAge30Desc:'Twoje konto istnieje 30 dni',
     profilePasswordTitle:'Zmiana hasła', profileNewPasswordLabel:'Nowe hasło', profileConfirmPasswordLabel:'Powtórz nowe hasło',
     profileChangePasswordBtn:'Zmień hasło',
     loginMethodEmail:'E-mail i hasło', loginMethodGoogle:'Zalogowano przez Google',
@@ -2507,12 +2529,34 @@ const I18N = {
     achTrades10Name:'Getting Started', achTrades10Desc:'Log 10 trades',
     achTrades50Name:'Veteran', achTrades50Desc:'Log 50 trades',
     achTrades100Name:'Century', achTrades100Desc:'Log 100 trades',
+    achTrades500Name:'Five Hundred', achTrades500Desc:'Log 500 trades',
+    achStreak3Name:'Three Days', achStreak3Desc:'Reach a 3-day login streak',
     achStreak7Name:'Weekly Streak', achStreak7Desc:'Reach a 7-day login streak',
+    achStreak14Name:'Two Weeks', achStreak14Desc:'Reach a 14-day login streak',
     achStreak30Name:'Iron Discipline', achStreak30Desc:'Reach a 30-day login streak',
-    achMultiAccountName:'Multiple Fronts', achMultiAccountDesc:'Create a second trading account',
+    achJournalStreak5Name:'Habit', achJournalStreak5Desc:'Log a trade 5 days in a row',
     achProfitableMonthName:'In the Green', achProfitableMonthDesc:'Close any month in profit',
+    achTwoGreenMonthsName:'Two in a Row', achTwoGreenMonthsDesc:'Close two consecutive months in profit',
+    achComebackName:'Comeback', achComebackDesc:'A losing month immediately followed by a profitable one',
+    achProfit10kName:'First Ten Grand', achProfit10kDesc:'Reach a total profit of $10,000',
+    achBigWin1000Name:'Big Fish', achBigWin1000Desc:'Close a single trade with $1000+ profit',
+    achWinrate60Name:'Sniper', achWinrate60Desc:'Reach a win rate above 60% (min. 20 trades)',
+    achRR3Name:'Big Shot', achRR3Desc:'Close a trade with RR of 3.0 or higher',
+    achRR5Name:'Huge Shot', achRR5Desc:'Close a trade with RR of 5.0 or higher',
+    achRR10Name:'Extreme Shot', achRR10Desc:'Close a trade with RR of 10.0 or higher',
+    achConfidence5WinName:'Full Confidence', achConfidence5WinDesc:'Close a winning trade rated 5-star confidence',
+    achReflectionLossName:'Reflection', achReflectionLossDesc:'Write a detailed note (100+ characters) on a losing trade',
     achDetailedNotesName:'Analyst', achDetailedNotesDesc:'Write a detailed note (100+ characters) on a trade',
     achScreenshotName:'Documentarian', achScreenshotDesc:'Attach a screenshot to a trade',
+    achCompleteMonthScreenshotsName:'Complete Month', achCompleteMonthScreenshotsDesc:'Attach a screenshot to every trade in a completed month',
+    achNotes90PctName:'No Excuses', achNotes90PctDesc:'Fill in notes on 90%+ of your trades (min. 10 trades)',
+    achMaxAccountsName:'Full House', achMaxAccountsDesc:'Create the maximum of 5 accounts',
+    achCustomColorName:'Colorful', achCustomColorDesc:'Set a custom account color',
+    achSymbols5Name:'Well-Rounded', achSymbols5Desc:'Log trades on 5 different instruments',
+    achBulkActionName:'Tidying Up', achBulkActionDesc:'Use bulk delete or bulk move on trades',
+    achSharedCardName:'Sharing Results', achSharedCardDesc:'Generate and share a trade card',
+    achLightThemeName:'Daytime Mode', achLightThemeDesc:'Switch the app to light theme',
+    achAccountAge30Name:'First Month', achAccountAge30Desc:'Your account is 30 days old',
     profilePasswordTitle:'Change password', profileNewPasswordLabel:'New password', profileConfirmPasswordLabel:'Confirm new password',
     profileChangePasswordBtn:'Change password',
     loginMethodEmail:'Email and password', loginMethodGoogle:'Signed in with Google',
@@ -2659,12 +2703,34 @@ const I18N = {
     achTrades10Name:'In Fahrt', achTrades10Desc:'Erfasse 10 Trades',
     achTrades50Name:'Veteran', achTrades50Desc:'Erfasse 50 Trades',
     achTrades100Name:'Jahrhundert', achTrades100Desc:'Erfasse 100 Trades',
+    achTrades500Name:'Fünfhundert', achTrades500Desc:'Erfasse 500 Trades',
+    achStreak3Name:'Drei Tage', achStreak3Desc:'Erreiche einen 3-Tage-Anmelde-Streak',
     achStreak7Name:'Wochen-Streak', achStreak7Desc:'Erreiche einen 7-Tage-Anmelde-Streak',
+    achStreak14Name:'Zwei Wochen', achStreak14Desc:'Erreiche einen 14-Tage-Anmelde-Streak',
     achStreak30Name:'Eiserne Disziplin', achStreak30Desc:'Erreiche einen 30-Tage-Anmelde-Streak',
-    achMultiAccountName:'Mehrere Fronten', achMultiAccountDesc:'Erstelle ein zweites Handelskonto',
+    achJournalStreak5Name:'Gewohnheit', achJournalStreak5Desc:'Erfasse 5 Tage in Folge einen Trade',
     achProfitableMonthName:'Im Plus', achProfitableMonthDesc:'Schließe einen Monat im Plus ab',
+    achTwoGreenMonthsName:'Zwei in Folge', achTwoGreenMonthsDesc:'Schließe zwei aufeinanderfolgende Monate im Plus ab',
+    achComebackName:'Comeback', achComebackDesc:'Ein Verlustmonat, direkt gefolgt von einem Gewinnmonat',
+    achProfit10kName:'Erste Zehntausend', achProfit10kDesc:'Erreiche einen Gesamtgewinn von $10.000',
+    achBigWin1000Name:'Großer Fisch', achBigWin1000Desc:'Schließe einen einzelnen Trade mit $1000+ Gewinn ab',
+    achWinrate60Name:'Scharfschütze', achWinrate60Desc:'Erreiche eine Win Rate über 60% (min. 20 Trades)',
+    achRR3Name:'Großer Wurf', achRR3Desc:'Schließe einen Trade mit RR von 3,0 oder höher ab',
+    achRR5Name:'Sehr großer Wurf', achRR5Desc:'Schließe einen Trade mit RR von 5,0 oder höher ab',
+    achRR10Name:'Extremer Wurf', achRR10Desc:'Schließe einen Trade mit RR von 10,0 oder höher ab',
+    achConfidence5WinName:'Volles Vertrauen', achConfidence5WinDesc:'Schließe einen Gewinn-Trade mit 5-Sterne-Sicherheit ab',
+    achReflectionLossName:'Reflexion', achReflectionLossDesc:'Schreibe eine ausführliche Notiz (100+ Zeichen) zu einem Verlust-Trade',
     achDetailedNotesName:'Analyst', achDetailedNotesDesc:'Schreibe eine ausführliche Notiz (100+ Zeichen) zu einem Trade',
     achScreenshotName:'Dokumentar', achScreenshotDesc:'Füge einem Trade einen Screenshot hinzu',
+    achCompleteMonthScreenshotsName:'Kompletter Monat', achCompleteMonthScreenshotsDesc:'Füge in einem abgeschlossenen Monat jedem Trade einen Screenshot hinzu',
+    achNotes90PctName:'Keine Ausreden', achNotes90PctDesc:'Fülle bei 90%+ deiner Trades Notizen aus (min. 10 Trades)',
+    achMaxAccountsName:'Volles Haus', achMaxAccountsDesc:'Erstelle die maximalen 5 Konten',
+    achCustomColorName:'Bunt', achCustomColorDesc:'Lege eine eigene Kontofarbe fest',
+    achSymbols5Name:'Vielseitig', achSymbols5Desc:'Erfasse Trades auf 5 verschiedenen Instrumenten',
+    achBulkActionName:'Aufräumen', achBulkActionDesc:'Nutze Massenlöschen oder -verschieben bei Trades',
+    achSharedCardName:'Ergebnisse teilen', achSharedCardDesc:'Erstelle und teile eine Trade-Karte',
+    achLightThemeName:'Tagmodus', achLightThemeDesc:'Wechsle die App in den hellen Modus',
+    achAccountAge30Name:'Erster Monat', achAccountAge30Desc:'Dein Konto besteht seit 30 Tagen',
     profilePasswordTitle:'Passwort ändern', profileNewPasswordLabel:'Neues Passwort', profileConfirmPasswordLabel:'Neues Passwort wiederholen',
     profileChangePasswordBtn:'Passwort ändern',
     loginMethodEmail:'E-Mail und Passwort', loginMethodGoogle:'Mit Google angemeldet',
@@ -3225,28 +3291,120 @@ async function updateLoginStreak(){
 /* ============ OSIĄGNIĘCIA ============
    Lista sprawdzanych warunków - liczone globalnie po wszystkich kontach usera (allTrades),
    nie tylko po aktualnie wybranym koncie, bo to atrybut profilu, nie konta. */
+
+// najdłuższy ciąg kolejnych dni kalendarzowych z co najmniej 1 transakcją (gdziekolwiek w historii,
+// nie musi kończyć się dzisiaj) - używane przez achievement "journal_streak_5"
+function longestConsecutiveDayRun(dateStrings){
+  const uniq = Array.from(new Set(dateStrings)).sort();
+  if(!uniq.length) return 0;
+  let best = 1, cur = 1;
+  for(let i=1;i<uniq.length;i++){
+    const prev = new Date(uniq[i-1]+'T00:00:00');
+    const curr = new Date(uniq[i]+'T00:00:00');
+    const diffDays = Math.round((curr-prev)/86400000);
+    cur = (diffDays===1) ? cur+1 : 1;
+    best = Math.max(best, cur);
+  }
+  return best;
+}
+// mapa zakończonych (nie bieżącego) miesięcy -> suma P/L, posortowana chronologicznie
+function completedMonthsPnl(allTrades){
+  const currentMonthKey = new Date().toISOString().slice(0,7);
+  const byMonth = {};
+  allTrades.forEach(tr=>{
+    const k = tr.date.slice(0,7);
+    if(k === currentMonthKey) return;
+    byMonth[k] = (byMonth[k]||0) + tr.pnl;
+  });
+  return Object.keys(byMonth).sort().map(k=>({ key:k, pnl:byMonth[k] }));
+}
+// czy dwa klucze miesiąca YYYY-MM są bezpośrednio po sobie kalendarzowo (bez przeskoku)
+function isNextCalendarMonth(keyA, keyB){
+  const [ya,ma] = keyA.split('-').map(Number);
+  const next = new Date(ya, ma-1+1, 1);
+  return `${next.getFullYear()}-${String(next.getMonth()+1).padStart(2,'0')}` === keyB;
+}
+
+// flagi zdarzeń "w trakcie tej sesji" - do achievementów, których nie da się wyliczyć
+// z samego stanu danych (np. "użyłeś masowej akcji"), ustawiane w miejscach, gdzie dana
+// akcja faktycznie się wykonuje, tuż przed wywołaniem evaluateAchievements()
+let usedBulkActionFlag = false;
+let usedShareCardFlag = false;
+let usedLightThemeFlag = false;
+
 const ACHIEVEMENTS = [
   { id:'first_trade', nameKey:'achFirstTradeName', descKey:'achFirstTradeDesc', check:ctx=> ctx.allTrades.length>=1 },
   { id:'trades_10', nameKey:'achTrades10Name', descKey:'achTrades10Desc', check:ctx=> ctx.allTrades.length>=10 },
   { id:'trades_50', nameKey:'achTrades50Name', descKey:'achTrades50Desc', check:ctx=> ctx.allTrades.length>=50 },
   { id:'trades_100', nameKey:'achTrades100Name', descKey:'achTrades100Desc', check:ctx=> ctx.allTrades.length>=100 },
+  { id:'trades_500', nameKey:'achTrades500Name', descKey:'achTrades500Desc', check:ctx=> ctx.allTrades.length>=500 },
+  { id:'streak_3', nameKey:'achStreak3Name', descKey:'achStreak3Desc', check:ctx=> ctx.loginStreak>=3 },
   { id:'streak_7', nameKey:'achStreak7Name', descKey:'achStreak7Desc', check:ctx=> ctx.loginStreak>=7 },
+  { id:'streak_14', nameKey:'achStreak14Name', descKey:'achStreak14Desc', check:ctx=> ctx.loginStreak>=14 },
   { id:'streak_30', nameKey:'achStreak30Name', descKey:'achStreak30Desc', check:ctx=> ctx.loginStreak>=30 },
-  { id:'multi_account', nameKey:'achMultiAccountName', descKey:'achMultiAccountDesc', check:ctx=> ctx.accounts.length>=2 },
-  { id:'profitable_month', nameKey:'achProfitableMonthName', descKey:'achProfitableMonthDesc', check:ctx=>{
-      // liczy się TYLKO miesiąc, który się już zakończył - bieżący, trwający miesiąc jest
-      // celowo pomijany, nawet jeśli chwilowo jest na plusie (mógłby jeszcze spaść do końca miesiąca)
+  { id:'journal_streak_5', nameKey:'achJournalStreak5Name', descKey:'achJournalStreak5Desc',
+    check:ctx=> longestConsecutiveDayRun(ctx.allTrades.map(tr=>tr.date)) >= 5 },
+  { id:'profitable_month', nameKey:'achProfitableMonthName', descKey:'achProfitableMonthDesc',
+    check:ctx=> completedMonthsPnl(ctx.allTrades).some(m=>m.pnl>0) },
+  { id:'two_green_months', nameKey:'achTwoGreenMonthsName', descKey:'achTwoGreenMonthsDesc', check:ctx=>{
+      const months = completedMonthsPnl(ctx.allTrades);
+      for(let i=0;i<months.length-1;i++){
+        if(months[i].pnl>0 && months[i+1].pnl>0 && isNextCalendarMonth(months[i].key, months[i+1].key)) return true;
+      }
+      return false;
+  }},
+  { id:'comeback', nameKey:'achComebackName', descKey:'achComebackDesc', check:ctx=>{
+      const months = completedMonthsPnl(ctx.allTrades);
+      for(let i=0;i<months.length-1;i++){
+        if(months[i].pnl<0 && months[i+1].pnl>0 && isNextCalendarMonth(months[i].key, months[i+1].key)) return true;
+      }
+      return false;
+  }},
+  { id:'profit_10k', nameKey:'achProfit10kName', descKey:'achProfit10kDesc',
+    check:ctx=> ctx.allTrades.reduce((s,tr)=>s+tr.pnl,0) >= 10000 },
+  { id:'big_win_1000', nameKey:'achBigWin1000Name', descKey:'achBigWin1000Desc',
+    check:ctx=> ctx.allTrades.some(tr=> tr.pnl>=1000) },
+  { id:'winrate_60', nameKey:'achWinrate60Name', descKey:'achWinrate60Desc', check:ctx=>{
+      const scored = ctx.allTrades.filter(tr=>!tr.breakeven);
+      if(scored.length<20) return false;
+      return (scored.filter(tr=>tr.pnl>0).length / scored.length) >= 0.6;
+  }},
+  { id:'rr_3', nameKey:'achRR3Name', descKey:'achRR3Desc', check:ctx=> ctx.allTrades.some(tr=> Number(tr.rr)>=3) },
+  { id:'rr_5', nameKey:'achRR5Name', descKey:'achRR5Desc', check:ctx=> ctx.allTrades.some(tr=> Number(tr.rr)>=5) },
+  { id:'rr_10', nameKey:'achRR10Name', descKey:'achRR10Desc', check:ctx=> ctx.allTrades.some(tr=> Number(tr.rr)>=10) },
+  { id:'confidence_5_win', nameKey:'achConfidence5WinName', descKey:'achConfidence5WinDesc',
+    check:ctx=> ctx.allTrades.some(tr=> tr.confidence===5 && !tr.breakeven && tr.pnl>0) },
+  { id:'reflection_loss', nameKey:'achReflectionLossName', descKey:'achReflectionLossDesc',
+    check:ctx=> ctx.allTrades.some(tr=> tr.pnl<0 && (tr.notes||'').length>100) },
+  { id:'detailed_notes', nameKey:'achDetailedNotesName', descKey:'achDetailedNotesDesc', check:ctx=> ctx.allTrades.some(tr=>(tr.notes||'').length>100) },
+  { id:'screenshot', nameKey:'achScreenshotName', descKey:'achScreenshotDesc', check:ctx=> ctx.allTrades.some(tr=>(tr.images&&tr.images.length) || tr.image) },
+  { id:'complete_month_screenshots', nameKey:'achCompleteMonthScreenshotsName', descKey:'achCompleteMonthScreenshotsDesc', check:ctx=>{
       const currentMonthKey = new Date().toISOString().slice(0,7);
       const byMonth = {};
       ctx.allTrades.forEach(tr=>{
         const k = tr.date.slice(0,7);
-        if(k === currentMonthKey) return;
-        byMonth[k] = (byMonth[k]||0) + tr.pnl;
+        if(k===currentMonthKey) return;
+        (byMonth[k] = byMonth[k]||[]).push(tr);
       });
-      return Object.values(byMonth).some(v=>v>0);
+      return Object.values(byMonth).some(list=> list.length>0 && list.every(tr=> (tr.images&&tr.images.length) || tr.image));
   }},
-  { id:'detailed_notes', nameKey:'achDetailedNotesName', descKey:'achDetailedNotesDesc', check:ctx=> ctx.allTrades.some(tr=>(tr.notes||'').length>100) },
-  { id:'screenshot', nameKey:'achScreenshotName', descKey:'achScreenshotDesc', check:ctx=> ctx.allTrades.some(tr=>(tr.images&&tr.images.length) || tr.image) },
+  { id:'notes_90pct', nameKey:'achNotes90PctName', descKey:'achNotes90PctDesc', check:ctx=>{
+      if(ctx.allTrades.length<10) return false;
+      const withNotes = ctx.allTrades.filter(tr=> (tr.notes||'').trim().length>0).length;
+      return (withNotes/ctx.allTrades.length) >= 0.9;
+  }},
+  { id:'max_accounts', nameKey:'achMaxAccountsName', descKey:'achMaxAccountsDesc', check:ctx=> ctx.accounts.length>=5 },
+  { id:'custom_color', nameKey:'achCustomColorName', descKey:'achCustomColorDesc',
+    check:ctx=> ctx.accounts.some(a=> a.color && a.color!==ACCOUNT_COLORS[0]) },
+  { id:'symbols_5', nameKey:'achSymbols5Name', descKey:'achSymbols5Desc',
+    check:ctx=> new Set(ctx.allTrades.map(tr=>(tr.symbol||'').toUpperCase())).size >= 5 },
+  { id:'bulk_action_used', nameKey:'achBulkActionName', descKey:'achBulkActionDesc', check:ctx=> ctx.usedBulkAction },
+  { id:'shared_card_used', nameKey:'achSharedCardName', descKey:'achSharedCardDesc', check:ctx=> ctx.usedShareCard },
+  { id:'light_theme_used', nameKey:'achLightThemeName', descKey:'achLightThemeDesc', check:ctx=> ctx.usedLightTheme },
+  { id:'account_age_30', nameKey:'achAccountAge30Name', descKey:'achAccountAge30Desc', check:ctx=>{
+      if(!ctx.accountCreatedAt) return false;
+      return (Date.now() - ctx.accountCreatedAt) >= 30*86400000;
+  }},
 ];
 
 let achievementToastQueue = [];
@@ -3282,7 +3440,11 @@ async function evaluateAchievements(){
   const ctx = {
     allTrades,
     accounts,
-    loginStreak: Number(currentUser.user_metadata && currentUser.user_metadata.login_streak) || 0
+    loginStreak: Number(currentUser.user_metadata && currentUser.user_metadata.login_streak) || 0,
+    usedBulkAction: usedBulkActionFlag,
+    usedShareCard: usedShareCardFlag,
+    usedLightTheme: usedLightThemeFlag,
+    accountCreatedAt: currentUser.created_at ? new Date(currentUser.created_at).getTime() : null
   };
   const existing = Object.assign({}, currentUser.user_metadata && currentUser.user_metadata.achievements || {});
   const newlyEarned = [];
@@ -3308,7 +3470,7 @@ function renderAchievements(){
   const progressText = t('achievementsProgressTemplate').replace('{n}', unlockedCount).replace('{total}', ACHIEVEMENTS.length);
   const progressEl = document.getElementById('achievementsProgress');
   if(progressEl) progressEl.textContent = progressText;
-  const badgeSvg = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="6"/><path d="M9 13.5 7 22l5-3 5 3-2-8.5"/></svg>';
+  const badgeSvg = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8.5 13.6 6 21.6l2.6-.9L10 22l1.1-6.3"/><path d="M15.5 13.6 18 21.6l-2.6-.9L14 22l-1.1-6.3"/><circle cx="12" cy="9" r="6.25"/><path d="M12 5.5l1.1 2.22 2.42.36-1.76 1.7.43 2.44L12 11.1l-2.19 1.13.43-2.44-1.76-1.7 2.42-.36L12 5.5z" fill="currentColor" stroke="none"/></svg>';
   grid.innerHTML = ACHIEVEMENTS.map(def=>{
     const unlocked = !!earned[def.id];
     return `<button type="button" class="achievement-badge${unlocked?' unlocked':''}" data-achievement="${def.id}">
@@ -4694,6 +4856,8 @@ document.getElementById('bulkDeleteBtn').addEventListener('click', async ()=>{
   renderAll();
   updateDrawerAccountInfo();
   showSuccessToast(t('bulkDeletedToast'));
+  usedBulkActionFlag = true;
+  evaluateAchievements();
   // kasowanie w bazie i obrazków w tle, nie blokuje UI
   await Promise.all(toRemove.map(tr=> deleteTradeFromDb(tr.id)));
   toRemove.forEach(tr=> deleteTradeImages(tr));
@@ -4727,6 +4891,8 @@ document.getElementById('bulkMoveConfirmBtn').addEventListener('click', async ()
   renderAll();
   updateDrawerAccountInfo();
   showSuccessToast(t('bulkMovedToast'));
+  usedBulkActionFlag = true;
+  evaluateAchievements();
   await Promise.all(toMove.map(tr=> saveTradeToDb(tr)));
 });
 
@@ -5123,6 +5289,10 @@ async function runShareFlow(btn, generatorFn, filename){
     else if(result === 'downloaded') showSuccessToast(t('shareDownloaded'));
     else if(result === 'failed') customAlert(t('shareFailed'), {danger:true});
     // 'shared' i 'cancelled' nie wymagają dodatkowego komunikatu
+    if(result==='shared' || result==='copied' || result==='downloaded'){
+      usedShareCardFlag = true;
+      evaluateAchievements();
+    }
   }catch(e){
     console.error('Błąd generowania obrazka do udostępnienia:', e);
     customAlert(t('shareFailed'), {danger:true});
@@ -5760,6 +5930,10 @@ function renderSettingsScreen(){
       applyTheme(b.dataset.themeChoice);
       renderAll();
       renderSettingsScreen();
+      if(b.dataset.themeChoice==='light'){
+        usedLightThemeFlag = true;
+        evaluateAchievements();
+      }
     });
   });
 
