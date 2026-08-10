@@ -1640,6 +1640,10 @@ table.tradelist tr:hover td{background:var(--surface2);}
       <span class="profile-row-label" id="profileTotalTradesLabel">Łącznie zapisanych transakcji</span>
       <span class="td-value mono" id="profileTotalTradesValue">0</span>
     </div>
+    <div class="profile-row">
+      <span class="profile-row-label" id="profileLoginStreakLabel">Streak logowania</span>
+      <span class="td-value mono" id="profileLoginStreakValue">—</span>
+    </div>
   </div>
 
   <div class="panel" id="profilePasswordPanel" style="max-width:520px;margin-top:14px;">
@@ -2156,6 +2160,7 @@ const I18N = {
     settingsAboutTitle:'O aplikacji', settingsVersionTitle:'Wersja aplikacji',
     monthsShort:'Miesiące', weekStartMonday:'Poniedziałek', weekStartSunday:'Niedziela',
     profileTotalTradesLabel:'Łącznie zapisanych transakcji',
+    profileLoginStreakLabel:'Streak logowania', loginStreakDays:'dni z rzędu', loginStreakDay:'dzień',
     profilePasswordTitle:'Zmiana hasła', profileNewPasswordLabel:'Nowe hasło', profileConfirmPasswordLabel:'Powtórz nowe hasło',
     profileChangePasswordBtn:'Zmień hasło',
     loginMethodEmail:'E-mail i hasło', loginMethodGoogle:'Zalogowano przez Google',
@@ -2288,6 +2293,7 @@ const I18N = {
     settingsAboutTitle:'About', settingsVersionTitle:'App version',
     monthsShort:'Months', weekStartMonday:'Monday', weekStartSunday:'Sunday',
     profileTotalTradesLabel:'Total trades logged',
+    profileLoginStreakLabel:'Login streak', loginStreakDays:'days in a row', loginStreakDay:'day',
     profilePasswordTitle:'Change password', profileNewPasswordLabel:'New password', profileConfirmPasswordLabel:'Confirm new password',
     profileChangePasswordBtn:'Change password',
     loginMethodEmail:'Email and password', loginMethodGoogle:'Signed in with Google',
@@ -2420,6 +2426,7 @@ const I18N = {
     settingsAboutTitle:'Über die App', settingsVersionTitle:'App-Version',
     monthsShort:'Monate', weekStartMonday:'Montag', weekStartSunday:'Sonntag',
     profileTotalTradesLabel:'Insgesamt erfasste Trades',
+    profileLoginStreakLabel:'Anmelde-Streak', loginStreakDays:'Tage in Folge', loginStreakDay:'Tag',
     profilePasswordTitle:'Passwort ändern', profileNewPasswordLabel:'Neues Passwort', profileConfirmPasswordLabel:'Neues Passwort wiederholen',
     profileChangePasswordBtn:'Passwort ändern',
     loginMethodEmail:'E-Mail und Passwort', loginMethodGoogle:'Mit Google angemeldet',
@@ -2869,6 +2876,7 @@ async function handleLogout(){
   trades = [];
   monthNotes = {};
   dataLoaded = false;
+  loginStreakChecked = false;
   updateUserWidget();
   showAuthGate(true);
 }
@@ -2941,6 +2949,25 @@ async function ensureUsername(){
   }
 }
 
+// streak logowania - liczy się od zalogowania raz dziennie (nie od dodania transakcji).
+// Zapisany w user_metadata konta (Supabase Auth), więc trzyma się niezależnie od urządzenia.
+let loginStreakChecked = false;
+async function updateLoginStreak(){
+  if(!currentUser || loginStreakChecked) return;
+  loginStreakChecked = true;
+  const todayStr = new Date().toISOString().slice(0,10);
+  const meta = currentUser.user_metadata || {};
+  const lastDate = meta.last_login_date;
+  if(lastDate === todayStr) return; // już policzone dzisiaj - nic nie rób
+  const yesterdayStr = new Date(Date.now() - 86400000).toISOString().slice(0,10);
+  const prevStreak = Number(meta.login_streak) || 0;
+  const newStreak = (lastDate === yesterdayStr) ? prevStreak + 1 : 1;
+  const { error } = await sb.auth.updateUser({ data: { login_streak: newStreak, last_login_date: todayStr } });
+  if(!error){
+    currentUser.user_metadata = Object.assign({}, currentUser.user_metadata, { login_streak: newStreak, last_login_date: todayStr });
+  }
+}
+
 async function initAuth(){
   const sessionPromise = sb.auth.getSession();
   sessionPromise.then(async ({ data: { session } })=>{
@@ -2953,6 +2980,7 @@ async function initAuth(){
       updateUserWidget();
       showAuthGate(false);
       await ensureUsername();
+      await updateLoginStreak();
       await loadAllData();
       renderAll();
       applyDefaultView();
@@ -2973,6 +3001,7 @@ async function initAuth(){
       currentUser = session.user;
       updateUserWidget();
       await ensureUsername();
+      await updateLoginStreak();
       if(!document.getElementById('resetGate').classList.contains('open')){
         showAuthGate(false);
       }
@@ -5134,6 +5163,10 @@ function renderProfileScreen(){
   }
 
   document.getElementById('profileTotalTradesValue').textContent = allTrades.length;
+  const streak = (currentUser.user_metadata && Number(currentUser.user_metadata.login_streak)) || 0;
+  document.getElementById('profileLoginStreakValue').textContent = streak > 0
+    ? `${streak} ${streak===1 ? t('loginStreakDay') : t('loginStreakDays')} 🔥`
+    : '—';
   document.getElementById('profilePasswordPanel').style.display = hasEmailProvider() ? '' : 'none';
 }
 function showProfileMsg(msg, ok){
@@ -5444,6 +5477,7 @@ function applyStaticTexts(){
   document.getElementById('lightboxPrev').setAttribute('aria-label', t('prevImageLabel'));
   document.getElementById('lightboxNext').setAttribute('aria-label', t('nextImageLabel'));
   document.getElementById('profileTotalTradesLabel').textContent = t('profileTotalTradesLabel');
+  document.getElementById('profileLoginStreakLabel').textContent = t('profileLoginStreakLabel');
   document.getElementById('profilePasswordTitle').textContent = t('profilePasswordTitle');
   document.getElementById('profileNewPasswordLabel').textContent = t('profileNewPasswordLabel');
   document.getElementById('profileConfirmPasswordLabel').textContent = t('profileConfirmPasswordLabel');
