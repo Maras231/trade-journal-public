@@ -1642,7 +1642,7 @@ table.tradelist tr:hover td{background:var(--surface2);}
     </div>
     <div class="profile-row">
       <span class="profile-row-label" id="profileLoginStreakLabel">Streak logowania</span>
-      <span class="td-value mono" id="profileLoginStreakValue">—</span>
+      <span class="td-value mono" id="profileLoginStreakValue">0</span>
     </div>
   </div>
 
@@ -2961,7 +2961,8 @@ async function updateLoginStreak(){
   if(lastDate === todayStr) return; // już policzone dzisiaj - nic nie rób
   const yesterdayStr = new Date(Date.now() - 86400000).toISOString().slice(0,10);
   const prevStreak = Number(meta.login_streak) || 0;
-  const newStreak = (lastDate === yesterdayStr) ? prevStreak + 1 : 1;
+  // pierwsze logowanie (albo przerwa w streaku) = 0, dopiero DRUGI dzień z rzędu daje 1, trzeci 2, itd.
+  const newStreak = (lastDate === yesterdayStr) ? prevStreak + 1 : 0;
   const { error } = await sb.auth.updateUser({ data: { login_streak: newStreak, last_login_date: todayStr } });
   if(!error){
     currentUser.user_metadata = Object.assign({}, currentUser.user_metadata, { login_streak: newStreak, last_login_date: todayStr });
@@ -5166,7 +5167,7 @@ function renderProfileScreen(){
   const streak = (currentUser.user_metadata && Number(currentUser.user_metadata.login_streak)) || 0;
   document.getElementById('profileLoginStreakValue').textContent = streak > 0
     ? `${streak} ${streak===1 ? t('loginStreakDay') : t('loginStreakDays')} 🔥`
-    : '—';
+    : '0';
   document.getElementById('profilePasswordPanel').style.display = hasEmailProvider() ? '' : 'none';
 }
 function showProfileMsg(msg, ok){
