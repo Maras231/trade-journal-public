@@ -3663,11 +3663,18 @@ function applyTheme(theme, animate){
     if(meta) meta.setAttribute('content', theme==='light' ? '#F4F5F9' : '#0B0E14');
   };
   // płynny crossfade między motywami (Chrome/Edge); w innych przeglądarkach i przy
-  // "prefers-reduced-motion" po prostu przełącza się od razu, bez animacji
+  // "prefers-reduced-motion" po prostu przełącza się od razu, bez animacji.
+  // Zwraca Promise, który kończy się DOPIERO gdy atrybut data-theme faktycznie się zmienił -
+  // startViewTransition nie robi tego w pełni synchronicznie, więc ktokolwiek odczytuje
+  // motyw zaraz po applyTheme() (np. żeby podświetlić aktywny przycisk) musi na to poczekać.
   const canAnimate = animate!==false && document.startViewTransition &&
     !window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  if(canAnimate) document.startViewTransition(doSwitch);
-  else doSwitch();
+  if(canAnimate){
+    const transition = document.startViewTransition(doSwitch);
+    return transition.updateCallbackDone.catch(()=>{});
+  }
+  doSwitch();
+  return Promise.resolve();
 }
 applyTheme(localStorage.getItem(THEME_KEY) || 'dark', false);
 
@@ -6190,8 +6197,8 @@ function renderSettingsScreen(){
     {key:'light', label:t('themeLight')}
   ].map(o=>`<button type="button" data-theme-choice="${o.key}" class="${o.key===currentTheme?'active':''}">${o.label}</button>`).join('');
   themeWrap.querySelectorAll('button').forEach(b=>{
-    b.addEventListener('click', ()=>{
-      applyTheme(b.dataset.themeChoice);
+    b.addEventListener('click', async ()=>{
+      await applyTheme(b.dataset.themeChoice);
       renderAll();
       renderSettingsScreen();
       if(b.dataset.themeChoice==='light'){
