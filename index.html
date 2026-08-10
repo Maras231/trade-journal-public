@@ -166,6 +166,23 @@ header.top{
 .btn.danger:hover{border-color:var(--loss);box-shadow:0 8px 20px -8px rgba(255,107,107,.3);}
 .btn.ghost{background:transparent;box-shadow:none;}
 
+/* pływający przycisk "+ Dodaj transakcję" - widoczny WYŁĄCZNIE w zakładce Transakcje,
+   żeby dodanie transakcji było w zasięgu kciuka nawet po przescrollowaniu długiej listy */
+.fab-add-trade{
+  position:fixed;right:22px;bottom:26px;z-index:60;
+  width:56px;height:56px;border-radius:50%;border:none;cursor:pointer;
+  background:linear-gradient(135deg,var(--gold),#c98f2b);color:#151102;
+  display:flex;align-items:center;justify-content:center;
+  box-shadow:0 12px 28px -6px rgba(232,184,75,.5), var(--shadow-lg);
+  transition:transform .18s var(--ease),box-shadow .18s var(--ease),filter .18s var(--ease),opacity .22s var(--ease);
+  animation:fabIn .22s var(--ease);
+}
+.fab-add-trade svg{width:24px;height:24px;}
+.fab-add-trade:hover{filter:brightness(1.08);transform:translateY(-2px);box-shadow:0 16px 34px -6px rgba(232,184,75,.55), var(--shadow-lg);}
+.fab-add-trade:active{transform:translateY(0) scale(.94);}
+@keyframes fabIn{from{opacity:0;transform:scale(.7) translateY(8px);}to{opacity:1;transform:scale(1) translateY(0);}}
+@media(max-width:768px){.fab-add-trade{right:18px;bottom:22px;width:54px;height:54px;}}
+
 /* ---------- DRIVE SYNC ---------- */
 .sync-widget{display:flex;align-items:center;gap:10px;}
 .sync-status{
@@ -1458,6 +1475,10 @@ table.tradelist tr:hover td{background:var(--surface2);}
     <button class="btn primary" id="addTradeBtn" style="display:none;">+ <span id="addTradeBtnText">Dodaj transakcję</span></button>
   </div>
 </header>
+
+<button class="fab-add-trade" id="fabAddTrade" style="display:none;" aria-label="Dodaj transakcję">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>
+</button>
 
 <div id="mainScreen">
 
@@ -3004,6 +3025,7 @@ function activateTab(tabName){
   document.getElementById('statsRow').style.display = tabName==='trades' ? 'none' : '';
   document.getElementById('statsSubNav').style.display = tabName==='trades' ? 'none' : '';
   document.getElementById('addTradeBtn').style.display = tabName==='trades' ? '' : 'none';
+  document.getElementById('fabAddTrade').style.display = tabName==='trades' ? '' : 'none';
   document.querySelectorAll('#statsSubNav button').forEach(b=> b.classList.toggle('active', b.dataset.tab===tabName));
   setActiveDrawerNav(tabName==='trades' ? 'trades' : 'stats');
   if(tabName==='trades') renderTradesTable();
@@ -3220,6 +3242,7 @@ function closeModal(){
   modalOpenSnapshot = null;
 }
 document.getElementById('addTradeBtn').addEventListener('click', ()=>openModal(null));
+document.getElementById('fabAddTrade').addEventListener('click', ()=>openModal(null));
 document.getElementById('closeModal').addEventListener('click', attemptCloseModal);
 document.getElementById('cancelBtn').addEventListener('click', attemptCloseModal);
 overlay.addEventListener('click', e=>{ if(e.target===overlay) attemptCloseModal(); });
@@ -4433,7 +4456,7 @@ async function generateTradeShareCard(tr){
 
   // pigułka kierunku
   const dirLabel = (tr.direction || '').toUpperCase();
-  ctx.font = "700 25px 'Inter', sans-serif";
+  ctx.font = "700 25px 'Space Grotesk', sans-serif";
   const dirArrow = tr.direction==='long' ? '\u25B2  ' : '\u25BC  ';
   const dirText = dirArrow + dirLabel;
   const dirW = ctx.measureText(dirText).width + 44;
@@ -4447,18 +4470,18 @@ async function generateTradeShareCard(tr){
   ctx.fillStyle = accentColor;
   ctx.fillText(dirText, padX+22, badgeY+badgeH/2+9);
 
-  // duży wynik P/L, z delikatnym glowem pod spodem
+  // duży wynik P/L, czcionka Space Grotesk (grubsza, bardziej "chunky" niż mono) + bardzo delikatny glow
   const pnlText = (isPos?'+':'') + fmt(tr.pnl);
   let pnlFontSize = 106;
-  ctx.font = `800 ${pnlFontSize}px 'JetBrains Mono', monospace`;
+  ctx.font = `700 ${pnlFontSize}px 'Space Grotesk', sans-serif`;
   while(ctx.measureText(pnlText).width > contentW - 8 && pnlFontSize > 54){
     pnlFontSize -= 4;
-    ctx.font = `800 ${pnlFontSize}px 'JetBrains Mono', monospace`;
+    ctx.font = `700 ${pnlFontSize}px 'Space Grotesk', sans-serif`;
   }
   const pnlY = 468;
   ctx.save();
-  ctx.filter = 'blur(18px)';
-  ctx.fillStyle = rgbaFromHex(accentColor, 0.5);
+  ctx.filter = 'blur(12px)';
+  ctx.fillStyle = rgbaFromHex(accentColor, 0.20);
   ctx.fillText(pnlText, padX-4, pnlY);
   ctx.restore();
   ctx.fillStyle = accentColor;
@@ -4487,7 +4510,7 @@ async function generateTradeShareCard(tr){
     ctx.font = "700 15px 'Inter', sans-serif";
     ctx.fillStyle = 'rgba(117,124,145,0.85)';
     const labelEndX = drawLetterSpaced(ctx, s.label, statX, statY-38, 1.6);
-    ctx.font = "700 28px 'JetBrains Mono', monospace";
+    ctx.font = "700 28px 'Space Grotesk', sans-serif";
     ctx.fillStyle = s.color;
     ctx.fillText(s.value, statX, statY);
     const w = Math.max(labelEndX-statX, ctx.measureText(s.value).width) + 46;
@@ -4911,7 +4934,10 @@ function showScreen(name){
   document.getElementById('screenAccounts').style.display = name==='accounts' ? '' : 'none';
   document.getElementById('screenSettings').style.display = name==='settings' ? '' : 'none';
   document.getElementById('screenPrivacy').style.display = name==='privacy' ? '' : 'none';
-  if(name!=='main') document.getElementById('addTradeBtn').style.display = 'none';
+  if(name!=='main'){
+    document.getElementById('addTradeBtn').style.display = 'none';
+    document.getElementById('fabAddTrade').style.display = 'none';
+  }
   window.scrollTo({top:0});
   if(name==='accounts') renderAccountsScreen();
   if(name==='profile') renderProfileScreen();
@@ -4920,6 +4946,7 @@ function showScreen(name){
   if(name==='main'){
     const onTrades = document.getElementById('tab-trades').style.display!=='none';
     document.getElementById('addTradeBtn').style.display = onTrades ? '' : 'none';
+    document.getElementById('fabAddTrade').style.display = onTrades ? '' : 'none';
     setActiveDrawerNav(onTrades ? 'trades' : 'stats');
   }
 }
@@ -5378,6 +5405,7 @@ function applyStaticTexts(){
     btn.setAttribute('aria-label', t('confidence') + ' ' + btn.dataset.val);
   });
   document.getElementById('menuBtn').setAttribute('aria-label', t('menu'));
+  document.getElementById('fabAddTrade').setAttribute('aria-label', t('addTrade'));
   document.getElementById('lightboxClose').setAttribute('aria-label', t('closeLabel'));
   document.getElementById('lightboxPrev').setAttribute('aria-label', t('prevImageLabel'));
   document.getElementById('lightboxNext').setAttribute('aria-label', t('nextImageLabel'));
