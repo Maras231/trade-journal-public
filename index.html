@@ -103,6 +103,16 @@ body{
   overscroll-behavior-y:contain;
 }
 @keyframes pageIn{from{opacity:0;}to{opacity:1;}}
+/* delikatna animacja "wjazdu" dla elementów siatek (kafelki miesięcy, kont, wiersze
+   transakcji) - każdy element dostaje niewielkie opóźnienie liczone z JS (--stagger-i),
+   dzięki czemu cała lista "wchodzi" falą zamiast pojawiać się od razu w komplecie */
+.stagger-in{
+  opacity:0;
+  animation:staggerIn .42s var(--ease) forwards;
+  animation-delay:calc(var(--stagger-i, 0) * 28ms);
+}
+@keyframes staggerIn{from{opacity:0;transform:translateY(9px);}to{opacity:1;transform:translateY(0);}}
+@media(prefers-reduced-motion:reduce){.stagger-in{animation:none;opacity:1;}}
 ::-webkit-scrollbar{width:9px;height:9px;}
 ::-webkit-scrollbar-track{background:transparent;}
 ::-webkit-scrollbar-thumb{background:var(--scrollbar-thumb);border-radius:8px;border:2px solid var(--bg);background-clip:padding-box;}
@@ -3753,12 +3763,12 @@ function renderMonthsSummary(){
     // ---- widok folderów lat ----
     backBtn.style.display = 'none';
     titleEl.textContent = t('monthsSummaryTitle');
-    grid.innerHTML = years.map(year=>{
+    grid.innerHTML = years.map((year,i)=>{
       const monthKeys = yearsMap[year];
       let yearTrades = [];
       monthKeys.forEach(k=> yearTrades = yearTrades.concat(map[k]));
       const s = computeMonthStats(yearTrades);
-      return `<div class="month-card year-card" data-year="${year}">
+      return `<div class="month-card year-card stagger-in" style="--stagger-i:${i}" data-year="${year}">
         <div class="m-name">${year}</div>
         <div class="m-pnl ${s.totalPnl>=0?'pos':'neg'}">${fmt(s.totalPnl)}</div>
         <div class="m-sub">${monthKeys.length} ${t('monthsShort').toLowerCase()} · ${s.total} ${tradesWordLower(s.total)}</div>
@@ -3781,11 +3791,11 @@ function renderMonthsSummary(){
   titleEl.textContent = selectedSummaryYear;
 
   const monthKeys = yearsMap[selectedSummaryYear].sort();
-  grid.innerHTML = monthKeys.map(key=>{
+  grid.innerHTML = monthKeys.map((key,i)=>{
     const [,m] = key.split('-');
     const name = monthNames()[parseInt(m,10)-1];
     const s = computeMonthStats(map[key]);
-    return `<div class="month-card ${key===selectedSummaryMonth?'active':''}" data-month="${key}">
+    return `<div class="month-card stagger-in ${key===selectedSummaryMonth?'active':''}" style="--stagger-i:${i}" data-month="${key}">
       <div class="m-name">${name}</div>
       <div class="m-pnl ${s.totalPnl>=0?'pos':'neg'}">${fmt(s.totalPnl)}</div>
       <div class="m-sub">${s.total} ${tradesWordLower(s.total)} · WR ${s.total? s.winRate.toFixed(0):'0'}%</div>
@@ -4155,8 +4165,8 @@ function renderTradesTable(){
       <th></th><th>${t('date')}</th><th>Symbol</th><th>${t('direction')}</th><th>${t('confidence')}</th><th>${displayMode==='rr'?'RR':'P/L'}</th><th></th>
     </tr></thead>
     <tbody>
-      ${pageList.map(t2=>`
-        <tr class="trade-row-clickable" data-tradeid="${t2.id}">
+      ${pageList.map((t2,i)=>`
+        <tr class="trade-row-clickable stagger-in" style="--stagger-i:${i}" data-tradeid="${t2.id}">
           <td>${getTradeImages(t2)[0] ? `<img class="thumb" src="${imageUrl(getTradeImages(t2)[0])}">` : ''}</td>
           <td style="font-family:'Inter',sans-serif;">${fmtDateWords(t2.date)}</td>
           <td><strong>${t2.symbol}</strong></td>
@@ -4983,11 +4993,11 @@ function renderAccountsScreen(){
     </div>`;
 
   const grid = document.getElementById('accountsGrid');
-  const tiles = accounts.map(a=>{
+  const tiles = accounts.map((a,i)=>{
     const accTrades = allTrades.filter(tr=>tr.accountId===a.id);
     const pnl = accTrades.reduce((s,tr)=>s+tr.pnl,0);
     const live = a.balance + pnl;
-    return `<div class="account-tile ${a.id===currentAccountId?'active':''}" data-account="${a.id}">
+    return `<div class="account-tile stagger-in ${a.id===currentAccountId?'active':''}" style="--stagger-i:${i}" data-account="${a.id}">
       ${a.id===currentAccountId ? `<span class="a-badge">${t('activeAccount')}</span>` : ''}
       <div class="a-name">${escapeHtml(a.name)}</div>
       <div class="a-balance ${live>=a.balance?'pos':'neg'}">${fmt(live)}</div>
