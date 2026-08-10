@@ -1148,16 +1148,33 @@ table.tradelist tr:hover td{background:var(--surface2);}
 }
 .panel-subtitle.danger{color:var(--loss);}
 
-/* siatka osiągnięć w Profilu - odznaki odblokowane (kolor) vs zablokowane (wygaszone) */
-.achievements-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;flex-wrap:wrap;gap:6px;}
+/* wiersz "Osiągnięcia" w Profilu - klikalny, otwiera overlay */
+.achievements-row{
+  width:100%;display:flex;align-items:center;justify-content:space-between;gap:10px;
+  background:none;border:none;cursor:pointer;padding:4px 0;color:var(--text);font-family:'Inter',sans-serif;
+}
+.achievements-row-left{display:flex;align-items:center;gap:10px;font-size:13.5px;font-weight:600;}
+.achievements-row-icon{
+  width:30px;height:30px;border-radius:8px;flex:none;display:flex;align-items:center;justify-content:center;
+  background:var(--gold-dim);color:var(--gold);
+}
+.achievements-row-icon svg{width:16px;height:16px;}
+.achievements-row-right{display:flex;align-items:center;gap:8px;color:var(--muted);}
+.achievements-row-right svg{width:16px;height:16px;transition:transform .15s var(--ease);}
+.achievements-row:hover .achievements-row-right svg{transform:translateX(2px);}
+
+/* overlay osiągnięć - tło (Profil) przygaszone z tyłu przez .modal-overlay, tak jak reszta modali */
+.achievements-modal{max-width:480px;}
+.achievements-modal-head{display:flex;align-items:center;gap:10px;margin-bottom:18px;}
+.achievements-modal-head h2{margin-bottom:0;}
 .achievements-progress{font-size:11.5px;color:var(--muted);font-family:'JetBrains Mono',monospace;}
 .achievements-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(84px,1fr));gap:12px;}
 .achievement-badge{
   display:flex;flex-direction:column;align-items:center;gap:6px;text-align:center;
-  padding:10px 4px;border-radius:12px;cursor:default;
-  transition:transform .15s var(--ease);
+  padding:10px 4px;border-radius:12px;cursor:pointer;border:none;background:none;font-family:'Inter',sans-serif;
+  transition:transform .15s var(--ease),background .15s var(--ease);
 }
-.achievement-badge:hover{transform:translateY(-2px);}
+.achievement-badge:hover{transform:translateY(-2px);background:var(--surface2);}
 .achievement-badge-icon{
   width:44px;height:44px;border-radius:50%;display:flex;align-items:center;justify-content:center;
   background:var(--surface2);border:1px solid var(--border);color:var(--muted);
@@ -1170,6 +1187,24 @@ table.tradelist tr:hover td{background:var(--surface2);}
 }
 .achievement-badge-name{font-size:10.5px;font-weight:600;color:var(--muted);line-height:1.25;}
 .achievement-badge.unlocked .achievement-badge-name{color:var(--text);}
+
+/* widok szczegółu pojedynczej odznaki wewnątrz tego samego overlaya */
+.achievement-detail-icon{
+  width:84px;height:84px;border-radius:50%;margin:6px auto 18px;display:flex;align-items:center;justify-content:center;
+  background:var(--surface2);border:1px solid var(--border);color:var(--muted);
+}
+.achievement-detail-icon.unlocked{
+  background:linear-gradient(135deg,var(--gold),#c98f2b);border-color:transparent;color:#151102;box-shadow:var(--shadow-gold);
+}
+.achievement-detail-icon svg{width:38px;height:38px;}
+.achievement-detail-name{font-family:'Space Grotesk',sans-serif;font-size:18px;font-weight:700;text-align:center;margin-bottom:8px;}
+.achievement-detail-desc{font-size:13.5px;color:var(--text);text-align:center;line-height:1.55;margin-bottom:16px;}
+.achievement-detail-status{
+  font-size:12px;font-weight:600;text-align:center;padding:8px 14px;border-radius:20px;
+  display:block;width:fit-content;margin:0 auto;
+}
+.achievement-detail-status.unlocked{background:var(--gold-dim);color:var(--gold);}
+.achievement-detail-status.locked{background:var(--surface2);color:var(--muted);}
 
 .profile-hero{
   display:flex;align-items:center;gap:16px;
@@ -1743,11 +1778,18 @@ table.tradelist tr:hover td{background:var(--surface2);}
   </div>
 
   <div class="panel" style="max-width:520px;margin-top:14px;">
-    <div class="achievements-head">
-      <div class="panel-subtitle" id="achievementsTitle" style="margin-bottom:0;">Osiągnięcia</div>
-      <span class="achievements-progress" id="achievementsProgress"></span>
-    </div>
-    <div class="achievements-grid" id="achievementsGrid"></div>
+    <button type="button" class="achievements-row" id="openAchievementsBtn">
+      <span class="achievements-row-left">
+        <span class="achievements-row-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="6"/><path d="M9 13.5 7 22l5-3 5 3-2-8.5"/></svg>
+        </span>
+        <span id="achievementsRowLabel">Osiągnięcia</span>
+      </span>
+      <span class="achievements-row-right">
+        <span class="achievements-progress" id="achievementsProgress"></span>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+      </span>
+    </button>
   </div>
 
   <div class="panel" id="profilePasswordPanel" style="max-width:520px;margin-top:14px;">
@@ -2030,6 +2072,30 @@ table.tradelist tr:hover td{background:var(--surface2);}
   </div>
 </div>
 
+<!-- ACHIEVEMENTS OVERLAY - tło (Profil) przygaszone/rozmyte z tyłu, tak jak reszta modali w appce -->
+<div class="modal-overlay" id="achievementsOverlay">
+  <div class="modal achievements-modal">
+    <button class="close-x" id="closeAchievementsOverlay">✕</button>
+    <div class="achievements-modal-head">
+      <button type="button" class="screen-back" id="achievementsBackBtn" style="display:none;">‹</button>
+      <h2 id="achievementsModalTitle">Osiągnięcia</h2>
+    </div>
+
+    <div id="achievementsGridView">
+      <div class="achievements-grid" id="achievementsGrid"></div>
+    </div>
+
+    <div id="achievementsDetailView" style="display:none;">
+      <div class="achievement-detail-icon" id="achievementDetailIcon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="6"/><path d="M9 13.5 7 22l5-3 5 3-2-8.5"/></svg>
+      </div>
+      <div class="achievement-detail-name" id="achievementDetailName"></div>
+      <div class="achievement-detail-desc" id="achievementDetailDesc"></div>
+      <div class="achievement-detail-status" id="achievementDetailStatus"></div>
+    </div>
+  </div>
+</div>
+
 <!-- TRADE DETAIL MODAL -->
 <div class="modal-overlay" id="tradeDetailOverlay">
   <div class="modal" style="max-width:640px;">
@@ -2284,6 +2350,7 @@ const I18N = {
     profileLoginStreakLabel:'Streak logowania', loginStreakDays:'dni z rzędu', loginStreakDay:'dzień',
     achievementsTitle:'Osiągnięcia', achievementsProgressTemplate:'{n}/{total} odblokowanych',
     achievementUnlockedTitle:'Odznaka odblokowana!',
+    achievementUnlockedOn:'Odblokowano:', achievementLocked:'Zablokowane',
     achFirstTradeName:'Pierwszy krok', achFirstTradeDesc:'Dodaj swoją pierwszą transakcję',
     achTrades10Name:'Rozpędzony', achTrades10Desc:'Zapisz 10 transakcji',
     achTrades50Name:'Weteran', achTrades50Desc:'Zapisz 50 transakcji',
@@ -2435,6 +2502,7 @@ const I18N = {
     profileLoginStreakLabel:'Login streak', loginStreakDays:'days in a row', loginStreakDay:'day',
     achievementsTitle:'Achievements', achievementsProgressTemplate:'{n}/{total} unlocked',
     achievementUnlockedTitle:'Achievement unlocked!',
+    achievementUnlockedOn:'Unlocked:', achievementLocked:'Locked',
     achFirstTradeName:'First Step', achFirstTradeDesc:'Log your first trade',
     achTrades10Name:'Getting Started', achTrades10Desc:'Log 10 trades',
     achTrades50Name:'Veteran', achTrades50Desc:'Log 50 trades',
@@ -2586,6 +2654,7 @@ const I18N = {
     profileLoginStreakLabel:'Anmelde-Streak', loginStreakDays:'Tage in Folge', loginStreakDay:'Tag',
     achievementsTitle:'Erfolge', achievementsProgressTemplate:'{n}/{total} freigeschaltet',
     achievementUnlockedTitle:'Erfolg freigeschaltet!',
+    achievementUnlockedOn:'Freigeschaltet:', achievementLocked:'Gesperrt',
     achFirstTradeName:'Erster Schritt', achFirstTradeDesc:'Erfasse deinen ersten Trade',
     achTrades10Name:'In Fahrt', achTrades10Desc:'Erfasse 10 Trades',
     achTrades50Name:'Veteran', achTrades50Desc:'Erfasse 50 Trades',
@@ -3165,8 +3234,15 @@ const ACHIEVEMENTS = [
   { id:'streak_30', nameKey:'achStreak30Name', descKey:'achStreak30Desc', check:ctx=> ctx.loginStreak>=30 },
   { id:'multi_account', nameKey:'achMultiAccountName', descKey:'achMultiAccountDesc', check:ctx=> ctx.accounts.length>=2 },
   { id:'profitable_month', nameKey:'achProfitableMonthName', descKey:'achProfitableMonthDesc', check:ctx=>{
+      // liczy się TYLKO miesiąc, który się już zakończył - bieżący, trwający miesiąc jest
+      // celowo pomijany, nawet jeśli chwilowo jest na plusie (mógłby jeszcze spaść do końca miesiąca)
+      const currentMonthKey = new Date().toISOString().slice(0,7);
       const byMonth = {};
-      ctx.allTrades.forEach(tr=>{ const k=tr.date.slice(0,7); byMonth[k]=(byMonth[k]||0)+tr.pnl; });
+      ctx.allTrades.forEach(tr=>{
+        const k = tr.date.slice(0,7);
+        if(k === currentMonthKey) return;
+        byMonth[k] = (byMonth[k]||0) + tr.pnl;
+      });
       return Object.values(byMonth).some(v=>v>0);
   }},
   { id:'detailed_notes', nameKey:'achDetailedNotesName', descKey:'achDetailedNotesDesc', check:ctx=> ctx.allTrades.some(tr=>(tr.notes||'').length>100) },
@@ -3229,18 +3305,65 @@ function renderAchievements(){
   if(!grid || !currentUser) return;
   const earned = (currentUser.user_metadata && currentUser.user_metadata.achievements) || {};
   const unlockedCount = ACHIEVEMENTS.filter(def=>earned[def.id]).length;
-  document.getElementById('achievementsProgress').textContent =
-    t('achievementsProgressTemplate').replace('{n}', unlockedCount).replace('{total}', ACHIEVEMENTS.length);
+  const progressText = t('achievementsProgressTemplate').replace('{n}', unlockedCount).replace('{total}', ACHIEVEMENTS.length);
+  const progressEl = document.getElementById('achievementsProgress');
+  if(progressEl) progressEl.textContent = progressText;
   const badgeSvg = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="6"/><path d="M9 13.5 7 22l5-3 5 3-2-8.5"/></svg>';
   grid.innerHTML = ACHIEVEMENTS.map(def=>{
     const unlocked = !!earned[def.id];
-    const title = `${t(def.nameKey)} — ${t(def.descKey)}`;
-    return `<div class="achievement-badge${unlocked?' unlocked':''}" title="${escapeHtml(title)}">
+    return `<button type="button" class="achievement-badge${unlocked?' unlocked':''}" data-achievement="${def.id}">
       <div class="achievement-badge-icon">${badgeSvg}</div>
       <div class="achievement-badge-name">${escapeHtml(t(def.nameKey))}</div>
-    </div>`;
+    </button>`;
   }).join('');
+  grid.querySelectorAll('[data-achievement]').forEach(btn=>{
+    btn.addEventListener('click', ()=> showAchievementDetail(btn.dataset.achievement));
+  });
 }
+
+/* ============ OVERLAY OSIĄGNIĘĆ (siatka + widok szczegółu jednej odznaki) ============ */
+function openAchievementsOverlay(){
+  renderAchievements();
+  showAchievementsGridView();
+  document.getElementById('achievementsOverlay').classList.add('open');
+}
+function closeAchievementsOverlay(){
+  document.getElementById('achievementsOverlay').classList.remove('open');
+}
+function showAchievementsGridView(){
+  document.getElementById('achievementsGridView').style.display = '';
+  document.getElementById('achievementsDetailView').style.display = 'none';
+  document.getElementById('achievementsBackBtn').style.display = 'none';
+  document.getElementById('achievementsModalTitle').textContent = t('achievementsTitle');
+}
+function showAchievementDetail(id){
+  const def = ACHIEVEMENTS.find(d=>d.id===id);
+  if(!def) return;
+  const earned = (currentUser.user_metadata && currentUser.user_metadata.achievements) || {};
+  const earnedAt = earned[def.id];
+  document.getElementById('achievementsGridView').style.display = 'none';
+  document.getElementById('achievementsDetailView').style.display = '';
+  document.getElementById('achievementsBackBtn').style.display = '';
+  document.getElementById('achievementsModalTitle').textContent = t(def.nameKey);
+
+  const iconEl = document.getElementById('achievementDetailIcon');
+  iconEl.classList.toggle('unlocked', !!earnedAt);
+  document.getElementById('achievementDetailName').textContent = t(def.nameKey);
+  document.getElementById('achievementDetailDesc').textContent = t(def.descKey);
+  const statusEl = document.getElementById('achievementDetailStatus');
+  if(earnedAt){
+    statusEl.className = 'achievement-detail-status unlocked';
+    const d = new Date(earnedAt);
+    statusEl.textContent = t('achievementUnlockedOn') + ' ' + d.toLocaleDateString(currentLang==='pl'?'pl-PL':(currentLang==='de'?'de-DE':'en-US'), {year:'numeric', month:'long', day:'numeric'});
+  } else {
+    statusEl.className = 'achievement-detail-status locked';
+    statusEl.textContent = t('achievementLocked');
+  }
+}
+document.getElementById('openAchievementsBtn').addEventListener('click', openAchievementsOverlay);
+document.getElementById('closeAchievementsOverlay').addEventListener('click', closeAchievementsOverlay);
+document.getElementById('achievementsOverlay').addEventListener('click', e=>{ if(e.target.id==='achievementsOverlay') closeAchievementsOverlay(); });
+document.getElementById('achievementsBackBtn').addEventListener('click', showAchievementsGridView);
 
 async function initAuth(){
   const sessionPromise = sb.auth.getSession();
@@ -5875,7 +5998,7 @@ function applyStaticTexts(){
   document.getElementById('lightboxNext').setAttribute('aria-label', t('nextImageLabel'));
   document.getElementById('profileTotalTradesLabel').textContent = t('profileTotalTradesLabel');
   document.getElementById('profileLoginStreakLabel').textContent = t('profileLoginStreakLabel');
-  document.getElementById('achievementsTitle').textContent = t('achievementsTitle');
+  document.getElementById('achievementsRowLabel').textContent = t('achievementsTitle');
   document.getElementById('profilePasswordTitle').textContent = t('profilePasswordTitle');
   document.getElementById('profileNewPasswordLabel').textContent = t('profileNewPasswordLabel');
   document.getElementById('profileConfirmPasswordLabel').textContent = t('profileConfirmPasswordLabel');
@@ -5895,6 +6018,7 @@ function applyLanguage(){
     if(document.getElementById('screenPrivacy').style.display !== 'none') renderPrivacyScreen();
     if(document.getElementById('screenSettings').style.display !== 'none') renderSettingsScreen();
     if(document.getElementById('screenProfile').style.display !== 'none') renderProfileScreen();
+    if(document.getElementById('achievementsOverlay').classList.contains('open')) renderAchievements();
   }
 }
 
