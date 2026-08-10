@@ -4756,6 +4756,7 @@ function updateBulkActionsBar(){
 }
 function clearTradeSelection(){
   selectedTradeIds.clear();
+  document.querySelectorAll('.trade-select-cb, .trade-select-all').forEach(cb=>{ cb.checked = false; });
   updateBulkActionsBar();
 }
 
