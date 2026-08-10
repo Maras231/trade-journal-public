@@ -1057,6 +1057,14 @@ table.tradelist tr:hover td{background:var(--surface2);}
 }
 .drawer-account-empty{color:var(--muted);font-size:12.5px;}
 
+/* cytat dnia w szufladzie - ten sam cytat przez cały dzień (losowany deterministycznie
+   z dzisiejszej daty), znika sam po zmianie dnia. Celowo tylko po angielsku i tylko tutaj -
+   nie wchodzi w drogę żadnej realnej funkcji appki. */
+.drawer-quote{
+  padding:0 20px 16px;margin:-2px 16px 14px;border-bottom:1px solid var(--border);
+  font-size:12px;font-style:italic;color:var(--muted);line-height:1.45;
+}
+
 .drawer-nav{display:flex;flex-direction:column;padding:6px 12px;gap:2px;}
 .drawer-nav button{
   display:flex;align-items:center;justify-content:space-between;gap:10px;
@@ -1547,6 +1555,7 @@ table.tradelist tr:hover td{background:var(--surface2);}
       <div class="drawer-account-balance" id="drawerAccountBalance"></div>
     </div>
   </div>
+  <div class="drawer-quote" id="drawerQuote"></div>
   <div class="drawer-nav">
     <button type="button" data-screen="profile">
       <span id="drawerNavProfile">Profil</span>
@@ -5604,6 +5613,116 @@ document.querySelectorAll('.drawer-nav button[data-screen]').forEach(btn=>{
   });
 });
 
+// cytat dnia w szufladzie - zawsze tylko po angielsku (tak jak w oryginalnym pomyśle),
+// losowany deterministycznie z dzisiejszej daty, więc jest ten sam cały dzień i zmienia
+// się dopiero następnego dnia, zamiast migać innym cytatem przy każdym otwarciu appki
+const DAILY_QUOTES = [
+  "It's going to happen because you're going to make it happen.",
+  "Remember why you started.",
+  "You were born to win.",
+  "Sometimes you win, sometimes you learn.",
+  "Trust the process.",
+  "You won't stop until you win.",
+  "Your limit is your mind.",
+  "It's you vs you.",
+  "To become the person you want, you must destroy the person you are.",
+  "Discipline is doing what you don't want to do, when you don't want to do it.",
+  "Don't wish for it, work for it.",
+  "Dream big, work harder.",
+  "You're a winner.",
+  "You vs you.",
+  "You always win.",
+  "Do it for your future self.",
+  "You can.",
+  "Sweat now, shine later.",
+  "No excuses, just results.",
+  "Your pain is temporary, quitting lasts forever.",
+  "You outwork everyone.",
+  "Stay hungry, stay humble.",
+  "Your consistency beats motivation.",
+  "You take small steps every day.",
+  "You prove them wrong.",
+  "You fall seven times, stand up eight.",
+  "Your hard work beats talent when talent doesn't work hard.",
+  "Be stronger than your excuses.",
+  "Your grind never stops.",
+  "You chase the vision, not the money.",
+  "You focus on the goal, not the obstacle.",
+  "Make today count.",
+  "Your only limit is you.",
+  "You earn your success, it's not given.",
+  "You rise and grind.",
+  "Comfort is the enemy of your growth.",
+  "Push yourself, no one else will.",
+  "Your dreams don't work unless you do.",
+  "Stay focused, stay dangerous.",
+  "Never settle for less.",
+  "Your discomfort today is freedom tomorrow.",
+  "You work in silence, let your success speak.",
+  "Be relentless.",
+  "You earn it.",
+  "You sacrifice now, celebrate later.",
+  "Nothing worth having comes easy to you.",
+  "Turn your pain into power.",
+  "You've got one more rep, one more try.",
+  "Great things never came from your comfort zone.",
+  "Your doubt kills more dreams than failure ever will.",
+  "Show up, even when you don't feel like it.",
+  "You're built when no one is watching.",
+  "Get comfortable being uncomfortable.",
+  "The pain you feel today is the strength you'll feel tomorrow.",
+  "Your future is created by what you do today.",
+  "You weren't born a winner, you became one.",
+  "No shortcuts, no excuses.",
+  "Be the hardest worker in the room.",
+  "Success starts with self-discipline.",
+  "Believe it, then you'll achieve it.",
+  "Fake it, until you make it.",
+  "Your actions beat your intentions.",
+  "Don't stop when you're tired, stop when you're done.",
+  "Compete with yesterday's version of you.",
+  "Your fear is temporary, regret is forever.",
+  "You wake up with determination, go to bed with satisfaction.",
+  "Hustle in silence, let your success make the noise.",
+  "There's no elevator to success, you take the stairs.",
+  "Work hard in silence, let your success be the noise.",
+  "Be so good they can't ignore you.",
+  "Progress, not perfection.",
+  "What you do today shapes who you become tomorrow.",
+  "Never give up on your dream just because of the time it will take to accomplish it.",
+  "Difficult roads often lead to beautiful destinations.",
+  "Your motivation gets you started, your discipline keeps you going.",
+  "Do it now, sometimes later becomes never.",
+  "Your success is a series of small wins.",
+  "You get up, you show up, you never give up.",
+  "Get stronger every day.",
+  "Set your goals so big you have to grow into them.",
+  "When you feel like quitting, remember why you started.",
+  "You never quit, because quitters never win.",
+  "Your life begins at the end of the comfort zone.",
+  "Your effort is never wasted.",
+  "Your grind includes losing focus and having to find it again.",
+  "Make your future self proud.",
+  "Silence your doubts with results.",
+  "Your discipline is choosing between what you want now and what you want most.",
+  "Build the life you can't wait to wake up to.",
+  "Your struggle is proof you haven't given up.",
+  "Your success loves preparation.",
+  "What seems impossible to you today will one day become your warm-up.",
+  "Don't count your days, make your days count.",
+  "Keep going, everything you need will come to you at the perfect time."
+];
+function getDailyQuote(){
+  const todayStr = new Date().toISOString().slice(0,10); // np. "2026-08-10"
+  let hash = 0;
+  for(let i=0;i<todayStr.length;i++){ hash = (hash*31 + todayStr.charCodeAt(i)) >>> 0; }
+  return DAILY_QUOTES[hash % DAILY_QUOTES.length];
+}
+function renderDrawerQuote(){
+  const el = document.getElementById('drawerQuote');
+  if(el) el.textContent = '“' + getDailyQuote() + '”';
+}
+
 function updateDrawerAccountInfo(){
   const acc = accounts.find(a=>a.id===currentAccountId);
   const nameEl = document.getElementById('drawerAccountName');
@@ -6265,6 +6384,7 @@ function maybeHideSplash(){
 }
 
 applyStaticTexts();
+renderDrawerQuote();
 initAuth();
 
 /* ============ PWA: rejestracja service workera ============ */
