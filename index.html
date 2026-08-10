@@ -369,6 +369,24 @@ table.calendar td.week-col.be .week-total{color:#fff;}
   transition:border-color .18s var(--ease);
 }
 .trades-toolbar select:focus{outline:none;border-color:var(--gold);}
+/* pasek akcji masowych - pojawia się dopiero po zaznaczeniu min. 1 transakcji w tabeli */
+.bulk-actions-bar{
+  display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;
+  background:var(--gold-dim);border:1px solid rgba(232,184,75,.3);border-radius:10px;
+  padding:10px 14px;margin-bottom:14px;animation:modalIn .18s var(--ease);
+}
+.bulk-actions-bar .bulk-count{font-size:13px;font-weight:600;color:var(--gold);}
+.bulk-actions-buttons{display:flex;gap:8px;flex-wrap:wrap;}
+.bulk-actions-buttons .btn{padding:8px 14px;font-size:12.5px;}
+.trade-select-cb, .trade-select-all{
+  width:17px;height:17px;cursor:pointer;accent-color:var(--gold);vertical-align:middle;
+}
+table.tradelist td.select-cell, table.tradelist th.select-cell{width:34px;padding-right:0;}
+@media(max-width:768px){
+  .bulk-actions-bar{flex-direction:column;align-items:stretch;}
+  .bulk-actions-buttons{justify-content:stretch;}
+  .bulk-actions-buttons .btn{flex:1;justify-content:center;}
+}
 table.tradelist{width:100%;border-collapse:collapse;}
 table.tradelist th{
   text-align:left;color:var(--muted);font-size:11px;text-transform:uppercase;
@@ -1576,6 +1594,14 @@ table.tradelist tr:hover td{background:var(--surface2);}
         <option value="pnl-asc">P/L ↑</option>
       </select>
     </div>
+    <div class="bulk-actions-bar" id="bulkActionsBar" style="display:none;">
+      <span id="bulkSelectedLabel" class="bulk-count">0</span>
+      <div class="bulk-actions-buttons">
+        <button type="button" class="btn ghost" id="bulkMoveBtn"><span id="bulkMoveBtnText">Przenieś na konto</span></button>
+        <button type="button" class="btn danger" id="bulkDeleteBtn"><span id="bulkDeleteBtnText">Usuń zaznaczone</span></button>
+        <button type="button" class="btn ghost" id="bulkClearBtn"><span id="bulkClearBtnText">Anuluj wybór</span></button>
+      </div>
+    </div>
     <div id="tradesTableWrap">
       <div class="skeleton" style="height:38px;margin-bottom:8px;"></div>
       <div class="skeleton" style="height:38px;margin-bottom:8px;"></div>
@@ -1584,6 +1610,23 @@ table.tradelist tr:hover td{background:var(--surface2);}
     </div>
   </div>
 </section>
+
+<!-- BULK MOVE TO ACCOUNT MODAL -->
+<div class="modal-overlay" id="bulkMoveModalOverlay">
+  <div class="modal" style="max-width:420px;">
+    <button class="close-x" id="closeBulkMoveModal">✕</button>
+    <h2 id="bulkMoveModalTitle">Przenieś transakcje</h2>
+    <div class="field" style="margin-bottom:18px;">
+      <label id="bulkMoveSelectLabel">Wybierz konto docelowe</label>
+      <select id="bulkMoveAccountSelect"></select>
+    </div>
+    <div class="modal-actions">
+      <button type="button" class="btn ghost" id="bulkMoveCancelBtn">Anuluj</button>
+      <button type="button" class="btn primary" id="bulkMoveConfirmBtn">Przenieś</button>
+    </div>
+  </div>
+</div>
+
 
 <section id="tab-months" style="display:none;">
   <div class="panel" id="monthsPanel">
@@ -2196,6 +2239,12 @@ const I18N = {
     menu:'Menu',
     closeLabel:'Zamknij', prevImageLabel:'Poprzednie zdjęcie', nextImageLabel:'Następne zdjęcie',
     rrSignMismatch:'Znak RR musi zgadzać się ze znakiem P/L. Jeśli P/L jest ujemne, RR też musi być ujemne (i odwrotnie dla dodatniego).',
+    bulkMoveBtn:'Przenieś na konto', bulkDeleteBtn:'Usuń zaznaczone', bulkClearBtn:'Anuluj wybór',
+    bulkSelectedTemplate:'Zaznaczono: {n} {word}',
+    confirmBulkDeleteTemplate:'Usunąć {n} {word}? Tej operacji nie da się cofnąć.',
+    bulkMoveModalTitle:'Przenieś transakcje', bulkMoveSelectLabel:'Wybierz konto docelowe', bulkMoveConfirmBtn:'Przenieś',
+    bulkNoOtherAccounts:'Nie masz innego konta, na które można przenieść transakcje.',
+    bulkMovedToast:'Przeniesiono transakcje.', bulkDeletedToast:'Usunięto transakcje.',
   },
   en: {
     tagline:'Your trade journal & analytics',
@@ -2329,6 +2378,12 @@ const I18N = {
     menu:'Menu',
     closeLabel:'Close', prevImageLabel:'Previous image', nextImageLabel:'Next image',
     rrSignMismatch:'The RR sign must match the P/L sign. If P/L is negative, RR must be negative too (and vice versa for positive).',
+    bulkMoveBtn:'Move to account', bulkDeleteBtn:'Delete selected', bulkClearBtn:'Clear selection',
+    bulkSelectedTemplate:'{n} {word} selected',
+    confirmBulkDeleteTemplate:'Delete {n} {word}? This cannot be undone.',
+    bulkMoveModalTitle:'Move trades', bulkMoveSelectLabel:'Select target account', bulkMoveConfirmBtn:'Move',
+    bulkNoOtherAccounts:'You don\'t have another account to move trades to.',
+    bulkMovedToast:'Trades moved.', bulkDeletedToast:'Trades deleted.',
   },
   de: {
     tagline:'Dein Handelstagebuch & Analysen',
@@ -2462,6 +2517,12 @@ const I18N = {
     menu:'Menü',
     closeLabel:'Schließen', prevImageLabel:'Vorheriges Bild', nextImageLabel:'Nächstes Bild',
     rrSignMismatch:'Das Vorzeichen von RR muss zum Vorzeichen von P/L passen. Bei negativem P/L muss auch RR negativ sein (und umgekehrt bei positivem).',
+    bulkMoveBtn:'Auf Konto verschieben', bulkDeleteBtn:'Ausgewählte löschen', bulkClearBtn:'Auswahl aufheben',
+    bulkSelectedTemplate:'{n} {word} ausgewählt',
+    confirmBulkDeleteTemplate:'{n} {word} löschen? Dies kann nicht rückgängig gemacht werden.',
+    bulkMoveModalTitle:'Trades verschieben', bulkMoveSelectLabel:'Zielkonto auswählen', bulkMoveConfirmBtn:'Verschieben',
+    bulkNoOtherAccounts:'Du hast kein anderes Konto, auf das du Trades verschieben könntest.',
+    bulkMovedToast:'Trades verschoben.', bulkDeletedToast:'Trades gelöscht.',
   }
 };
 
@@ -2477,6 +2538,10 @@ function tradesWord(count){
 }
 function tradesWordLower(count){
   return count === 1 ? t('tradesLowerOne') : t('tradesLower');
+}
+// podstawia {n} i {word} w tłumaczonym szablonie zdania (np. "Zaznaczono: {n} {word}")
+function fillTemplate(key, n){
+  return t(key).replace('{n}', n).replace('{word}', tradesWordLower(n));
 }
 function monthNames(){
   return {
@@ -3108,6 +3173,7 @@ function activateTab(tabName){
   document.getElementById('statsRow').style.display = tabName==='trades' ? 'none' : '';
   document.getElementById('statsSubNav').style.display = tabName==='trades' ? 'none' : '';
   document.getElementById('fabAddTrade').style.display = tabName==='trades' ? '' : 'none';
+  if(tabName!=='trades') clearTradeSelection();
   document.querySelectorAll('#statsSubNav button').forEach(b=> b.classList.toggle('active', b.dataset.tab===tabName));
   setActiveDrawerNav(tabName==='trades' ? 'trades' : 'stats');
   if(tabName==='trades') renderTradesTable();
@@ -4186,6 +4252,18 @@ function escapeHtml(str){
 }
 const TRADES_PER_PAGE = 10;
 let tradesPage = 1;
+let selectedTradeIds = new Set();
+
+function updateBulkActionsBar(){
+  const bar = document.getElementById('bulkActionsBar');
+  const n = selectedTradeIds.size;
+  bar.style.display = n>0 ? '' : 'none';
+  if(n>0) document.getElementById('bulkSelectedLabel').textContent = fillTemplate('bulkSelectedTemplate', n);
+}
+function clearTradeSelection(){
+  selectedTradeIds.clear();
+  updateBulkActionsBar();
+}
 
 function renderTradesTable(){
   const search = document.getElementById('searchInput').value.toLowerCase();
@@ -4208,6 +4286,7 @@ function renderTradesTable(){
   const wrap = document.getElementById('tradesTableWrap');
   if(!list.length){
     wrap.innerHTML = `<div class="empty-state"><div class="big">${t('noTrades')}</div>${t('noTradesSub')}</div>`;
+    updateBulkActionsBar();
     return;
   }
 
@@ -4216,14 +4295,17 @@ function renderTradesTable(){
   if(tradesPage < 1) tradesPage = 1;
   const startIdx = (tradesPage-1) * TRADES_PER_PAGE;
   const pageList = list.slice(startIdx, startIdx + TRADES_PER_PAGE);
+  const allPageSelected = pageList.length>0 && pageList.every(t2=>selectedTradeIds.has(t2.id));
 
   wrap.innerHTML = `<table class="tradelist">
     <thead><tr>
+      <th class="select-cell"><input type="checkbox" class="trade-select-all" id="tradeSelectAll" ${allPageSelected?'checked':''}></th>
       <th></th><th>${t('date')}</th><th>Symbol</th><th>${t('direction')}</th><th>${t('confidence')}</th><th>${displayMode==='rr'?'RR':'P/L'}</th><th></th>
     </tr></thead>
     <tbody>
       ${pageList.map((t2,i)=>`
         <tr class="trade-row-clickable stagger-in" style="--stagger-i:${i}" data-tradeid="${t2.id}">
+          <td class="select-cell"><input type="checkbox" class="trade-select-cb" data-id="${t2.id}" ${selectedTradeIds.has(t2.id)?'checked':''}></td>
           <td>${getTradeImages(t2)[0] ? `<img class="thumb" src="${imageUrl(getTradeImages(t2)[0])}">` : ''}</td>
           <td style="font-family:'Inter',sans-serif;">${fmtDateWords(t2.date)}</td>
           <td><strong>${t2.symbol}</strong></td>
@@ -4255,7 +4337,7 @@ function renderTradesTable(){
 
   wrap.querySelectorAll('tr[data-tradeid]').forEach(row=>{
     row.addEventListener('click', (e)=>{
-      if(e.target.closest('[data-edit]') || e.target.closest('[data-del]')) return;
+      if(e.target.closest('[data-edit]') || e.target.closest('[data-del]') || e.target.closest('.select-cell')) return;
       openTradeDetail(row.dataset.tradeid);
     });
   });
@@ -4265,7 +4347,84 @@ function renderTradesTable(){
   wrap.querySelectorAll('[data-del]').forEach(btn=>{
     btn.addEventListener('click', (e)=>{ e.stopPropagation(); deleteTrade(btn.dataset.del); });
   });
+  wrap.querySelectorAll('.trade-select-cb').forEach(cb=>{
+    cb.addEventListener('click', e=>e.stopPropagation());
+    cb.addEventListener('change', ()=>{
+      if(cb.checked) selectedTradeIds.add(cb.dataset.id);
+      else selectedTradeIds.delete(cb.dataset.id);
+      const selectAllCb = document.getElementById('tradeSelectAll');
+      if(selectAllCb) selectAllCb.checked = pageList.every(t2=>selectedTradeIds.has(t2.id));
+      updateBulkActionsBar();
+    });
+  });
+  const selectAllCb = document.getElementById('tradeSelectAll');
+  if(selectAllCb){
+    selectAllCb.addEventListener('click', e=>e.stopPropagation());
+    selectAllCb.addEventListener('change', ()=>{
+      pageList.forEach(t2=>{
+        if(selectAllCb.checked) selectedTradeIds.add(t2.id);
+        else selectedTradeIds.delete(t2.id);
+      });
+      wrap.querySelectorAll('.trade-select-cb').forEach(cb=>{ cb.checked = selectedTradeIds.has(cb.dataset.id); });
+      updateBulkActionsBar();
+    });
+  }
+  updateBulkActionsBar();
 }
+
+/* ============ AKCJE MASOWE (bulk) NA TRANSAKCJACH ============ */
+document.getElementById('bulkClearBtn').addEventListener('click', clearTradeSelection);
+
+document.getElementById('bulkDeleteBtn').addEventListener('click', async ()=>{
+  const ids = Array.from(selectedTradeIds);
+  if(!ids.length) return;
+  if(!await customConfirm(fillTemplate('confirmBulkDeleteTemplate', ids.length), {danger:true})) return;
+  const toRemove = ids.map(id=>allTrades.find(t=>t.id===id)).filter(Boolean);
+  toRemove.forEach(tr=>{
+    const idx = allTrades.indexOf(tr);
+    if(idx>-1) allTrades.splice(idx,1);
+  });
+  clearTradeSelection();
+  refreshScopedTrades();
+  renderAll();
+  updateDrawerAccountInfo();
+  showSuccessToast(t('bulkDeletedToast'));
+  // kasowanie w bazie i obrazków w tle, nie blokuje UI
+  await Promise.all(toRemove.map(tr=> deleteTradeFromDb(tr.id)));
+  toRemove.forEach(tr=> deleteTradeImages(tr));
+});
+
+function openBulkMoveModal(){
+  if(!selectedTradeIds.size) return;
+  const otherAccounts = accounts.filter(a=>a.id!==currentAccountId);
+  if(!otherAccounts.length){
+    customAlert(t('bulkNoOtherAccounts'));
+    return;
+  }
+  const select = document.getElementById('bulkMoveAccountSelect');
+  select.innerHTML = otherAccounts.map(a=>`<option value="${a.id}">${escapeHtml(a.name)}</option>`).join('');
+  document.getElementById('bulkMoveModalOverlay').classList.add('open');
+}
+function closeBulkMoveModal(){ document.getElementById('bulkMoveModalOverlay').classList.remove('open'); }
+document.getElementById('bulkMoveBtn').addEventListener('click', openBulkMoveModal);
+document.getElementById('closeBulkMoveModal').addEventListener('click', closeBulkMoveModal);
+document.getElementById('bulkMoveCancelBtn').addEventListener('click', closeBulkMoveModal);
+document.getElementById('bulkMoveModalOverlay').addEventListener('click', e=>{ if(e.target.id==='bulkMoveModalOverlay') closeBulkMoveModal(); });
+document.getElementById('bulkMoveConfirmBtn').addEventListener('click', async ()=>{
+  const targetId = document.getElementById('bulkMoveAccountSelect').value;
+  if(!targetId) return;
+  const ids = Array.from(selectedTradeIds);
+  const toMove = ids.map(id=>allTrades.find(t=>t.id===id)).filter(Boolean);
+  toMove.forEach(tr=>{ tr.accountId = targetId; tr.updatedAt = Date.now(); });
+  closeBulkMoveModal();
+  clearTradeSelection();
+  refreshScopedTrades();
+  renderAll();
+  updateDrawerAccountInfo();
+  showSuccessToast(t('bulkMovedToast'));
+  await Promise.all(toMove.map(tr=> saveTradeToDb(tr)));
+});
+
 window.editTrade = function(id){
   const tr = trades.find(x=>x.id===id);
   if(tr) openModal(tr);
@@ -5415,6 +5574,13 @@ function applyStaticTexts(){
   if(sortSel.options[1]) sortSel.options[1].textContent = t('sortDateAsc');
   if(sortSel.options[2]) sortSel.options[2].textContent = t('sortPnlDesc');
   if(sortSel.options[3]) sortSel.options[3].textContent = t('sortPnlAsc');
+  document.getElementById('bulkMoveBtnText').textContent = t('bulkMoveBtn');
+  document.getElementById('bulkDeleteBtnText').textContent = t('bulkDeleteBtn');
+  document.getElementById('bulkClearBtnText').textContent = t('bulkClearBtn');
+  document.getElementById('bulkMoveModalTitle').textContent = t('bulkMoveModalTitle');
+  document.getElementById('bulkMoveSelectLabel').textContent = t('bulkMoveSelectLabel');
+  document.getElementById('bulkMoveConfirmBtn').textContent = t('bulkMoveConfirmBtn');
+  updateBulkActionsBar();
   document.getElementById('fLabelDate').textContent = t('date');
   document.getElementById('fLabelSymbol').textContent = t('symbolLabel');
   document.getElementById('f-symbol').placeholder = t('symbolPlaceholder');
