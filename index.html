@@ -2316,7 +2316,7 @@ const I18N = {
     notesLabel:'Opis / notatki', notesPlaceholder:'Co zadziałało, co poprawić, emocje podczas transakcji...',
     imageLabel:'Zrzut ekranu / wykres',
     dropzoneText:'Kliknij lub przeciągnij obrazek tutaj', dropzoneChange:'Kliknij, aby zmienić obrazek',
-    cancel:'Anuluj', saveTrade:'Zapisz transakcję', clear:'Wyczyść', today:'Dzisiaj', pickDate:'Wybierz datę',
+    cancel:'Anuluj', saveTrade:'Zapisz transakcję', saveGeneric:'Zapisz', clear:'Wyczyść', today:'Dzisiaj', pickDate:'Wybierz datę',
     newTradeTitle:'Nowa transakcja', editTradeTitle:'Edytuj transakcję',
     winRate:'Win Rate', totalPL:'Total P&L', totalRR:'Total RR', winstreak:'Winstreak',
     avgWin:'Avg Win', avgLoss:'Avg Loss', tradesLabel:'Transakcje', tradesLabelOne:'Transakcja', tradesLower:'transakcje', tradesLowerOne:'transakcja',
@@ -2492,7 +2492,7 @@ const I18N = {
     notesLabel:'Description / notes', notesPlaceholder:'What worked, what to improve, emotions during the trade...',
     imageLabel:'Screenshot / chart',
     dropzoneText:'Click or drag an image here', dropzoneChange:'Click to change the image',
-    cancel:'Cancel', saveTrade:'Save trade', clear:'Clear', today:'Today', pickDate:'Pick a date',
+    cancel:'Cancel', saveTrade:'Save trade', saveGeneric:'Save', clear:'Clear', today:'Today', pickDate:'Pick a date',
     newTradeTitle:'New trade', editTradeTitle:'Edit trade',
     winRate:'Win Rate', totalPL:'Total P&L', totalRR:'Total RR', winstreak:'Winstreak',
     avgWin:'Avg Win', avgLoss:'Avg Loss', tradesLabel:'Trades', tradesLabelOne:'Trade', tradesLower:'trades', tradesLowerOne:'trade',
@@ -2667,7 +2667,7 @@ const I18N = {
     notesLabel:'Beschreibung / Notizen', notesPlaceholder:'Was hat funktioniert, was verbessern, Emotionen während des Trades...',
     imageLabel:'Screenshot / Chart',
     dropzoneText:'Klicken oder Bild hierher ziehen', dropzoneChange:'Klicken, um das Bild zu ändern',
-    cancel:'Abbrechen', saveTrade:'Trade speichern', clear:'Löschen', today:'Heute', pickDate:'Datum wählen',
+    cancel:'Abbrechen', saveTrade:'Trade speichern', saveGeneric:'Speichern', clear:'Löschen', today:'Heute', pickDate:'Datum wählen',
     newTradeTitle:'Neuer Trade', editTradeTitle:'Trade bearbeiten',
     winRate:'Win Rate', totalPL:'Gesamt G/V', totalRR:'Gesamt RR', winstreak:'Gewinnserie',
     avgWin:'Ø Gewinn', avgLoss:'Ø Verlust', tradesLabel:'Trades', tradesLabelOne:'Trade', tradesLower:'Trades', tradesLowerOne:'Trade',
@@ -5831,7 +5831,6 @@ const DAILY_QUOTES = [
   "Dream big, work harder.",
   "You're a winner.",
   "You vs you.",
-  "You always win.",
   "Do it for your future self.",
   "You can.",
   "Sweat now, shine later.",
@@ -5840,31 +5839,24 @@ const DAILY_QUOTES = [
   "You outwork everyone.",
   "Stay hungry, stay humble.",
   "Your consistency beats motivation.",
-  "You take small steps every day.",
-  "You prove them wrong.",
-  "You fall seven times, stand up eight.",
-  "Your hard work beats talent when talent doesn't work hard.",
+  "Prove them wrong.",
+  "Fall seven times, stand up eight.",
+  "Hard work beats talent when talent doesn't work hard.",
   "Be stronger than your excuses.",
-  "Your grind never stops.",
-  "You chase the vision, not the money.",
-  "You focus on the goal, not the obstacle.",
-  "Make today count.",
+  "Grind never stops.",
+  "Chase the vision, not the money.",
   "Your only limit is you.",
-  "You earn your success, it's not given.",
-  "You rise and grind.",
+  "Earn your success, it's not given.",
+  "Rise and grind.",
   "Comfort is the enemy of your growth.",
   "Push yourself, no one else will.",
   "Your dreams don't work unless you do.",
-  "Stay focused, stay dangerous.",
   "Never settle for less.",
   "Your discomfort today is freedom tomorrow.",
-  "You work in silence, let your success speak.",
-  "Be relentless.",
-  "You earn it.",
-  "You sacrifice now, celebrate later.",
-  "Nothing worth having comes easy to you.",
+  "Work in silence, let your success speak.",
+  "Earn it.",
+  "Sacrifice now, celebrate later.",
   "Turn your pain into power.",
-  "You've got one more rep, one more try.",
   "Great things never came from your comfort zone.",
   "Your doubt kills more dreams than failure ever will.",
   "Show up, even when you don't feel like it.",
@@ -5893,30 +5885,52 @@ const DAILY_QUOTES = [
   "Difficult roads often lead to beautiful destinations.",
   "Your motivation gets you started, your discipline keeps you going.",
   "Do it now, sometimes later becomes never.",
-  "Your success is a series of small wins.",
-  "You get up, you show up, you never give up.",
+  "Success is a series of small wins.",
+  "Get up, show up, never give up.",
   "Get stronger every day.",
   "Set your goals so big you have to grow into them.",
   "When you feel like quitting, remember why you started.",
   "Never quit, because quitters never win.",
-  "Your life begins at the end of the comfort zone.",
+  "Life begins at the end of the comfort zone.",
   "Your effort is never wasted.",
-  "Your grind includes losing focus and having to find it again.",
+  "Grind includes losing focus and having to find it again.",
   "Make your future self proud.",
   "Silence your doubts with results.",
   "Your discipline is choosing between what you want now and what you want most.",
   "Build the life you can't wait to wake up to.",
   "Your struggle is proof you haven't given up.",
-  "Your success loves preparation.",
   "What seems impossible to you today will one day become your warm-up.",
   "Don't count your days, make your days count.",
-  "Keep going, everything you need will come to you at the perfect time."
+  "Keep going, everything you need will come to you at the perfect time.",
+  "You don't need to be right, you need to be consistent.",
+  "Cut the noise, keep the process.",
+  "The best position is sometimes no position.",
+  "The market will still be here tomorrow."
+  "Consistency turns skill into wealth.",
+  "Discipline is the bridge between goals and results.",
+  "You don't need motivation, you need a routine.",
+  "Discipline is doing it especially when you don't feel like it.",
+  "You're not behind schedule, you're on your own.",
+  "The best trade is sometimes the one you walked away from.",
+  "Your patience today is your profit tomorrow.",
+  "Your best trades come from your calmest mindset.",
+  "Every rule you keep makes the next one easier to keep.",
+  "Your account is a reflection of your habits, not your hopes.",
+  "You're not trying to catch every wave, just the right ones.",
+  "Your process is the only thing you fully control.",
+  "Consistency is what separates hobbyists from professionals.",
+  "You're building a business, not chasing a hobby.",
+  "Every trade you skip on purpose is a trade you won.",
+  "You don't need to be perfect, you need to be disciplined.",
+  "Trust the process even when the results lag behind.",
+  "Your best trading day starts before the market opens.",
+  "You are the risk manager of your own future.",
+  "Your discipline is the only thing the market can never take from you."
 ];
+// losowy cytat przy KAŻDYM wejściu do appki (nie raz na dzień jak wcześniej) -
+// czysty Math.random(), bo nie ma już potrzeby żeby był ten sam cały dzień
 function getDailyQuote(){
-  const todayStr = new Date().toISOString().slice(0,10); // np. "2026-08-10"
-  let hash = 0;
-  for(let i=0;i<todayStr.length;i++){ hash = (hash*31 + todayStr.charCodeAt(i)) >>> 0; }
-  return DAILY_QUOTES[hash % DAILY_QUOTES.length];
+  return DAILY_QUOTES[Math.floor(Math.random() * DAILY_QUOTES.length)];
 }
 function renderDrawerQuote(){
   const el = document.getElementById('drawerQuote');
@@ -6518,7 +6532,7 @@ function applyStaticTexts(){
   document.getElementById('accBalanceLabel').textContent = t('accBalanceLabel');
   document.getElementById('accColorLabel').textContent = t('accColorLabel');
   document.getElementById('accCancelBtn').textContent = t('cancel');
-  document.getElementById('accSaveBtn').textContent = t('saveTrade');
+  document.getElementById('accSaveBtn').textContent = t('saveGeneric');
   document.getElementById('settingsThemeTitle').textContent = t('settingsThemeTitle');
   document.getElementById('settingsThemeSub').textContent = t('settingsThemeSub');
   document.getElementById('settingsLangTitle').textContent = t('settingsLangTitle');
