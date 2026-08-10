@@ -3809,6 +3809,10 @@ function renderMonthDetail(){
   document.getElementById('monthDetailTitle').textContent = `${name} ${y}`;
 
   const s = computeMonthStats(list);
+  // przy tylko jednej "policzalnej" transakcji w miesiącu ta sama pozycja wychodzi
+  // jednocześnie jako best i worst - w takim wypadku "Worst trade" nie ma sensu,
+  // więc pokazujemy go dopiero gdy jest druga, odrębna transakcja do porównania
+  const showWorst = s.worstTrade && s.bestTrade && s.worstTrade.id !== s.bestTrade.id;
   const cards = [
     {label:t('winRate'), value: (s.total-s.beCount)? s.winRate.toFixed(1)+'%':'—', cls:''},
     {label:t('monthTotalPL'), value: fmt(s.totalPnl), cls: s.totalPnl>=0?'pos':'neg'},
@@ -3817,8 +3821,8 @@ function renderMonthDetail(){
     {label:t('wins'), value: s.winsCount, cls:'pos'},
     {label:t('losses'), value: s.lossesCount, cls:'neg'},
     {label:t('breakeven'), value: s.beCount, cls:''},
-    {label:t('bestTrade'), value: s.bestTrade ? `${escapeHtml(s.bestTrade.symbol)} ${fmt(s.bestTrade.pnl)}` : '—', cls: s.bestTrade?'pos':'', tradeId: s.bestTrade?.id},
-    {label:t('worstTrade'), value: s.worstTrade ? `${escapeHtml(s.worstTrade.symbol)} ${fmt(s.worstTrade.pnl)}` : '—', cls: s.worstTrade?'neg':'', tradeId: s.worstTrade?.id},
+    {label:t('bestTrade'), value: s.bestTrade ? `${escapeHtml(s.bestTrade.symbol)} ${fmt(s.bestTrade.pnl)}` : '—', cls: s.bestTrade?(s.bestTrade.pnl>=0?'pos':'neg'):'', tradeId: s.bestTrade?.id},
+    {label:t('worstTrade'), value: showWorst ? `${escapeHtml(s.worstTrade.symbol)} ${fmt(s.worstTrade.pnl)}` : '—', cls: showWorst?(s.worstTrade.pnl>=0?'pos':'neg'):'', tradeId: showWorst?s.worstTrade.id:null},
   ];
   document.getElementById('monthStatsRow').innerHTML = cards.map(c=>`
     <div class="stat-card${c.tradeId?' clickable':''}"${c.tradeId?` data-open-trade="${c.tradeId}"`:''}>
