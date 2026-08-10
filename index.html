@@ -706,12 +706,15 @@ table.tradelist tr:hover td{background:var(--surface2);}
 
 .tour-spotlight{
   position:relative !important;z-index:1001 !important;
-  filter:brightness(1.45) saturate(1.1) !important;
+  background:var(--gold-dim) !important;
   box-shadow:0 0 0 9999px rgba(4,5,9,0.86), 0 0 0 3px var(--gold), 0 0 22px 2px rgba(232,184,75,.55) !important;
   border-radius:14px;
-  transition:box-shadow .35s var(--ease), filter .35s var(--ease);
+  transition:box-shadow .35s var(--ease), background .35s var(--ease);
   animation:tourSpotlightPulse 1.8s ease-in-out infinite;
 }
+/* wymuszony jasny kolor tekstu/ikon podświetlanego elementu - filter:brightness() nie robił
+   różnicy, jeśli tekst już był jasnoszary, więc kolor ustawiamy wprost na białawy */
+.tour-spotlight, .tour-spotlight *{color:#fff !important;}
 @keyframes tourSpotlightPulse{
   0%,100%{box-shadow:0 0 0 9999px rgba(4,5,9,0.86), 0 0 0 3px var(--gold), 0 0 22px 2px rgba(232,184,75,.55);}
   50%{box-shadow:0 0 0 9999px rgba(4,5,9,0.86), 0 0 0 3px var(--gold), 0 0 32px 6px rgba(232,184,75,.35);}
