@@ -4390,10 +4390,10 @@ function shareDrawCandlesticks(ctx, areaX0, areaY0, areaX1, areaY1, accentColor)
   const last = centers[centers.length-1];
   const lastCx = last.x+candleW/2;
   ctx.save();
-  ctx.filter = 'blur(24px)';
-  ctx.fillStyle = rgbaFromHex(accentColor, 0.55);
+  ctx.filter = 'blur(20px)';
+  ctx.fillStyle = rgbaFromHex(accentColor, 0.22);
   ctx.beginPath();
-  ctx.ellipse(lastCx, last.cy, 40, 70, 0, 0, Math.PI*2);
+  ctx.ellipse(lastCx, last.cy, 26, 46, 0, 0, Math.PI*2);
   ctx.fill();
   ctx.restore();
   ctx.fillStyle = accentColor;
