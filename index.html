@@ -799,6 +799,8 @@ table.tradelist tr:hover td{background:var(--surface2);}
 }
 .confidence-stars .star-btn:hover{transform:scale(1.15);}
 .confidence-stars .star-btn.filled{color:var(--gold);text-shadow:0 0 8px rgba(232,184,75,0.5);}
+.confidence-stars .star-btn.star-pop{animation:starPop .32s var(--ease);}
+@keyframes starPop{0%{transform:scale(1);}45%{transform:scale(1.4);}100%{transform:scale(1);}}
 .confidence-stars-readonly{display:inline-flex;gap:1px;font-size:12px;color:var(--star-empty);letter-spacing:1px;}
 .confidence-stars-readonly .filled{color:var(--gold);}
 
@@ -3888,8 +3890,23 @@ async function attemptCloseModal(){
 }
 function setConfidence(val){
   document.getElementById('f-confidence').value = val;
+  const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   document.querySelectorAll('#confidenceStars .star-btn').forEach(btn=>{
-    btn.classList.toggle('filled', Number(btn.dataset.val) <= val);
+    const starVal = Number(btn.dataset.val);
+    const shouldFill = starVal <= val;
+    const wasFilled = btn.classList.contains('filled');
+    btn.classList.toggle('filled', shouldFill);
+    // gwiazdki, które się właśnie zapalają, dostają mały "pop" z opóźnieniem rosnącym
+    // wraz z pozycją - dzięki temu zapalają się po kolei, nie wszystkie naraz
+    if(shouldFill && !wasFilled && !reduceMotion){
+      btn.style.animationDelay = ((starVal-1)*35) + 'ms';
+      btn.classList.remove('star-pop');
+      void btn.offsetWidth;
+      btn.classList.add('star-pop');
+    } else {
+      btn.style.animationDelay = '';
+      btn.classList.remove('star-pop');
+    }
   });
   if(val > 0) document.getElementById('confidencePanel').classList.remove('invalid');
 }
@@ -4712,9 +4729,17 @@ function renderCalendar(){
 
 function renderDayDetail(){
   const box = document.getElementById('dayDetail');
-  if(!selectedDate){ box.innerHTML=''; return; }
+  const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if(!selectedDate){
+    collapseDayDetail(box, reduceMotion);
+    return;
+  }
   const dayTrades = trades.filter(t=>t.date===selectedDate);
-  if(!dayTrades.length){ box.innerHTML = `<div class="dd-title">${t('noTradesOn')} ${selectedDate}</div>`; return; }
+  if(!dayTrades.length){
+    box.innerHTML = `<div class="dd-title">${t('noTradesOn')} ${selectedDate}</div>`;
+    expandDayDetail(box, reduceMotion);
+    return;
+  }
   box.innerHTML = `<div class="dd-title">${tradesWord(dayTrades.length)} · ${selectedDate}</div>` +
     dayTrades.map(t2=>`
       <div class="trade-row-clickable" data-tradeid="${t2.id}" style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-top:1px solid var(--border);">
@@ -4729,10 +4754,62 @@ function renderDayDetail(){
   box.querySelectorAll('[data-tradeid]').forEach(row=>{
     row.addEventListener('click', ()=> openTradeDetail(row.dataset.tradeid));
   });
+  expandDayDetail(box, reduceMotion);
+}
+// panel dnia pod kalendarzem rozwija/zwija się jak akordeon, zamiast po prostu
+// pojawiać/znikać - płynniej pokazuje skąd ta treść "wyszła"
+function expandDayDetail(box, reduceMotion){
+  if(reduceMotion){ box.style.cssText=''; return; }
+  const wasCollapsed = box.dataset.wasEmpty !== '0';
+  if(wasCollapsed){
+    box.style.overflow = 'hidden';
+    box.style.height = '0px';
+    void box.offsetHeight;
+    const target = box.scrollHeight;
+    box.style.transition = 'height .22s var(--ease)';
+    box.style.height = target + 'px';
+  } else {
+    // było już rozwinięte (zmiana wybranego dnia) - dociągamy do nowej wysokości bez cięcia od zera
+    box.style.height = 'auto';
+  }
+  box.dataset.wasEmpty = '0';
+  clearTimeout(box._settleTimeout);
+  box._settleTimeout = setTimeout(()=>{ box.style.height = 'auto'; box.style.overflow = ''; }, 230);
+}
+function collapseDayDetail(box, reduceMotion){
+  if(reduceMotion || !box.innerHTML){ box.style.cssText=''; box.innerHTML=''; box.dataset.wasEmpty='1'; return; }
+  const current = box.scrollHeight;
+  box.style.overflow = 'hidden';
+  box.style.height = current + 'px';
+  void box.offsetHeight;
+  box.style.transition = 'height .18s var(--ease)';
+  box.style.height = '0px';
+  box.dataset.wasEmpty = '1';
+  clearTimeout(box._settleTimeout);
+  box._settleTimeout = setTimeout(()=>{ box.innerHTML = ''; box.style.cssText=''; }, 190);
 }
 
-document.getElementById('prevMonth').addEventListener('click', ()=>{ calDate.setMonth(calDate.getMonth()-1); renderCalendar(); });
-document.getElementById('nextMonth').addEventListener('click', ()=>{ calDate.setMonth(calDate.getMonth()+1); renderCalendar(); });
+document.getElementById('prevMonth').addEventListener('click', ()=>{ calDate.setMonth(calDate.getMonth()-1); navigateCalendar('prev'); });
+document.getElementById('nextMonth').addEventListener('click', ()=>{ calDate.setMonth(calDate.getMonth()+1); navigateCalendar('next'); });
+// przy zmianie miesiąca stary widok wysuwa się w bok, nowy wjeżdża z przeciwnej strony -
+// kierunek animacji sam podpowiada, w którą stronę w czasie się przesunęliśmy
+function navigateCalendar(direction){
+  const table = document.getElementById('calendarTable');
+  if(window.matchMedia('(prefers-reduced-motion: reduce)').matches){ renderCalendar(); return; }
+  const outX = direction==='next' ? '-16px' : '16px';
+  table.style.transition = 'transform .14s var(--ease), opacity .14s var(--ease)';
+  table.style.transform = `translateX(${outX})`;
+  table.style.opacity = '0';
+  setTimeout(()=>{
+    renderCalendar();
+    table.style.transition = 'none';
+    table.style.transform = `translateX(${direction==='next' ? '16px' : '-16px'})`;
+    void table.offsetWidth; // wymuś reflow, żeby przejście zadziałało od nowa
+    table.style.transition = 'transform .18s var(--ease), opacity .18s var(--ease)';
+    table.style.transform = 'translateX(0)';
+    table.style.opacity = '1';
+  }, 140);
+}
 
 /* ============ TRADES TABLE ============ */
 function renderStarsReadonly(val){
@@ -5399,27 +5476,40 @@ async function runShareFlow(btn, generatorFn, filename){
   btn.innerHTML = original;
 }
 
+// płynne usuwanie wiersza transakcji z tabeli - najpierw krótkie zsunięcie+zanik,
+// dopiero potem faktyczne usunięcie danych i przerenderowanie reszty listy
+function animateRowRemoval(row, callback){
+  if(!row || window.matchMedia('(prefers-reduced-motion: reduce)').matches){ callback(); return; }
+  row.style.transition = 'transform .2s var(--ease), opacity .2s var(--ease)';
+  row.style.transform = 'translateX(-18px)';
+  row.style.opacity = '0';
+  setTimeout(callback, 200);
+}
 window.deleteTrade = async function(id){
   const tr = allTrades.find(x=>x.id===id);
   if(!tr) return;
   const idx = allTrades.indexOf(tr);
-  allTrades.splice(idx, 1);
-  refreshScopedTrades();
-  renderAll();
-  updateDrawerAccountInfo();
-  closeTradeDetail();
-  showUndoToast(t('tradeDeletedToast'), 5000,
-    ()=>{
-      deleteTradeFromDb(id);
-      deleteTradeImages(tr);
-    },
-    ()=>{
-      allTrades.splice(idx, 0, tr);
-      refreshScopedTrades();
-      renderAll();
-      updateDrawerAccountInfo();
-    }
-  );
+  const doRemove = ()=>{
+    allTrades.splice(idx, 1);
+    refreshScopedTrades();
+    renderAll();
+    updateDrawerAccountInfo();
+    closeTradeDetail();
+    showUndoToast(t('tradeDeletedToast'), 5000,
+      ()=>{
+        deleteTradeFromDb(id);
+        deleteTradeImages(tr);
+      },
+      ()=>{
+        allTrades.splice(idx, 0, tr);
+        refreshScopedTrades();
+        renderAll();
+        updateDrawerAccountInfo();
+      }
+    );
+  };
+  const row = document.querySelector(`tr.trade-row-clickable[data-tradeid="${id}"]`);
+  animateRowRemoval(row, doRemove);
 };
 
 /* ============ TRADE DETAIL PANEL + LIGHTBOX ============ */
