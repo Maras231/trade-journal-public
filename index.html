@@ -626,6 +626,18 @@ table.tradelist tr:hover td{background:var(--surface2);}
 .toast-progress{
   position:absolute;bottom:0;left:0;height:2px;background:var(--gold);width:100%;
 }
+/* toast odznaki - ten sam spokojny, dolny "pill" co reszta appki, tylko z ikoną medalu.
+   Świadomie NIE jest to nic pełnoekranowego ani modalowego. */
+.achievement-toast{padding:12px 18px 12px 14px;gap:12px;box-shadow:var(--shadow-gold), var(--shadow-lg);border-color:rgba(232,184,75,.4);}
+.achievement-toast-icon{
+  width:38px;height:38px;border-radius:50%;flex:none;
+  background:linear-gradient(135deg,var(--gold),#c98f2b);color:#151102;
+  display:flex;align-items:center;justify-content:center;
+}
+.achievement-toast-icon svg{width:20px;height:20px;}
+.achievement-toast-text{display:flex;flex-direction:column;gap:1px;white-space:nowrap;}
+.achievement-toast-title{font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--gold);}
+.achievement-toast-name{font-size:14px;font-weight:700;color:var(--text);font-family:'Space Grotesk',sans-serif;}
 
 .connection-banner{
   position:fixed;top:0;left:0;right:0;z-index:900;
@@ -1135,6 +1147,29 @@ table.tradelist tr:hover td{background:var(--surface2);}
   color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px;
 }
 .panel-subtitle.danger{color:var(--loss);}
+
+/* siatka osiągnięć w Profilu - odznaki odblokowane (kolor) vs zablokowane (wygaszone) */
+.achievements-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;flex-wrap:wrap;gap:6px;}
+.achievements-progress{font-size:11.5px;color:var(--muted);font-family:'JetBrains Mono',monospace;}
+.achievements-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(84px,1fr));gap:12px;}
+.achievement-badge{
+  display:flex;flex-direction:column;align-items:center;gap:6px;text-align:center;
+  padding:10px 4px;border-radius:12px;cursor:default;
+  transition:transform .15s var(--ease);
+}
+.achievement-badge:hover{transform:translateY(-2px);}
+.achievement-badge-icon{
+  width:44px;height:44px;border-radius:50%;display:flex;align-items:center;justify-content:center;
+  background:var(--surface2);border:1px solid var(--border);color:var(--muted);
+  transition:background .2s var(--ease),border-color .2s var(--ease),color .2s var(--ease);
+}
+.achievement-badge-icon svg{width:22px;height:22px;}
+.achievement-badge.unlocked .achievement-badge-icon{
+  background:linear-gradient(135deg,var(--gold),#c98f2b);border-color:transparent;color:#151102;
+  box-shadow:var(--shadow-gold);
+}
+.achievement-badge-name{font-size:10.5px;font-weight:600;color:var(--muted);line-height:1.25;}
+.achievement-badge.unlocked .achievement-badge-name{color:var(--text);}
 
 .profile-hero{
   display:flex;align-items:center;gap:16px;
@@ -1707,6 +1742,14 @@ table.tradelist tr:hover td{background:var(--surface2);}
     </div>
   </div>
 
+  <div class="panel" style="max-width:520px;margin-top:14px;">
+    <div class="achievements-head">
+      <div class="panel-subtitle" id="achievementsTitle" style="margin-bottom:0;">Osiągnięcia</div>
+      <span class="achievements-progress" id="achievementsProgress"></span>
+    </div>
+    <div class="achievements-grid" id="achievementsGrid"></div>
+  </div>
+
   <div class="panel" id="profilePasswordPanel" style="max-width:520px;margin-top:14px;">
     <div class="panel-subtitle" id="profilePasswordTitle">Zmiana hasła</div>
     <form id="profilePasswordForm">
@@ -2043,6 +2086,18 @@ table.tradelist tr:hover td{background:var(--surface2);}
   <div class="toast-progress" id="undoToastProgress"></div>
 </div>
 
+<!-- ACHIEVEMENT TOAST - czysty, spokojny komunikat, nie na cały ekran -->
+<div class="toast achievement-toast" id="achievementToast">
+  <div class="achievement-toast-icon">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="6"/><path d="M9 13.5 7 22l5-3 5 3-2-8.5"/></svg>
+  </div>
+  <div class="achievement-toast-text">
+    <div class="achievement-toast-title" id="achievementToastTitle">Odznaka odblokowana!</div>
+    <div class="achievement-toast-name" id="achievementToastName"></div>
+  </div>
+  <div class="toast-progress" id="achievementToastProgress"></div>
+</div>
+
 <!-- LIGHTBOX -->
 <div class="lightbox" id="lightbox">
   <button class="lightbox-close" id="lightboxClose" aria-label="Zamknij">✕</button>
@@ -2227,6 +2282,18 @@ const I18N = {
     monthsShort:'Miesiące', weekStartMonday:'Poniedziałek', weekStartSunday:'Niedziela',
     profileTotalTradesLabel:'Łącznie zapisanych transakcji',
     profileLoginStreakLabel:'Streak logowania', loginStreakDays:'dni z rzędu', loginStreakDay:'dzień',
+    achievementsTitle:'Osiągnięcia', achievementsProgressTemplate:'{n}/{total} odblokowanych',
+    achievementUnlockedTitle:'Odznaka odblokowana!',
+    achFirstTradeName:'Pierwszy krok', achFirstTradeDesc:'Dodaj swoją pierwszą transakcję',
+    achTrades10Name:'Rozpędzony', achTrades10Desc:'Zapisz 10 transakcji',
+    achTrades50Name:'Weteran', achTrades50Desc:'Zapisz 50 transakcji',
+    achTrades100Name:'Setka', achTrades100Desc:'Zapisz 100 transakcji',
+    achStreak7Name:'Tydzień z rzędu', achStreak7Desc:'Osiągnij streak logowania 7 dni',
+    achStreak30Name:'Żelazna dyscyplina', achStreak30Desc:'Osiągnij streak logowania 30 dni',
+    achMultiAccountName:'Wiele frontów', achMultiAccountDesc:'Załóż drugie konto handlowe',
+    achProfitableMonthName:'Na plusie', achProfitableMonthDesc:'Zamknij dowolny miesiąc na plusie',
+    achDetailedNotesName:'Analityk', achDetailedNotesDesc:'Napisz szczegółową notatkę (100+ znaków) do transakcji',
+    achScreenshotName:'Dokumentalista', achScreenshotDesc:'Dodaj zrzut ekranu do transakcji',
     profilePasswordTitle:'Zmiana hasła', profileNewPasswordLabel:'Nowe hasło', profileConfirmPasswordLabel:'Powtórz nowe hasło',
     profileChangePasswordBtn:'Zmień hasło',
     loginMethodEmail:'E-mail i hasło', loginMethodGoogle:'Zalogowano przez Google',
@@ -2366,6 +2433,18 @@ const I18N = {
     monthsShort:'Months', weekStartMonday:'Monday', weekStartSunday:'Sunday',
     profileTotalTradesLabel:'Total trades logged',
     profileLoginStreakLabel:'Login streak', loginStreakDays:'days in a row', loginStreakDay:'day',
+    achievementsTitle:'Achievements', achievementsProgressTemplate:'{n}/{total} unlocked',
+    achievementUnlockedTitle:'Achievement unlocked!',
+    achFirstTradeName:'First Step', achFirstTradeDesc:'Log your first trade',
+    achTrades10Name:'Getting Started', achTrades10Desc:'Log 10 trades',
+    achTrades50Name:'Veteran', achTrades50Desc:'Log 50 trades',
+    achTrades100Name:'Century', achTrades100Desc:'Log 100 trades',
+    achStreak7Name:'Weekly Streak', achStreak7Desc:'Reach a 7-day login streak',
+    achStreak30Name:'Iron Discipline', achStreak30Desc:'Reach a 30-day login streak',
+    achMultiAccountName:'Multiple Fronts', achMultiAccountDesc:'Create a second trading account',
+    achProfitableMonthName:'In the Green', achProfitableMonthDesc:'Close any month in profit',
+    achDetailedNotesName:'Analyst', achDetailedNotesDesc:'Write a detailed note (100+ characters) on a trade',
+    achScreenshotName:'Documentarian', achScreenshotDesc:'Attach a screenshot to a trade',
     profilePasswordTitle:'Change password', profileNewPasswordLabel:'New password', profileConfirmPasswordLabel:'Confirm new password',
     profileChangePasswordBtn:'Change password',
     loginMethodEmail:'Email and password', loginMethodGoogle:'Signed in with Google',
@@ -2505,6 +2584,18 @@ const I18N = {
     monthsShort:'Monate', weekStartMonday:'Montag', weekStartSunday:'Sonntag',
     profileTotalTradesLabel:'Insgesamt erfasste Trades',
     profileLoginStreakLabel:'Anmelde-Streak', loginStreakDays:'Tage in Folge', loginStreakDay:'Tag',
+    achievementsTitle:'Erfolge', achievementsProgressTemplate:'{n}/{total} freigeschaltet',
+    achievementUnlockedTitle:'Erfolg freigeschaltet!',
+    achFirstTradeName:'Erster Schritt', achFirstTradeDesc:'Erfasse deinen ersten Trade',
+    achTrades10Name:'In Fahrt', achTrades10Desc:'Erfasse 10 Trades',
+    achTrades50Name:'Veteran', achTrades50Desc:'Erfasse 50 Trades',
+    achTrades100Name:'Jahrhundert', achTrades100Desc:'Erfasse 100 Trades',
+    achStreak7Name:'Wochen-Streak', achStreak7Desc:'Erreiche einen 7-Tage-Anmelde-Streak',
+    achStreak30Name:'Eiserne Disziplin', achStreak30Desc:'Erreiche einen 30-Tage-Anmelde-Streak',
+    achMultiAccountName:'Mehrere Fronten', achMultiAccountDesc:'Erstelle ein zweites Handelskonto',
+    achProfitableMonthName:'Im Plus', achProfitableMonthDesc:'Schließe einen Monat im Plus ab',
+    achDetailedNotesName:'Analyst', achDetailedNotesDesc:'Schreibe eine ausführliche Notiz (100+ Zeichen) zu einem Trade',
+    achScreenshotName:'Dokumentar', achScreenshotDesc:'Füge einem Trade einen Screenshot hinzu',
     profilePasswordTitle:'Passwort ändern', profileNewPasswordLabel:'Neues Passwort', profileConfirmPasswordLabel:'Neues Passwort wiederholen',
     profileChangePasswordBtn:'Passwort ändern',
     loginMethodEmail:'E-Mail und Passwort', loginMethodGoogle:'Mit Google angemeldet',
@@ -2755,6 +2846,7 @@ async function loadAllData(){
   dataLoaded = true;
   checkDailyReminder();
   maybeStartOnboardingTour();
+  evaluateAchievements();
   })();
   try{
     await loadAllData._inFlight;
@@ -3059,6 +3151,95 @@ async function updateLoginStreak(){
   if(!error){
     currentUser.user_metadata = Object.assign({}, currentUser.user_metadata, { login_streak: newStreak, last_login_date: todayStr });
   }
+}
+
+/* ============ OSIĄGNIĘCIA ============
+   Lista sprawdzanych warunków - liczone globalnie po wszystkich kontach usera (allTrades),
+   nie tylko po aktualnie wybranym koncie, bo to atrybut profilu, nie konta. */
+const ACHIEVEMENTS = [
+  { id:'first_trade', nameKey:'achFirstTradeName', descKey:'achFirstTradeDesc', check:ctx=> ctx.allTrades.length>=1 },
+  { id:'trades_10', nameKey:'achTrades10Name', descKey:'achTrades10Desc', check:ctx=> ctx.allTrades.length>=10 },
+  { id:'trades_50', nameKey:'achTrades50Name', descKey:'achTrades50Desc', check:ctx=> ctx.allTrades.length>=50 },
+  { id:'trades_100', nameKey:'achTrades100Name', descKey:'achTrades100Desc', check:ctx=> ctx.allTrades.length>=100 },
+  { id:'streak_7', nameKey:'achStreak7Name', descKey:'achStreak7Desc', check:ctx=> ctx.loginStreak>=7 },
+  { id:'streak_30', nameKey:'achStreak30Name', descKey:'achStreak30Desc', check:ctx=> ctx.loginStreak>=30 },
+  { id:'multi_account', nameKey:'achMultiAccountName', descKey:'achMultiAccountDesc', check:ctx=> ctx.accounts.length>=2 },
+  { id:'profitable_month', nameKey:'achProfitableMonthName', descKey:'achProfitableMonthDesc', check:ctx=>{
+      const byMonth = {};
+      ctx.allTrades.forEach(tr=>{ const k=tr.date.slice(0,7); byMonth[k]=(byMonth[k]||0)+tr.pnl; });
+      return Object.values(byMonth).some(v=>v>0);
+  }},
+  { id:'detailed_notes', nameKey:'achDetailedNotesName', descKey:'achDetailedNotesDesc', check:ctx=> ctx.allTrades.some(tr=>(tr.notes||'').length>100) },
+  { id:'screenshot', nameKey:'achScreenshotName', descKey:'achScreenshotDesc', check:ctx=> ctx.allTrades.some(tr=>(tr.images&&tr.images.length) || tr.image) },
+];
+
+let achievementToastQueue = [];
+let achievementToastBusy = false;
+function queueAchievementToast(def){
+  achievementToastQueue.push(def);
+  if(!achievementToastBusy) playNextAchievementToast();
+}
+function playNextAchievementToast(){
+  const def = achievementToastQueue.shift();
+  if(!def){ achievementToastBusy = false; return; }
+  achievementToastBusy = true;
+  const toast = document.getElementById('achievementToast');
+  document.getElementById('achievementToastTitle').textContent = t('achievementUnlockedTitle');
+  document.getElementById('achievementToastName').textContent = t(def.nameKey);
+  const progress = document.getElementById('achievementToastProgress');
+  toast.classList.add('show');
+  progress.style.transition = 'none';
+  progress.style.width = '100%';
+  void progress.offsetWidth;
+  progress.style.transition = 'width 3400ms linear';
+  progress.style.width = '0%';
+  setTimeout(()=>{
+    toast.classList.remove('show');
+    setTimeout(playNextAchievementToast, 350); // mała przerwa między kolejnymi odznakami
+  }, 3400);
+}
+
+// sprawdza warunki i odblokowuje nowe odznaki; wywoływane po każdej zmianie danych,
+// które mogłyby coś odblokować (zapis/import transakcji, nowe konto, streak logowania)
+async function evaluateAchievements(){
+  if(!currentUser) return;
+  const ctx = {
+    allTrades,
+    accounts,
+    loginStreak: Number(currentUser.user_metadata && currentUser.user_metadata.login_streak) || 0
+  };
+  const existing = Object.assign({}, currentUser.user_metadata && currentUser.user_metadata.achievements || {});
+  const newlyEarned = [];
+  ACHIEVEMENTS.forEach(def=>{
+    if(!existing[def.id] && def.check(ctx)){
+      existing[def.id] = Date.now();
+      newlyEarned.push(def);
+    }
+  });
+  if(!newlyEarned.length) return;
+  const { error } = await sb.auth.updateUser({ data: { achievements: existing } });
+  if(!error){
+    currentUser.user_metadata = Object.assign({}, currentUser.user_metadata, { achievements: existing });
+    newlyEarned.forEach(def=> queueAchievementToast(def));
+    if(document.getElementById('screenProfile').style.display !== 'none') renderAchievements();
+  }
+}
+function renderAchievements(){
+  const grid = document.getElementById('achievementsGrid');
+  if(!grid || !currentUser) return;
+  const earned = (currentUser.user_metadata && currentUser.user_metadata.achievements) || {};
+  const unlockedCount = ACHIEVEMENTS.filter(def=>earned[def.id]).length;
+  document.getElementById('achievementsProgress').textContent =
+    t('achievementsProgressTemplate').replace('{n}', unlockedCount).replace('{total}', ACHIEVEMENTS.length);
+  const badgeSvg = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="6"/><path d="M9 13.5 7 22l5-3 5 3-2-8.5"/></svg>';
+  grid.innerHTML = ACHIEVEMENTS.map(def=>{
+    const unlocked = !!earned[def.id];
+    const title = `${t(def.nameKey)} — ${t(def.descKey)}`;
+    return `<div class="achievement-badge${unlocked?' unlocked':''}" title="${escapeHtml(title)}">
+      <div class="achievement-badge-icon">${badgeSvg}</div>
+      <div class="achievement-badge-name">${escapeHtml(t(def.nameKey))}</div>
+    </div>`;
+  }).join('');
 }
 
 async function initAuth(){
@@ -3555,6 +3736,7 @@ document.getElementById('tradeForm').addEventListener('submit', async e=>{
   renderAll();
   updateDrawerAccountInfo();
   showSuccessToast(t('tradeSavedToast'));
+  evaluateAchievements();
   await saveTradeToDb(data);
   if(toDelete.length) sb.storage.from(IMAGES_BUCKET).remove(toDelete).catch(()=>{});
 });
@@ -5329,6 +5511,7 @@ document.getElementById('accountForm').addEventListener('submit', async (e)=>{
   updateDrawerAccountInfo();
   renderAccountsScreen();
   renderAll();
+  evaluateAchievements();
 });
 
 /* ============ SCREEN: PROFIL ============ */
@@ -5373,6 +5556,7 @@ function renderProfileScreen(){
     ? `${streak} ${streak===1 ? t('loginStreakDay') : t('loginStreakDays')} 🔥`
     : '0';
   document.getElementById('profilePasswordPanel').style.display = hasEmailProvider() ? '' : 'none';
+  renderAchievements();
 }
 function showProfileMsg(msg, ok){
   const el = document.getElementById('profileMsg');
@@ -5691,6 +5875,7 @@ function applyStaticTexts(){
   document.getElementById('lightboxNext').setAttribute('aria-label', t('nextImageLabel'));
   document.getElementById('profileTotalTradesLabel').textContent = t('profileTotalTradesLabel');
   document.getElementById('profileLoginStreakLabel').textContent = t('profileLoginStreakLabel');
+  document.getElementById('achievementsTitle').textContent = t('achievementsTitle');
   document.getElementById('profilePasswordTitle').textContent = t('profilePasswordTitle');
   document.getElementById('profileNewPasswordLabel').textContent = t('profileNewPasswordLabel');
   document.getElementById('profileConfirmPasswordLabel').textContent = t('profileConfirmPasswordLabel');
