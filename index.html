@@ -378,9 +378,27 @@ table.calendar td.week-col.be .week-total{color:#fff;}
 .bulk-actions-bar .bulk-count{font-size:13px;font-weight:600;color:var(--gold);}
 .bulk-actions-buttons{display:flex;gap:8px;flex-wrap:wrap;}
 .bulk-actions-buttons .btn{padding:8px 14px;font-size:12.5px;}
+/* custom checkbox do zaznaczania transakcji - zamiast gołego, systemowego checkboxa
+   przeglądarki (który wyglądał obco na tle reszty appki), z płynną animacją zaznaczenia */
 .trade-select-cb, .trade-select-all{
-  width:17px;height:17px;cursor:pointer;accent-color:var(--gold);vertical-align:middle;
+  -webkit-appearance:none;appearance:none;
+  width:19px;height:19px;border-radius:6px;flex:none;
+  border:1.5px solid var(--border);background:var(--surface2);
+  cursor:pointer;vertical-align:middle;position:relative;
+  transition:background .15s var(--ease),border-color .15s var(--ease),box-shadow .15s var(--ease),transform .1s var(--ease);
 }
+.trade-select-cb:hover, .trade-select-all:hover{border-color:var(--gold);}
+.trade-select-cb:checked, .trade-select-all:checked{
+  background:linear-gradient(135deg,var(--gold),#c98f2b);border-color:transparent;
+  box-shadow:0 2px 8px -1px rgba(232,184,75,.5);
+}
+.trade-select-cb:checked::after, .trade-select-all:checked::after{
+  content:'';position:absolute;left:6px;top:2px;width:5px;height:9px;
+  border:solid #151102;border-width:0 2px 2px 0;transform:rotate(45deg);
+  animation:checkPop .16s var(--ease);
+}
+.trade-select-cb:active, .trade-select-all:active{transform:scale(.88);}
+@keyframes checkPop{from{opacity:0;transform:rotate(45deg) scale(.4);}to{opacity:1;transform:rotate(45deg) scale(1);}}
 table.tradelist td.select-cell, table.tradelist th.select-cell{width:34px;padding-right:0;}
 @media(max-width:768px){
   .bulk-actions-bar{flex-direction:column;align-items:stretch;}
