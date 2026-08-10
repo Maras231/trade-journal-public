@@ -699,21 +699,22 @@ table.tradelist tr:hover td{background:var(--surface2);}
 .tour-skip-btn{display:block;margin:14px auto 0;}
 
 .tour-dim-overlay{
-  position:fixed;inset:0;z-index:1000;background:rgba(5,6,10,0.7);
+  position:fixed;inset:0;z-index:1000;background:rgba(4,5,9,0.82);
   opacity:0;pointer-events:none;transition:opacity .3s var(--ease);
 }
 .tour-dim-overlay.show{opacity:1;pointer-events:auto;}
 
 .tour-spotlight{
   position:relative !important;z-index:1001 !important;
-  box-shadow:0 0 0 9999px rgba(5,6,10,0.7), 0 0 0 3px var(--gold), 0 0 22px 2px rgba(232,184,75,.55) !important;
+  filter:brightness(1.45) saturate(1.1) !important;
+  box-shadow:0 0 0 9999px rgba(4,5,9,0.86), 0 0 0 3px var(--gold), 0 0 22px 2px rgba(232,184,75,.55) !important;
   border-radius:14px;
-  transition:box-shadow .35s var(--ease);
+  transition:box-shadow .35s var(--ease), filter .35s var(--ease);
   animation:tourSpotlightPulse 1.8s ease-in-out infinite;
 }
 @keyframes tourSpotlightPulse{
-  0%,100%{box-shadow:0 0 0 9999px rgba(5,6,10,0.7), 0 0 0 3px var(--gold), 0 0 22px 2px rgba(232,184,75,.55);}
-  50%{box-shadow:0 0 0 9999px rgba(5,6,10,0.7), 0 0 0 3px var(--gold), 0 0 32px 6px rgba(232,184,75,.35);}
+  0%,100%{box-shadow:0 0 0 9999px rgba(4,5,9,0.86), 0 0 0 3px var(--gold), 0 0 22px 2px rgba(232,184,75,.55);}
+  50%{box-shadow:0 0 0 9999px rgba(4,5,9,0.86), 0 0 0 3px var(--gold), 0 0 32px 6px rgba(232,184,75,.35);}
 }
 
 .tour-tooltip{
