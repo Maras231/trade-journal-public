@@ -1172,6 +1172,7 @@ table.tradelist tr:hover td{background:var(--surface2);}
 @media(min-width:769px){
   #screenProfile,
   #screenSettings,
+  #screenTerms,
   #screenPrivacy{
     max-width:640px;
     margin-left:auto;
@@ -1450,6 +1451,10 @@ table.tradelist tr:hover td{background:var(--surface2);}
   </div>
   <div class="drawer-spacer"></div>
   <div class="drawer-nav drawer-nav-bottom">
+    <button type="button" data-screen="terms">
+      <span id="drawerNavTerms">Terms of Use</span>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 4h8a2 2 0 0 1 2 2v13l-2.5-1.5L13 19l-2.5-1.5L8 19V6a2 2 0 0 1 2-2z"/><path d="M9.5 9h5M9.5 12.5h5"/></svg>
+    </button>
     <button type="button" data-screen="privacy">
       <span id="drawerNavPrivacy">Privacy Policy</span>
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="10.5" width="14" height="9.5" rx="2"/><path d="M8 10.5V7a4 4 0 0 1 8 0v3.5"/></svg>
@@ -1470,9 +1475,6 @@ table.tradelist tr:hover td{background:var(--surface2);}
       <h1>Wick</h1>
       <p id="brandTagline">Twój dziennik transakcji i analityka</p>
     </div>
-  </div>
-  <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
-    <button class="btn primary" id="addTradeBtn" style="display:none;">+ <span id="addTradeBtnText">Dodaj transakcję</span></button>
   </div>
 </header>
 
@@ -1778,6 +1780,17 @@ table.tradelist tr:hover td{background:var(--surface2);}
   </div>
 </div>
 
+<!-- ============ SCREEN: TERMS OF USE ============ -->
+<div id="screenTerms" style="display:none;">
+  <div class="screen-head">
+    <button class="screen-back" id="termsBackBtn" type="button">‹</button>
+    <h2 class="screen-title" id="termsScreenTitle">Terms of Use</h2>
+  </div>
+  <div class="panel">
+    <div class="privacy-text" id="termsText"></div>
+  </div>
+</div>
+
 <!-- ============ SCREEN: PRIVACY POLICY ============ -->
 <div id="screenPrivacy" style="display:none;">
   <div class="screen-head">
@@ -2079,8 +2092,9 @@ const I18N = {
     resetPassword1Label:'Nowe hasło', resetPassword2Label:'Powtórz nowe hasło',
     resetSubmitBtn:'Zapisz nowe hasło', authPasswordUpdated:'Hasło zostało zaktualizowane.',
     drawerNavProfile:'Profil', drawerNavAccounts:'Konta', drawerNavStats:'Statystyki', drawerNavTrades:'Transakcje',
-    drawerNavPrivacy:'Privacy Policy', drawerNavSettings:'Ustawienia',
-    profileScreenTitle:'Profil', accountsScreenTitle:'Konta', settingsScreenTitle:'Ustawienia', privacyScreenTitle:'Privacy Policy',
+    drawerNavPrivacy:'Privacy Policy', drawerNavSettings:'Ustawienia', drawerNavTerms:'Regulamin',
+    profileScreenTitle:'Profil', accountsScreenTitle:'Konta', settingsScreenTitle:'Ustawienia', privacyScreenTitle:'Privacy Policy', termsScreenTitle:'Regulamin',
+    termsContent:'<h3>§1. Postanowienia ogólne</h3><p>Niniejszy regulamin określa zasady korzystania z aplikacji Wick ("Aplikacja") - narzędzia do prowadzenia osobistego dziennika transakcji tradingowych. Korzystając z Aplikacji, akceptujesz poniższe warunki. Kontakt: <strong>wickjournalapp@gmail.com</strong>.</p><h3>§2. Konto użytkownika</h3><p>Do korzystania z Aplikacji wymagane jest założenie konta (e-mail i hasło lub logowanie przez Google). Jesteś odpowiedzialny(-a) za zachowanie poufności danych logowania oraz za wszystkie działania wykonane na Twoim koncie. Aplikacja przeznaczona jest dla osób pełnoletnich (18+).</p><h3>§3. Charakter usługi - brak porad inwestycyjnych</h3><p><strong>Wick jest wyłącznie narzędziem do notowania i analizy własnych transakcji.</strong> Aplikacja nie świadczy usług doradztwa inwestycyjnego, maklerskiego ani finansowego, nie rekomenduje żadnych instrumentów finansowych ani strategii, a wszelkie statystyki, wykresy i wskaźniki (win rate, RR, equity curve i inne) mają charakter wyłącznie informacyjny i opierają się na danych wprowadzonych samodzielnie przez użytkownika. Decyzje inwestycyjne podejmujesz wyłącznie na własną odpowiedzialność i własne ryzyko. Handel instrumentami finansowymi wiąże się z ryzykiem utraty kapitału.</p><h3>§4. Twoje treści</h3><p>Dane, notatki i zrzuty ekranu, które wprowadzasz do Aplikacji, pozostają Twoją własnością. Udzielasz nam wyłącznie technicznej licencji niezbędnej do ich przechowywania i wyświetlania Tobie w ramach działania Aplikacji. Nie wykorzystujemy Twoich treści w żadnym innym celu.</p><h3>§5. Zasady korzystania</h3><p>Zobowiązujesz się nie wykorzystywać Aplikacji niezgodnie z prawem, nie podejmować prób nieautoryzowanego dostępu do systemów, kont innych użytkowników ani infrastruktury Aplikacji, oraz nie kopiować, nie dekompilować ani nie modyfikować Aplikacji bez zgody.</p><h3>§6. Dostępność usługi</h3><p>Dokładamy starań, aby Aplikacja działała nieprzerwanie, jednak nie gwarantujemy 100% dostępności. Aplikacja może być okresowo niedostępna z powodu prac serwisowych, awarii dostawców zewnętrznych (Supabase, Google) lub innych okoliczności od nas niezależnych.</p><h3>§7. Ograniczenie odpowiedzialności</h3><p>Aplikacja dostarczana jest w formule "tak jak jest" (as is), bez gwarancji dokładności obliczeń statystycznych. Nie ponosimy odpowiedzialności za straty finansowe, decyzje inwestycyjne ani utratę danych wynikającą z korzystania z Aplikacji, awarii technicznych czy przerw w dostępności usługi, w zakresie dopuszczalnym przez obowiązujące prawo.</p><h3>§8. Zakończenie korzystania</h3><p>Możesz w każdej chwili usunąć swoje konto wraz ze wszystkimi danymi samodzielnie w zakładce Profil. Zastrzegamy sobie prawo do zawieszenia lub usunięcia konta w przypadku naruszenia niniejszego regulaminu.</p><h3>§9. Zmiany regulaminu</h3><p>Możemy okresowo aktualizować niniejszy regulamin. O istotnych zmianach poinformujemy w Aplikacji. Dalsze korzystanie z Aplikacji po wprowadzeniu zmian oznacza ich akceptację.</p><h3>§10. Prawo właściwe</h3><p>Niniejszy regulamin podlega prawu polskiemu. Zasady przetwarzania danych osobowych opisane są odrębnie w Privacy Policy.</p>',
     profileUsernameLabel:'Nazwa użytkownika', profileEmailLabel:'Adres e-mail',
     profileLogoutLabel:'Wyloguj się z tego urządzenia', profileDeleteLabel:'Usuń wszystkie dane i konto',
     profileLogoutBtn:'Wyloguj', profileDeleteBtn:'Usuń konto', profileSaved:'Zapisano nazwę użytkownika.',
@@ -2210,8 +2224,9 @@ const I18N = {
     resetPassword1Label:'New password', resetPassword2Label:'Confirm new password',
     resetSubmitBtn:'Save new password', authPasswordUpdated:'Password updated.',
     drawerNavProfile:'Profile', drawerNavAccounts:'Accounts', drawerNavStats:'Statistics', drawerNavTrades:'Trades',
-    drawerNavPrivacy:'Privacy Policy', drawerNavSettings:'Settings',
-    profileScreenTitle:'Profile', accountsScreenTitle:'Accounts', settingsScreenTitle:'Settings', privacyScreenTitle:'Privacy Policy',
+    drawerNavPrivacy:'Privacy Policy', drawerNavSettings:'Settings', drawerNavTerms:'Terms of Use',
+    profileScreenTitle:'Profile', accountsScreenTitle:'Accounts', settingsScreenTitle:'Settings', privacyScreenTitle:'Privacy Policy', termsScreenTitle:'Terms of Use',
+    termsContent:'<h3>§1. General provisions</h3><p>These Terms of Use govern the use of the Wick app ("App") - a tool for keeping a personal trading journal. By using the App, you accept the terms below. Contact: <strong>wickjournalapp@gmail.com</strong>.</p><h3>§2. User account</h3><p>Using the App requires creating an account (email and password, or Google sign-in). You are responsible for keeping your login credentials confidential and for all activity on your account. The App is intended for adults (18+).</p><h3>§3. Nature of the service - not investment advice</h3><p><strong>Wick is solely a tool for logging and analyzing your own trades.</strong> The App does not provide investment, brokerage, or financial advice, does not recommend any financial instruments or strategies, and all statistics, charts, and metrics (win rate, RR, equity curve, and others) are for informational purposes only and are based entirely on data you enter yourself. You make investment decisions solely at your own discretion and risk. Trading financial instruments involves the risk of capital loss.</p><h3>§4. Your content</h3><p>The data, notes, and screenshots you enter into the App remain your property. You grant us only the technical license necessary to store and display them back to you as part of the App\'s operation. We do not use your content for any other purpose.</p><h3>§5. Acceptable use</h3><p>You agree not to use the App unlawfully, not to attempt unauthorized access to systems, other users\' accounts, or the App\'s infrastructure, and not to copy, decompile, or modify the App without permission.</p><h3>§6. Service availability</h3><p>We strive to keep the App running continuously, but we do not guarantee 100% availability. The App may be periodically unavailable due to maintenance, third-party provider outages (Supabase, Google), or other circumstances beyond our control.</p><h3>§7. Limitation of liability</h3><p>The App is provided "as is", without warranty as to the accuracy of statistical calculations. We are not liable for financial losses, investment decisions, or data loss resulting from use of the App, technical failures, or service interruptions, to the extent permitted by applicable law.</p><h3>§8. Termination</h3><p>You can delete your account and all associated data at any time yourself from the Profile tab. We reserve the right to suspend or delete an account in case of a violation of these Terms.</p><h3>§9. Changes to these Terms</h3><p>We may update these Terms from time to time. We will notify you of material changes within the App. Continued use of the App after changes take effect constitutes acceptance of them.</p><h3>§10. Governing law</h3><p>These Terms are governed by Polish law. Personal data processing rules are described separately in the Privacy Policy.</p>',
     profileUsernameLabel:'Username', profileEmailLabel:'Email address',
     profileLogoutLabel:'Log out of this device', profileDeleteLabel:'Delete all data and account',
     profileLogoutBtn:'Log out', profileDeleteBtn:'Delete account', profileSaved:'Username saved.',
@@ -2341,8 +2356,9 @@ const I18N = {
     resetPassword1Label:'Neues Passwort', resetPassword2Label:'Neues Passwort wiederholen',
     resetSubmitBtn:'Neues Passwort speichern', authPasswordUpdated:'Passwort aktualisiert.',
     drawerNavProfile:'Profil', drawerNavAccounts:'Konten', drawerNavStats:'Statistiken', drawerNavTrades:'Trades',
-    drawerNavPrivacy:'Datenschutz', drawerNavSettings:'Einstellungen',
-    profileScreenTitle:'Profil', accountsScreenTitle:'Konten', settingsScreenTitle:'Einstellungen', privacyScreenTitle:'Datenschutz',
+    drawerNavPrivacy:'Datenschutz', drawerNavSettings:'Einstellungen', drawerNavTerms:'Nutzungsbedingungen',
+    profileScreenTitle:'Profil', accountsScreenTitle:'Konten', settingsScreenTitle:'Einstellungen', privacyScreenTitle:'Datenschutz', termsScreenTitle:'Nutzungsbedingungen',
+    termsContent:'<h3>§1. Allgemeine Bestimmungen</h3><p>Diese Nutzungsbedingungen regeln die Nutzung der App Wick ("App") - eines Tools zur Führung eines persönlichen Handelstagebuchs. Mit der Nutzung der App akzeptierst du die folgenden Bedingungen. Kontakt: <strong>wickjournalapp@gmail.com</strong>.</p><h3>§2. Benutzerkonto</h3><p>Die Nutzung der App erfordert die Erstellung eines Kontos (E-Mail und Passwort oder Google-Anmeldung). Du bist für die Vertraulichkeit deiner Anmeldedaten sowie für alle über dein Konto durchgeführten Aktivitäten verantwortlich. Die App richtet sich an Erwachsene (18+).</p><h3>§3. Art des Dienstes - keine Anlageberatung</h3><p><strong>Wick ist ausschließlich ein Werkzeug zur Erfassung und Analyse deiner eigenen Trades.</strong> Die App bietet keine Anlage-, Broker- oder Finanzberatung, empfiehlt keine Finanzinstrumente oder Strategien, und alle Statistiken, Diagramme und Kennzahlen (Win Rate, RR, Eigenkapitalkurve u. a.) dienen ausschließlich Informationszwecken und basieren vollständig auf den von dir selbst eingegebenen Daten. Anlageentscheidungen triffst du ausschließlich eigenverantwortlich und auf eigenes Risiko. Der Handel mit Finanzinstrumenten ist mit dem Risiko des Kapitalverlusts verbunden.</p><h3>§4. Deine Inhalte</h3><p>Die Daten, Notizen und Screenshots, die du in die App eingibst, bleiben dein Eigentum. Du räumst uns lediglich die technische Lizenz ein, die für deren Speicherung und Anzeige im Rahmen des App-Betriebs erforderlich ist. Wir nutzen deine Inhalte zu keinem anderen Zweck.</p><h3>§5. Nutzungsregeln</h3><p>Du verpflichtest dich, die App nicht rechtswidrig zu nutzen, keine unbefugten Zugriffsversuche auf Systeme, Konten anderer Nutzer oder die Infrastruktur der App zu unternehmen sowie die App nicht ohne Erlaubnis zu kopieren, zu dekompilieren oder zu verändern.</p><h3>§6. Verfügbarkeit des Dienstes</h3><p>Wir bemühen uns um einen unterbrechungsfreien Betrieb der App, garantieren jedoch keine 100%ige Verfügbarkeit. Die App kann aufgrund von Wartungsarbeiten, Ausfällen externer Anbieter (Supabase, Google) oder anderer Umstände außerhalb unserer Kontrolle vorübergehend nicht verfügbar sein.</p><h3>§7. Haftungsbeschränkung</h3><p>Die App wird "wie besehen" (as is) bereitgestellt, ohne Gewähr für die Genauigkeit statistischer Berechnungen. Wir haften nicht für finanzielle Verluste, Anlageentscheidungen oder Datenverlust infolge der Nutzung der App, technischer Störungen oder Dienstunterbrechungen, soweit gesetzlich zulässig.</p><h3>§8. Beendigung der Nutzung</h3><p>Du kannst dein Konto samt aller Daten jederzeit selbst im Bereich Profil löschen. Wir behalten uns das Recht vor, ein Konto bei Verstoß gegen diese Nutzungsbedingungen zu sperren oder zu löschen.</p><h3>§9. Änderungen dieser Bedingungen</h3><p>Wir können diese Nutzungsbedingungen von Zeit zu Zeit aktualisieren. Über wesentliche Änderungen informieren wir dich in der App. Die weitere Nutzung der App nach Inkrafttreten von Änderungen gilt als deren Annahme.</p><h3>§10. Anwendbares Recht</h3><p>Diese Nutzungsbedingungen unterliegen polnischem Recht. Die Regeln zur Verarbeitung personenbezogener Daten sind gesondert in der Datenschutzerklärung beschrieben.</p>',
     profileUsernameLabel:'Benutzername', profileEmailLabel:'E-Mail-Adresse',
     profileLogoutLabel:'Von diesem Gerät abmelden', profileDeleteLabel:'Alle Daten und Konto löschen',
     profileLogoutBtn:'Abmelden', profileDeleteBtn:'Konto löschen', profileSaved:'Benutzername gespeichert.',
@@ -3024,7 +3040,6 @@ function activateTab(tabName){
   document.getElementById('tab-months').style.display = tabName==='months' ? '' : 'none';
   document.getElementById('statsRow').style.display = tabName==='trades' ? 'none' : '';
   document.getElementById('statsSubNav').style.display = tabName==='trades' ? 'none' : '';
-  document.getElementById('addTradeBtn').style.display = tabName==='trades' ? '' : 'none';
   document.getElementById('fabAddTrade').style.display = tabName==='trades' ? '' : 'none';
   document.querySelectorAll('#statsSubNav button').forEach(b=> b.classList.toggle('active', b.dataset.tab===tabName));
   setActiveDrawerNav(tabName==='trades' ? 'trades' : 'stats');
@@ -3241,7 +3256,6 @@ function closeModal(){
   pendingRemovedPaths = [];
   modalOpenSnapshot = null;
 }
-document.getElementById('addTradeBtn').addEventListener('click', ()=>openModal(null));
 document.getElementById('fabAddTrade').addEventListener('click', ()=>openModal(null));
 document.getElementById('closeModal').addEventListener('click', attemptCloseModal);
 document.getElementById('cancelBtn').addEventListener('click', attemptCloseModal);
@@ -4937,24 +4951,24 @@ function showScreen(name){
   document.getElementById('screenProfile').style.display = name==='profile' ? '' : 'none';
   document.getElementById('screenAccounts').style.display = name==='accounts' ? '' : 'none';
   document.getElementById('screenSettings').style.display = name==='settings' ? '' : 'none';
+  document.getElementById('screenTerms').style.display = name==='terms' ? '' : 'none';
   document.getElementById('screenPrivacy').style.display = name==='privacy' ? '' : 'none';
   if(name!=='main'){
-    document.getElementById('addTradeBtn').style.display = 'none';
     document.getElementById('fabAddTrade').style.display = 'none';
   }
   window.scrollTo({top:0});
   if(name==='accounts') renderAccountsScreen();
   if(name==='profile') renderProfileScreen();
   if(name==='settings') renderSettingsScreen();
+  if(name==='terms') renderTermsScreen();
   if(name==='privacy') renderPrivacyScreen();
   if(name==='main'){
     const onTrades = document.getElementById('tab-trades').style.display!=='none';
-    document.getElementById('addTradeBtn').style.display = onTrades ? '' : 'none';
     document.getElementById('fabAddTrade').style.display = onTrades ? '' : 'none';
     setActiveDrawerNav(onTrades ? 'trades' : 'stats');
   }
 }
-['profileBackBtn','accountsBackBtn','settingsBackBtn','privacyBackBtn'].forEach(id=>{
+['profileBackBtn','accountsBackBtn','settingsBackBtn','termsBackBtn','privacyBackBtn'].forEach(id=>{
   document.getElementById(id).addEventListener('click', ()=> showScreen('main'));
 });
 
@@ -5272,6 +5286,11 @@ document.getElementById('settingsResetDeviceBtn').addEventListener('click', asyn
   window.location.reload();
 });
 
+/* ============ SCREEN: TERMS OF USE ============ */
+function renderTermsScreen(){
+  document.getElementById('termsText').innerHTML = t('termsContent');
+}
+
 /* ============ SCREEN: PRIVACY POLICY ============ */
 function renderPrivacyScreen(){
   document.getElementById('privacyText').innerHTML = t('privacyContent');
@@ -5290,7 +5309,6 @@ function applyStaticTexts(){
   document.getElementById('tourWelcomeSkipBtn').textContent = t('tourSkipBtn');
   document.getElementById('tourSkipBtn').textContent = t('tourSkipBtn');
   document.getElementById('authGateLoginText').textContent = t('googleLogin');
-  document.getElementById('addTradeBtnText').textContent = t('addTrade');
   document.getElementById('subNavDashboard').textContent = t('tabDashboard');
   document.getElementById('subNavMonths').textContent = t('tabMonths');
   document.getElementById('eqCurveTitle').textContent = t('equityCurve');
@@ -5364,11 +5382,13 @@ function applyStaticTexts(){
   document.getElementById('drawerNavAccounts').textContent = t('drawerNavAccounts');
   document.getElementById('drawerNavStats').textContent = t('drawerNavStats');
   document.getElementById('drawerNavTrades').textContent = t('drawerNavTrades');
+  document.getElementById('drawerNavTerms').textContent = t('drawerNavTerms');
   document.getElementById('drawerNavPrivacy').textContent = t('drawerNavPrivacy');
   document.getElementById('drawerNavSettings').textContent = t('drawerNavSettings');
   document.getElementById('profileScreenTitle').textContent = t('profileScreenTitle');
   document.getElementById('accountsScreenTitle').textContent = t('accountsScreenTitle');
   document.getElementById('settingsScreenTitle').textContent = t('settingsScreenTitle');
+  document.getElementById('termsScreenTitle').textContent = t('termsScreenTitle');
   document.getElementById('privacyScreenTitle').textContent = t('privacyScreenTitle');
   document.getElementById('profileUsernameLabel').textContent = t('profileUsernameLabel');
   document.getElementById('profileEmailLabel').textContent = t('profileEmailLabel');
@@ -5429,6 +5449,7 @@ function applyLanguage(){
   if(document.getElementById('appRoot').style.display !== 'none'){
     renderAll();
     if(document.getElementById('screenAccounts').style.display !== 'none') renderAccountsScreen();
+    if(document.getElementById('screenTerms').style.display !== 'none') renderTermsScreen();
     if(document.getElementById('screenPrivacy').style.display !== 'none') renderPrivacyScreen();
     if(document.getElementById('screenSettings').style.display !== 'none') renderSettingsScreen();
     if(document.getElementById('screenProfile').style.display !== 'none') renderProfileScreen();
