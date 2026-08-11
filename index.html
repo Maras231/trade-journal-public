@@ -80,13 +80,13 @@ html{
      co psuło układ stronom z ustaloną, projektowaną siatką jak ta appka */
   -webkit-text-size-adjust:100%;
   text-size-adjust:100%;
-  /* siatka bezpieczeństwa na poziomie całej strony - gdyby mimo wszystko coś (nawet
-     coś, czego jeszcze nie znaleźliśmy) próbowało "wypchnąć" stronę w bok, po prostu
-     się utnie zamiast przewijać cały ekran poziomo. Tabela transakcji ma WŁASNE,
-     świadome przewijanie w poziomie (patrz #tradesTableWrap) i działa niezależnie od tego. */
-  overflow-x:hidden;
 }
-body{overflow-x:hidden;}
+/* UWAGA: było tu wcześniej też overflow-x:hidden na html/body jako siatka bezpieczeństwa
+   przed poziomym "wypychaniem" strony - USUNIĘTE NA STAŁE, bo część mobilnych silników
+   (zwłaszcza w TWA) błędnie traktuje to jako wyłączenie przewijania w OGÓLE, nie tylko
+   w poziomie, i blokowało to normalne przewijanie appki palcem. Jeśli kiedyś w przyszłości
+   ktoś (człowiek albo AI) będzie kuszony, żeby to tu z powrotem dopisać jako "zabezpieczenie" -
+   NIE RÓB TEGO, to jest świadomie wykluczone, nie przeoczenie. */
 
 /* Wyłącz zaznaczanie tekstu / menu "Kopiuj" po długim przytrzymaniu na interfejsie appki,
    żeby czuło się jak natywna appka, a nie strona w przeglądarce. Pola do wpisywania danych
