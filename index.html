@@ -72,7 +72,21 @@
   --scrollbar-thumb-hover:#B9BFCE;
 }
 *{box-sizing:border-box;margin:0;padding:0;}
-html{scroll-behavior:smooth;overscroll-behavior-y:contain;background:#0B0E14;}
+html{
+  scroll-behavior:smooth;overscroll-behavior-y:contain;background:#0B0E14;
+  /* wyłącza automatyczne "podbijanie" rozmiaru tekstu przez przeglądarkę mobilną
+     (tzw. text autosizing) - bez tego ten sam kod potrafił renderować się z różną
+     wielkością tekstu na różnych telefonach, niezależnie od naszego własnego CSS,
+     co psuło układ stronom z ustaloną, projektowaną siatką jak ta appka */
+  -webkit-text-size-adjust:100%;
+  text-size-adjust:100%;
+  /* siatka bezpieczeństwa na poziomie całej strony - gdyby mimo wszystko coś (nawet
+     coś, czego jeszcze nie znaleźliśmy) próbowało "wypchnąć" stronę w bok, po prostu
+     się utnie zamiast przewijać cały ekran poziomo. Tabela transakcji ma WŁASNE,
+     świadome przewijanie w poziomie (patrz #tradesTableWrap) i działa niezależnie od tego. */
+  overflow-x:hidden;
+}
+body{overflow-x:hidden;}
 
 /* Wyłącz zaznaczanie tekstu / menu "Kopiuj" po długim przytrzymaniu na interfejsie appki,
    żeby czuło się jak natywna appka, a nie strona w przeglądarce. Pola do wpisywania danych
@@ -230,7 +244,8 @@ header.top{
 /* ---------- NAV TABS ---------- */
 nav.tabs{
   display:flex;gap:4px;background:var(--surface);border:1px solid var(--border);
-  border-radius:12px;padding:6px;margin-bottom:22px;width:fit-content;box-shadow:var(--shadow-sm);
+  border-radius:12px;padding:6px;margin-bottom:22px;width:fit-content;max-width:100%;
+  flex-wrap:wrap;box-shadow:var(--shadow-sm);
 }
 nav.tabs button{
   background:transparent;border:none;color:var(--muted);padding:9px 18px;
@@ -312,7 +327,7 @@ nav.tabs button:hover:not(.active){color:var(--text);}
 }
 
 /* calendar */
-.cal-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;}
+.cal-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;flex-wrap:wrap;gap:8px;}
 .cal-head .month{font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:16px;}
 .cal-nav{display:flex;gap:6px;align-items:center;}
 .cal-nav button{
@@ -544,7 +559,7 @@ table.tradelist tr:hover td{background:var(--surface2);}
   padding:14px;box-shadow:var(--shadow-lg);display:none;animation:modalIn .16s var(--ease);
 }
 .dp-panel.open{display:block;}
-.dp-panel-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;}
+.dp-panel-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;flex-wrap:wrap;gap:8px;}
 .dp-month{font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:14px;text-transform:capitalize;}
 .dp-nav-group{display:flex;gap:4px;}
 .dp-nav{
@@ -572,6 +587,7 @@ table.tradelist tr:hover td{background:var(--surface2);}
 .dp-nav:disabled:hover{border-color:var(--border);color:var(--text);}
 .dp-panel-actions{
   display:flex;justify-content:space-between;margin-top:12px;padding-top:12px;border-top:1px solid var(--border);
+  flex-wrap:wrap;gap:8px;
 }
 .dp-panel-actions button{
   background:transparent;border:none;color:var(--muted);font-size:12.5px;font-weight:600;cursor:pointer;
@@ -834,15 +850,15 @@ table.tradelist tr:hover td{background:var(--surface2);}
 #dayDetail .dd-title{font-size:13px;color:var(--muted);margin-bottom:10px;font-family:'JetBrains Mono',monospace;}
 
 /* equity curve panel */
-.eq-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;}
+.eq-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;flex-wrap:wrap;gap:8px;}
 .eq-total{font-family:'JetBrains Mono',monospace;font-weight:700;font-size:18px;font-feature-settings:"tnum";}
 .eq-total .pos{color:var(--profit);}
 .eq-total .neg{color:var(--loss);}
 .equity-wrap svg{max-width:100%;height:auto;display:block;}
 #monthEquityWrap svg{height:210px;}
 #monthEquityWrap{max-width:590px;margin:0;justify-content:flex-start;}
-.eq-stats{display:flex;justify-content:space-between;gap:8px;margin-top:14px;padding-top:14px;border-top:1px solid var(--border);}
-.eq-stat{text-align:center;flex:1;}
+.eq-stats{display:flex;justify-content:space-between;gap:8px;margin-top:14px;padding-top:14px;border-top:1px solid var(--border);flex-wrap:wrap;}
+.eq-stat{text-align:center;flex:1;min-width:70px;}
 .eq-stat-label{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:5px;font-weight:600;}
 .eq-stat-val{font-family:'JetBrains Mono',monospace;font-weight:700;font-size:13.5px;font-feature-settings:"tnum";}
 .eq-stat-val.pos{color:var(--profit);}
@@ -1188,6 +1204,7 @@ table.tradelist tr:hover td{background:var(--surface2);}
   background:transparent;border:none;color:var(--text);text-align:left;
   padding:12px 12px;border-radius:10px;font-size:15px;font-weight:600;font-family:'Inter',sans-serif;
   cursor:pointer;transition:background .15s var(--ease),color .15s var(--ease);
+  flex-wrap:wrap;
 }
 .drawer-nav button svg{width:19px;height:19px;color:var(--muted);flex:none;transition:color .15s var(--ease);}
 .drawer-nav button:hover{background:var(--surface2);}
@@ -1553,7 +1570,7 @@ table.tradelist tr:hover td{background:var(--surface2);}
       <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>Watch your stats update instantly</li>
       <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>Share your results with one tap</li>
     </ul>
-    <a class="dl-play-badge" href="https://play.google.com/store/apps/details?id=idsoon" target="_blank" rel="noopener">
+    <a class="dl-play-badge" href="https://play.google.com/store/apps/details?id=REPLACE_WITH_YOUR_PACKAGE_ID" target="_blank" rel="noopener">
       <img src="https://play.google.com/intl/en_us/badges/static/images/badges/en_badge_web_generic.png" alt="Get it on Google Play">
     </a>
     <div class="dl-links">
@@ -5947,7 +5964,7 @@ document.querySelectorAll('.drawer-nav button[data-screen]').forEach(btn=>{
 // losowany deterministycznie z dzisiejszej daty, więc jest ten sam cały dzień i zmienia
 // się dopiero następnego dnia, zamiast migać innym cytatem przy każdym otwarciu appki
 const DAILY_QUOTES = [
-"It's going to happen because you're going to make it happen.",
+ "It's going to happen because you're going to make it happen.",
   "Remember why you started.",
   "You were born to win.",
   "Sometimes you win, sometimes you learn.",
