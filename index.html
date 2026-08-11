@@ -2479,7 +2479,7 @@ const I18N = {
     loginBtnLabel:'Zaloguj się',
     authPasswordMismatch:'Hasła nie są takie same.', authPasswordTooShort:'Hasło musi mieć co najmniej 6 znaków.',
     authCheckEmail:'Sprawdź swoją skrzynkę e-mail, aby potwierdzić konto, a następnie się zaloguj.',
-    emailVerifiedSuccess:'Adres e-mail potwierdzony! Możesz teraz korzystać z appki.',
+    emailVerifiedSuccess:'Adres e-mail potwierdzony! Otwórz appkę Wick z ekranu głównego telefonu, żeby się zalogować.',
     emailVerifiedFailed:'Ten link stracił ważność lub został już wcześniej użyty. Spróbuj się zalogować, a jeśli to nie zadziała, zarejestruj się ponownie albo poproś o nowy link.',
     authEnterEmailFirst:'Najpierw wpisz swój adres e-mail.',
     authResetSent:'Wysłaliśmy link do resetu hasła na podany adres e-mail.',
@@ -2656,7 +2656,7 @@ const I18N = {
     loginBtnLabel:'Log in',
     authPasswordMismatch:'Passwords do not match.', authPasswordTooShort:'Password must be at least 6 characters.',
     authCheckEmail:'Check your inbox to confirm your account, then log in.',
-    emailVerifiedSuccess:'Email confirmed! You can now use the app.',
+    emailVerifiedSuccess:'Email confirmed! Open the Wick app from your home screen to log in.',
     emailVerifiedFailed:'This link has expired or was already used. Try logging in, and if that doesn\'t work, sign up again or request a new link.',
     authEnterEmailFirst:'Enter your email first.',
     authResetSent:'We sent a password reset link to that email address.',
@@ -2833,7 +2833,7 @@ const I18N = {
     loginBtnLabel:'Anmelden',
     authPasswordMismatch:'Die Passwörter stimmen nicht überein.', authPasswordTooShort:'Das Passwort muss mindestens 6 Zeichen haben.',
     authCheckEmail:'Bestätige dein Konto per E-Mail und melde dich anschließend an.',
-    emailVerifiedSuccess:'E-Mail bestätigt! Du kannst die App jetzt nutzen.',
+    emailVerifiedSuccess:'E-Mail bestätigt! Öffne die Wick-App über das Startbildschirm-Symbol, um dich anzumelden.',
     emailVerifiedFailed:'Dieser Link ist abgelaufen oder wurde bereits verwendet. Versuche dich anzumelden, und falls das nicht klappt, registriere dich erneut oder fordere einen neuen Link an.',
     authEnterEmailFirst:'Gib zuerst deine E-Mail-Adresse ein.',
     authResetSent:'Wir haben einen Link zum Zurücksetzen des Passworts gesendet.',
@@ -6978,11 +6978,23 @@ async function handleEmailVerificationLink(){
 /* ============ BLOKADA: appka działa TYLKO po zainstalowaniu (standalone) ============ */
 // flaga ustawiona w małym inline <script> na samej górze <body> (zanim cokolwiek innego
 // zdążyło się odpalić) - jeśli appka nie jest odpalona jako zainstalowana (PWA/Google Play),
-// wcale się nie inicjalizuje, bez żadnego obejścia - dotyczy zarówno komputera,
-// jak i telefonu w gołej przeglądarce
+// wcale się nie inicjalizuje - dotyczy zarówno komputera, jak i telefonu w gołej
+// przeglądarce. WYJĄTEK: link potwierdzenia e-maila (token_hash+type w adresie) zawsze
+// otwiera się w zwykłej przeglądarce (Gmail/wp.pl nie potrafią otworzyć go bezpośrednio
+// w zainstalowanej appce) - bez tego wyjątku e-mail nigdy by się nie potwierdzał, appka
+// od razu olewałaby token i pokazywała ekran "Pobierz z Google Play"
 if(window.__wickAppBlock){
-  document.getElementById('splashScreen').style.display = 'none';
-  document.getElementById('desktopLandingScreen').style.display = 'flex';
+  const verifyParams = new URLSearchParams(window.location.search);
+  if(verifyParams.get('token_hash') && verifyParams.get('type')){
+    applyStaticTexts();
+    handleEmailVerificationLink().finally(()=>{
+      document.getElementById('splashScreen').style.display = 'none';
+      document.getElementById('desktopLandingScreen').style.display = 'flex';
+    });
+  } else {
+    document.getElementById('splashScreen').style.display = 'none';
+    document.getElementById('desktopLandingScreen').style.display = 'flex';
+  }
 } else {
   applyStaticTexts();
   renderDrawerQuote();
