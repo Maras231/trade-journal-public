@@ -489,14 +489,23 @@ table.tradelist tr:hover td{background:var(--surface2);}
 /* ---------- MODAL ---------- */
 .modal-overlay{
   position:fixed;inset:0;background:rgba(4,5,9,0.78);backdrop-filter:blur(4px);
-  display:none;align-items:center;justify-content:center;z-index:100;padding:20px;
+  display:none;align-items:center;justify-content:center;z-index:100;
+  /* dolny/górny margines rośnie na telefonach z paskiem gestów/notchem, żeby okienko
+     nigdy nie stykało się bezpośrednio z tymi strefami */
+  padding:max(20px, env(safe-area-inset-top)) 20px max(20px, env(safe-area-inset-bottom));
   animation:overlayIn .18s var(--ease);
 }
 @keyframes overlayIn{from{opacity:0;}to{opacity:1;}}
 .modal-overlay.open{display:flex;}
 .modal{
   background:var(--surface);border:1px solid var(--border);border-radius:16px;
-  width:100%;max-width:620px;max-height:90vh;overflow-y:auto;padding:26px;
+  width:100%;max-width:620px;padding:26px;
+  /* 90vh jako bezpieczny fallback, ale 90dvh (dynamic viewport height) jest dokładniejsze
+     na mobilnych przeglądarkach, gdzie 100vh potrafi być wyższe niż to, co realnie widać
+     (chowający się pasek adresu itp.) - dlatego okienko było "ucięte" na części telefonów */
+  max-height:90vh;
+  max-height:90dvh;
+  overflow-y:auto;
   box-shadow:var(--shadow-lg);animation:modalIn .22s var(--ease);
 }
 @keyframes modalIn{from{opacity:0;transform:translateY(10px) scale(.98);}to{opacity:1;transform:translateY(0) scale(1);}}
@@ -1012,7 +1021,12 @@ table.tradelist tr:hover td{background:var(--surface2);}
   border:1px solid rgba(255,255,255,0.08);
   border-radius:24px;
   box-shadow:0 40px 100px -24px rgba(0,0,0,0.75), inset 0 1px 0 rgba(255,255,255,0.05);
-  overflow:hidden;
+  /* overflow-x:hidden zachowuje zaokrąglone rogi (jak poprzednio), ale overflow-y:auto
+     (zamiast overflow:hidden) pozwala okienku się PRZEWIJAĆ, gdy treść (formularz +
+     przycisk Google) nie mieści się w wysokości ekranu - wcześniej to było zablokowane
+     i dolna część okienka była nie do osiągnięcia na krótszych ekranach */
+  overflow-x:hidden;
+  overflow-y:auto;
   animation:modalIn .28s var(--ease);
 }
 .auth-card::before{
