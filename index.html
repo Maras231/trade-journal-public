@@ -912,12 +912,6 @@ table.tradelist tr:hover td{background:var(--surface2);}
 }
 .dl-links a{color:var(--muted);text-decoration:underline;}
 .dl-links a:hover{color:var(--text);}
-.dl-links-dot{color:var(--border);}
-.dl-continue{
-  background:none;border:none;cursor:pointer;
-  color:var(--muted);font-size:12px;text-decoration:underline;font-family:'Inter',sans-serif;
-}
-.dl-continue:hover{color:var(--text);}
 .splash-mark{
   width:34px;height:80px;
   animation: splashPop .7s var(--ease) both, splashFloat 2.4s ease-in-out .7s infinite;
@@ -1529,8 +1523,6 @@ table.tradelist tr:hover td{background:var(--surface2);}
     </a>
     <div class="dl-links">
       <a href="/about.html">About Wick</a>
-      <span class="dl-links-dot">·</span>
-      <button type="button" class="dl-continue" id="dlContinueBtn">Continue in browser anyway</button>
     </div>
   </div>
 </div>
@@ -6904,15 +6896,8 @@ function maybeHideSplash(){
 
 /* ============ BLOKADA DESKTOPU: tylko Google Play, appka nie startuje ============ */
 // flaga ustawiona w małym inline <script> na samej górze <body> (zanim cokolwiek innego
-// zdążyło się odpalić) - jeśli to nie telefon, appka wcale się nie inicjalizuje
-let desktopBlockBypassed = false;
-document.getElementById('dlContinueBtn').addEventListener('click', ()=>{
-  desktopBlockBypassed = true;
-  document.getElementById('desktopLandingScreen').style.display = 'none';
-  applyStaticTexts();
-  renderDrawerQuote();
-  initAuth();
-});
+// zdążyło się odpalić) - jeśli to nie telefon, appka wcale się nie inicjalizuje,
+// bez żadnego obejścia (usunięty przycisk "Continue anyway")
 if(window.__wickDesktopBlock){
   document.getElementById('splashScreen').style.display = 'none';
   document.getElementById('desktopLandingScreen').style.display = 'flex';
