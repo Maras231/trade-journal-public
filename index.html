@@ -1495,13 +1495,17 @@ table.tradelist tr:hover td{background:var(--surface2);}
 </head>
 <body>
 
-<!-- Wykrywanie urządzenia - jeśli to NIE telefon, appka wcale się nie odpala:
-     pokazuje się wyłącznie strona z linkiem do Google Play. Świadomie umieszczone
-     jako pierwsza rzecz w <body>, zanim cokolwiek innego (splash, appka) zdąży wystartować. -->
+<!-- Wykrywanie czy appka jest ODPALONA JAKO ZAINSTALOWANA (PWA/przez Google Play - obie
+     metody wyglądają dla appki identycznie w "standalone mode"). Jeśli NIE - czy to telefon
+     w gołej przeglądarce, czy komputer - appka wcale się nie odpala, tylko strona z linkiem
+     do Google Play. Świadomie umieszczone jako pierwsza rzecz w <body>, zanim cokolwiek
+     innego (splash, appka) zdąży wystartować. -->
 <script>
 (function(){
-  var isMobile = /Android|iPhone|iPad|iPod|Mobile|webOS|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-  window.__wickDesktopBlock = !isMobile;
+  var isStandalone = window.matchMedia('(display-mode: standalone)').matches
+    || window.matchMedia('(display-mode: fullscreen)').matches
+    || window.navigator.standalone === true; // starsze Safari/iOS
+  window.__wickAppBlock = !isStandalone;
 })();
 </script>
 
@@ -6894,11 +6898,12 @@ function maybeHideSplash(){
   }
 }
 
-/* ============ BLOKADA DESKTOPU: tylko Google Play, appka nie startuje ============ */
+/* ============ BLOKADA: appka działa TYLKO po zainstalowaniu (standalone) ============ */
 // flaga ustawiona w małym inline <script> na samej górze <body> (zanim cokolwiek innego
-// zdążyło się odpalić) - jeśli to nie telefon, appka wcale się nie inicjalizuje,
-// bez żadnego obejścia (usunięty przycisk "Continue anyway")
-if(window.__wickDesktopBlock){
+// zdążyło się odpalić) - jeśli appka nie jest odpalona jako zainstalowana (PWA/Google Play),
+// wcale się nie inicjalizuje, bez żadnego obejścia - dotyczy zarówno komputera,
+// jak i telefonu w gołej przeglądarce
+if(window.__wickAppBlock){
   document.getElementById('splashScreen').style.display = 'none';
   document.getElementById('desktopLandingScreen').style.display = 'flex';
 } else {
