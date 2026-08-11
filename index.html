@@ -868,30 +868,46 @@ table.tradelist tr:hover td{background:var(--surface2);}
 /* ================= DESKTOP LANDING (nie-telefon => tylko link do Google Play) ================= */
 #desktopLandingScreen{
   position:fixed;inset:0;z-index:10000;
-  background: var(--body-bg-1), var(--body-bg-2);
+  background:#08090F;
   display:flex;align-items:center;justify-content:center;padding:24px;
+  overflow:hidden;
+}
+.dl-glow{
+  position:absolute;inset:0;pointer-events:none;
+  background:
+    radial-gradient(ellipse 900px 600px at 85% -10%, rgba(232,184,75,0.16) 0%, transparent 60%),
+    radial-gradient(ellipse 700px 500px at 10% 110%, rgba(60,80,120,0.16) 0%, transparent 60%);
 }
 .dl-card{
-  max-width:460px;width:100%;text-align:center;
-  background:var(--surface);border:1px solid var(--border);border-radius:20px;
-  padding:44px 36px 36px;box-shadow:var(--shadow-lg);
-  animation:pageIn .4s var(--ease);
+  position:relative;max-width:460px;width:100%;text-align:center;
+  background:var(--surface);border:1px solid var(--border);border-radius:22px;
+  padding:48px 40px 40px;box-shadow:var(--shadow-lg);
+  animation:pageIn .45s var(--ease);
 }
-.dl-logo{width:56px;height:56px;margin:0 auto 14px;border-radius:14px;overflow:hidden;box-shadow:var(--shadow-gold);}
+.dl-logo{
+  width:64px;height:64px;margin:0 auto 16px;border-radius:16px;overflow:hidden;
+  box-shadow:var(--shadow-gold);
+}
 .dl-logo img{width:100%;height:100%;display:block;}
-.dl-name{font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:15px;color:var(--muted);letter-spacing:.5px;margin-bottom:22px;}
-.dl-headline{font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:26px;line-height:1.25;margin-bottom:14px;}
-.dl-sub{color:var(--muted);font-size:14px;line-height:1.6;margin-bottom:28px;}
-.dl-play-btn{
-  display:inline-flex;align-items:center;justify-content:center;gap:10px;
-  width:100%;padding:14px 20px;border-radius:12px;
-  background:linear-gradient(135deg,var(--gold),#c98f2b);color:#151102;
-  font-family:'Inter',sans-serif;font-weight:700;font-size:15px;text-decoration:none;
-  box-shadow:var(--shadow-gold);transition:filter .18s var(--ease),transform .18s var(--ease);
+.dl-name{font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:16px;color:var(--text);margin-bottom:14px;}
+.dl-eyebrow{
+  display:inline-block;font-family:'Inter',sans-serif;font-size:11px;font-weight:700;
+  text-transform:uppercase;letter-spacing:.6px;color:var(--gold);
+  background:var(--gold-dim);padding:5px 12px;border-radius:20px;margin-bottom:18px;
 }
-.dl-play-btn:hover{filter:brightness(1.08);transform:translateY(-1px);}
+.dl-headline{font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:28px;line-height:1.25;margin-bottom:14px;}
+.dl-sub{color:var(--muted);font-size:14.5px;line-height:1.6;margin-bottom:24px;}
+.dl-features{
+  list-style:none;text-align:left;display:flex;flex-direction:column;gap:10px;
+  margin-bottom:30px;padding:16px 18px;background:var(--surface2);border-radius:14px;
+}
+.dl-features li{display:flex;align-items:center;gap:10px;font-size:13.5px;color:var(--text);}
+.dl-features svg{width:17px;height:17px;flex:none;color:var(--profit);}
+.dl-play-badge{display:inline-block;line-height:0;}
+.dl-play-badge img{height:58px;width:auto;transition:transform .18s var(--ease),filter .18s var(--ease);}
+.dl-play-badge:hover img{transform:translateY(-2px);filter:brightness(1.08);}
 .dl-continue{
-  display:block;margin:18px auto 0;background:none;border:none;cursor:pointer;
+  display:block;margin:20px auto 0;background:none;border:none;cursor:pointer;
   color:var(--muted);font-size:12px;text-decoration:underline;font-family:'Inter',sans-serif;
 }
 .dl-continue:hover{color:var(--text);}
@@ -1489,18 +1505,25 @@ table.tradelist tr:hover td{background:var(--surface2);}
 </script>
 
 <div id="desktopLandingScreen" style="display:none;">
+  <div class="dl-glow"></div>
   <div class="dl-card">
     <div class="dl-logo"><img src="icon-192.png" alt="Wick"></div>
     <div class="dl-name">Wick</div>
-    <h1 class="dl-headline">Wick lives on your phone.</h1>
-    <p class="dl-sub">Wick is a mobile-first trade journal, built to be used on the go — right after you close a trade, not later at a desk. Get the app on Google Play to start logging.</p>
-    <a class="dl-play-btn" href="https://play.google.com/store/apps/details?id=REPLACE_WITH_YOUR_PACKAGE_ID" target="_blank" rel="noopener">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:20px;height:20px;"><path d="M12 3v13"/><path d="m6 12 6 6 6-6"/><path d="M5 21h14"/></svg>
-      <span>Get it on Google Play</span>
+    <span class="dl-eyebrow">Mobile app only</span>
+    <h1 class="dl-headline">Wick lives on your phone</h1>
+    <p class="dl-sub">Wick is a trade journal built for phones. Log a trade in seconds right after you close it. Get the app on Google Play to get started.</p>
+    <ul class="dl-features">
+      <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>Log a trade in under 10 seconds</li>
+      <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>Watch your stats update instantly</li>
+      <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>Share your results with one tap</li>
+    </ul>
+    <a class="dl-play-badge" href="https://play.google.com/store/apps/details?id=REPLACE_WITH_YOUR_PACKAGE_ID" target="_blank" rel="noopener">
+      <img src="https://play.google.com/intl/en_us/badges/static/images/badges/en_badge_web_generic.png" alt="Get it on Google Play">
     </a>
     <button type="button" class="dl-continue" id="dlContinueBtn">Continue in browser anyway</button>
   </div>
 </div>
+
 
 <div id="splashScreen">
   <div class="splash-mark"><img src="logo-glyph.png" alt="Wick"></div>
