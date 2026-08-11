@@ -1,52 +1,87 @@
 <!DOCTYPE html>
-<html lang="pl">
+<html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Wick</title>
-<meta name="description" content="Wick to prosty, przejrzysty dziennik transakcji dla traderów. Zapisuj transakcje, zdjęcia i notatki, a Wick sam policzy Twoje statystyki: Win Rate, średni zysk/stratę i krzywą kapitału.">
+<title>Wick — Mobile Trade Journal</title>
+<meta name="description" content="Wick is a simple, clean trade journal for traders. Log your trades, screenshots and notes, and Wick calculates your stats automatically: win rate, average win/loss and equity curve.">
 <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
-<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@600;700&display=swap" rel="stylesheet">
 <style>
 :root{
-  --bg:#0B0E14; --surface:#12161F; --surface2:#181D28; --border:#242A38;
-  --text:#E7EAF2; --muted:#7C8399; --gold:#E8B84B; --profit:#3ADD9C;
+  --bg:#08090F; --surface:#12161F; --surface2:#181D28; --border:#242A38;
+  --text:#E7EAF2; --muted:#7C8399; --gold:#E8B84B; --gold-dim:rgba(232,184,75,.12); --profit:#3ADD9C;
+  --shadow-gold:0 8px 24px -6px rgba(232,184,75,.35);
+  --ease:cubic-bezier(.2,.7,.3,1);
 }
 *{box-sizing:border-box;margin:0;padding:0;}
 body{
-  background:radial-gradient(ellipse 900px 500px at 88% -8%, rgba(232,184,75,0.07) 0%, transparent 60%),
-             radial-gradient(circle at 10% 0%, #131826 0%, #0B0E14 45%) fixed;
+  background:var(--bg);
   color:var(--text); font-family:'Inter',sans-serif; line-height:1.6;
   -webkit-font-smoothing:antialiased;
+  position:relative; overflow-x:hidden;
 }
-.wrap{max-width:880px;margin:0 auto;padding:28px 24px 80px;}
-header{display:flex;align-items:center;justify-content:space-between;padding-bottom:24px;border-bottom:1px solid var(--border);margin-bottom:56px;}
+body::before{
+  content:'';position:fixed;inset:0;z-index:-1;pointer-events:none;
+  background:
+    radial-gradient(ellipse 900px 600px at 88% -10%, rgba(232,184,75,0.12) 0%, transparent 60%),
+    radial-gradient(ellipse 700px 550px at 5% 105%, rgba(60,80,120,0.16) 0%, transparent 60%);
+}
+.wrap{max-width:920px;margin:0 auto;padding:28px 24px 80px;}
+header{display:flex;align-items:center;justify-content:space-between;padding-bottom:24px;border-bottom:1px solid var(--border);margin-bottom:64px;}
 .brand{display:flex;align-items:center;gap:12px;}
-.brand img{width:34px;height:34px;filter:drop-shadow(0 4px 10px rgba(0,0,0,.35));}
+.brand img{width:34px;height:34px;border-radius:9px;filter:drop-shadow(0 4px 10px rgba(0,0,0,.35));}
 .brand span{font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:19px;}
 .cta-top{
+  display:inline-flex;align-items:center;gap:8px;
   background:linear-gradient(135deg,var(--gold),#c98f2b);color:#151102;font-weight:700;font-size:13.5px;
   padding:9px 18px;border-radius:9px;text-decoration:none;box-shadow:0 8px 24px -6px rgba(232,184,75,.35);
+  transition:filter .18s var(--ease),transform .18s var(--ease);
 }
-.hero{text-align:center;margin-bottom:72px;}
-.hero h1{font-family:'Space Grotesk',sans-serif;font-size:40px;font-weight:700;letter-spacing:-.5px;margin-bottom:16px;}
-.hero p{color:var(--muted);font-size:16px;max-width:520px;margin:0 auto 32px;}
-.hero .cta{
-  display:inline-flex;align-items:center;gap:8px;background:linear-gradient(135deg,var(--gold),#c98f2b);
-  color:#151102;font-weight:700;font-size:15px;padding:14px 28px;border-radius:11px;text-decoration:none;
-  box-shadow:0 10px 28px -6px rgba(232,184,75,.4);
+.cta-top:hover{filter:brightness(1.08);transform:translateY(-1px);}
+
+.hero{text-align:center;margin-bottom:76px;}
+.hero-eyebrow{
+  display:inline-block;font-family:'Inter',sans-serif;font-size:11px;font-weight:700;
+  text-transform:uppercase;letter-spacing:.6px;color:var(--gold);
+  background:var(--gold-dim);padding:5px 14px;border-radius:20px;margin-bottom:20px;
 }
-.features{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px;margin-bottom:64px;}
-.feature{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:22px;}
-.feature .icon{width:34px;height:34px;border-radius:9px;background:rgba(232,184,75,.12);color:var(--gold);
-  display:flex;align-items:center;justify-content:center;margin-bottom:14px;font-size:16px;font-weight:700;}
-.feature h3{font-family:'Space Grotesk',sans-serif;font-size:15px;margin-bottom:6px;}
-.feature p{color:var(--muted);font-size:13.5px;}
+.hero h1{font-family:'Space Grotesk',sans-serif;font-size:42px;font-weight:700;letter-spacing:-.5px;margin-bottom:16px;line-height:1.15;}
+.hero p{color:var(--muted);font-size:16px;max-width:540px;margin:0 auto 32px;}
+.hero .play-badge{display:inline-block;line-height:0;}
+.hero .play-badge img{height:60px;width:auto;transition:transform .18s var(--ease),filter .18s var(--ease);}
+.hero .play-badge:hover img{transform:translateY(-2px);filter:brightness(1.08);}
+
+.features{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:16px;margin-bottom:68px;}
+.feature{
+  background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:24px;
+  transition:border-color .18s var(--ease),transform .18s var(--ease);
+}
+.feature:hover{border-color:var(--gold);transform:translateY(-2px);}
+.feature .icon{
+  width:38px;height:38px;border-radius:10px;background:var(--gold-dim);color:var(--gold);
+  display:flex;align-items:center;justify-content:center;margin-bottom:16px;
+}
+.feature .icon svg{width:19px;height:19px;}
+.feature h3{font-family:'Space Grotesk',sans-serif;font-size:15px;margin-bottom:7px;}
+.feature p{color:var(--muted);font-size:13.5px;line-height:1.55;}
+
 .section-title{font-family:'Space Grotesk',sans-serif;font-size:22px;margin-bottom:20px;}
 .about{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:32px;margin-bottom:56px;}
 .about p{color:#C7CCDA;font-size:14.5px;margin-bottom:14px;}
 .about p:last-child{margin-bottom:0;}
+.about a{color:var(--gold);}
+.about strong{color:var(--text);}
+
+.bottom-cta{
+  text-align:center;background:var(--surface);border:1px solid var(--border);border-radius:18px;
+  padding:44px 32px;margin-bottom:56px;
+}
+.bottom-cta h2{font-family:'Space Grotesk',sans-serif;font-size:24px;margin-bottom:10px;}
+.bottom-cta p{color:var(--muted);font-size:14.5px;margin-bottom:26px;}
+.bottom-cta .play-badge img{height:56px;width:auto;}
+
 footer{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;
   padding-top:28px;border-top:1px solid var(--border);color:var(--muted);font-size:13px;}
 footer a{color:var(--muted);text-decoration:none;margin-left:18px;}
@@ -61,65 +96,76 @@ footer a:hover{color:var(--gold);}
 <div class="wrap">
   <header>
     <div class="brand"><img src="icon-192.png" alt="Wick"><span>Wick</span></div>
-    <a class="cta-top" href="index.html">Otwórz aplikację</a>
+    <a class="cta-top" href="https://play.google.com/store/apps/details?id=REPLACE_WITH_YOUR_PACKAGE_ID" target="_blank" rel="noopener">Get it on Google Play</a>
   </header>
 
   <div class="hero">
-    <h1>Wick</h1>
-    <p>Osobisty dziennik transakcji tradingowych. Zapisuj swoje transakcje, zdjęcia i notatki — Wick sam policzy za Ciebie statystyki i krzywą kapitału.</p>
-    <a class="cta" href="index.html">Otwórz aplikację →</a>
+    <span class="hero-eyebrow">Mobile app only</span>
+    <h1>Your trades. Actually tracked.</h1>
+    <p>Wick is a personal trade journal for your phone. Log each trade with a screenshot and a note, and Wick calculates your stats and equity curve for you.</p>
+    <a class="play-badge" href="https://play.google.com/store/apps/details?id=REPLACE_WITH_YOUR_PACKAGE_ID" target="_blank" rel="noopener">
+      <img src="https://play.google.com/intl/en_us/badges/static/images/badges/en_badge_web_generic.png" alt="Get it on Google Play">
+    </a>
   </div>
 
   <div class="features">
     <div class="feature">
-      <div class="icon">1</div>
-      <h3>Dziennik transakcji</h3>
-      <p>Zapisuj symbol, kierunek, wynik, RR i pewność każdej transakcji, wraz ze zrzutami ekranu wykresu.</p>
+      <div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 4h8a2 2 0 0 1 2 2v13l-2.5-1.5L13 19l-2.5-1.5L8 19V6a2 2 0 0 1 2-2z"/><path d="M9.5 9h5M9.5 12.5h5"/></svg></div>
+      <h3>Trade journal</h3>
+      <p>Log the symbol, direction, result, RR and confidence of every trade, along with a screenshot of the chart.</p>
     </div>
     <div class="feature">
-      <div class="icon">2</div>
-      <h3>Automatyczne statystyki</h3>
-      <p>Win Rate, średni zysk/strata, seria wygranych i krzywa kapitału liczone same, na bieżąco.</p>
+      <div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="M7 15l4-5 3 3 5-7"/></svg></div>
+      <h3>Stats that calculate themselves</h3>
+      <p>Win rate, average win/loss, win streaks and your equity curve, calculated live as you log trades.</p>
     </div>
     <div class="feature">
-      <div class="icon">3</div>
-      <h3>Wiele kont</h3>
-      <p>Prowadź osobne dzienniki dla różnych kont handlowych w jednym miejscu.</p>
+      <div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="20" height="13" rx="2"/><path d="M2 10h20"/></svg></div>
+      <h3>Multiple accounts</h3>
+      <p>Keep separate journals for different trading accounts, all in one place.</p>
     </div>
     <div class="feature">
-      <div class="icon">4</div>
-      <h3>Kalendarz i miesiące</h3>
-      <p>Podsumowania miesięczne i widok kalendarza pokazują wyniki dzień po dniu.</p>
+      <div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M3 10h18M8 2v4M16 2v4"/></svg></div>
+      <h3>Calendar & monthly view</h3>
+      <p>Monthly summaries and a calendar view show your results day by day.</p>
     </div>
     <div class="feature">
-      <div class="icon">5</div>
-      <h3>Prywatność</h3>
-      <p>Twoje dane widzi tylko Ty — appka nie sprzedaje ani nie udostępnia ich nikomu.</p>
+      <div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2 4 6v6c0 5 3.5 8.5 8 10 4.5-1.5 8-5 8-10V6l-8-4z"/></svg></div>
+      <h3>Private by default</h3>
+      <p>Only you can see your data. Wick never sells it or shares it with anyone.</p>
     </div>
     <div class="feature">
-      <div class="icon">6</div>
-      <h3>Wszędzie dostępna</h3>
-      <p>Działa w przeglądarce i jako aplikacja na telefonie, na Androidzie i komputerze.</p>
+      <div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="2" width="12" height="20" rx="2"/><path d="M11 18h2"/></svg></div>
+      <h3>Built for your phone</h3>
+      <p>A fast, focused mobile app for Android, designed to be used right after you close a trade.</p>
     </div>
   </div>
 
-  <div class="section-title">Czym jest Wick?</div>
+  <div class="section-title">What is Wick?</div>
   <div class="about">
-    <p><strong>Wick</strong> to prosty, przejrzysty dziennik transakcji dla traderów indywidualnych. Aplikacja nie łączy się z żadnym brokerem ani giełdą i nie wykonuje żadnych operacji finansowych — służy wyłącznie do ręcznego zapisywania własnych transakcji i automatycznego liczenia statystyk na ich podstawie (Win Rate, średni zysk, średnia strata, krzywa kapitału i inne).</p>
-    <p>Aplikacja wymaga założenia konta (e-mail i hasło, lub logowanie przez Google), żeby dane każdego użytkownika były prywatne i widoczne tylko dla niego. Po zalogowaniu można prowadzić kilka niezależnych kont handlowych, dodawać transakcje ze zrzutami ekranu i notatkami, oraz przeglądać podsumowania dzienne i miesięczne.</p>
+    <p><strong>Wick</strong> is a simple, clean trade journal for individual traders. The app does not connect to any broker or exchange and does not carry out any financial transactions. It is used purely to manually log your own trades and automatically calculate stats from them (win rate, average win, average loss, equity curve and more).</p>
+    <p>The app requires an account (email and password, or Google sign-in) so that every user's data stays private and visible only to them. Once signed in, you can keep several independent trading accounts, log trades with screenshots and notes, and review daily and monthly summaries.</p>
   </div>
 
-  <div class="section-title">Po co prosimy o dostęp do Twojego konta Google?</div>
+  <div class="section-title">Why does Wick ask for access to your Google account?</div>
   <div class="about">
-    <p>Logowanie przez Google to opcjonalny sposób założenia konta w Wick, alternatywny wobec rejestracji e-mailem i hasłem. Aplikacja prosi wyłącznie o Twój <strong>adres e-mail oraz podstawowe dane profilu</strong> (imię, zdjęcie profilowe) — dokładnie te same, minimalne dane, o które prosi każda aplikacja korzystająca z logowania Google.</p>
-    <p>Te dane służą wyłącznie do <strong>założenia i identyfikacji Twojego konta</strong> w Wick, tak aby Twój dziennik transakcji był powiązany wyłącznie z Tobą i widoczny tylko dla Ciebie. Wick nie prosi o dostęp do Twojej poczty, kontaktów, dysku Google ani żadnych innych danych czy usług Google poza podstawowym logowaniem. Więcej informacji w <a href="privacy-policy.html">Polityce Prywatności</a>.</p>
+    <p>Signing in with Google is an optional way to create a Wick account, as an alternative to registering with an email and password. The app only asks for your <strong>email address and basic profile info</strong> (name, profile picture), the same minimal data requested by any app that offers Google sign-in.</p>
+    <p>This data is used solely to <strong>create and identify your account</strong> in Wick, so your trade journal is tied to you and visible only to you. Wick never asks for access to your email, contacts, Google Drive, or any other Google data or service beyond basic sign-in. More details in the <a href="privacy-policy.html">Privacy Policy</a>.</p>
+  </div>
+
+  <div class="bottom-cta">
+    <h2>Get Wick on your phone</h2>
+    <p>Free to download. Start logging your trades today.</p>
+    <a class="play-badge" href="https://play.google.com/store/apps/details?id=REPLACE_WITH_YOUR_PACKAGE_ID" target="_blank" rel="noopener">
+      <img src="https://play.google.com/intl/en_us/badges/static/images/badges/en_badge_web_generic.png" alt="Get it on Google Play">
+    </a>
   </div>
 
   <footer>
     <span>© 2026 Wick</span>
     <div>
-      <a href="privacy-policy.html">Polityka Prywatności</a>
-      <a href="mailto:wickjournalapp@gmail.com">Kontakt</a>
+      <a href="privacy-policy.html">Privacy Policy</a>
+      <a href="mailto:wickjournalapp@gmail.com">Contact</a>
     </div>
   </footer>
 </div>
