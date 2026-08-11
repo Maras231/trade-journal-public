@@ -2,7 +2,7 @@
   "id": "/",
   "name": "Wick: Trade Journal",
   "short_name": "Wick: Trade Journal",
-  "description": "Twój dziennik transakcji i analityka",
+  "description": "Your trade journal and analytics",
   "start_url": "./index.html",
   "scope": "./",
   "display": "standalone",
