@@ -82,6 +82,35 @@ header{display:flex;align-items:center;justify-content:space-between;padding-bot
 .ledger-body h3{font-family:'Space Grotesk',sans-serif;font-size:16.5px;font-weight:600;margin-bottom:6px;}
 .ledger-body p{color:var(--muted);font-size:13.5px;max-width:520px;}
 
+/* ---------- GALERIA: autoprzewijany pas zrzutów ekranu, zapętlony w nieskończoność ---------- */
+.gallery-section{margin-bottom:26px;}
+.gallery-heading{font-family:'Space Grotesk',sans-serif;font-size:23px;font-weight:600;max-width:560px;}
+.gallery{
+  position:relative;overflow:hidden;margin:0 -24px 88px;padding:0 24px;
+  -webkit-mask-image:linear-gradient(90deg, transparent, black 6%, black 94%, transparent);
+  mask-image:linear-gradient(90deg, transparent, black 6%, black 94%, transparent);
+}
+.gallery-track{
+  display:flex;gap:22px;width:max-content;
+  animation:galleryScroll 32s linear infinite;
+}
+.gallery:hover .gallery-track{animation-play-state:paused;}
+.gallery-track img{
+  height:440px;width:auto;flex:none;
+  border-radius:18px;border:1px solid var(--border);
+  box-shadow:0 24px 60px -24px rgba(0,0,0,.7);
+}
+@keyframes galleryScroll{
+  from{transform:translateX(0);}
+  to{transform:translateX(calc(-50% - 11px));}
+}
+@media(max-width:760px){
+  .gallery-track img{height:320px;}
+}
+@media(prefers-reduced-motion:reduce){
+  .gallery-track{animation:none;}
+}
+
 /* ---------- ABOUT: notatki, nie karty ---------- */
 .note{margin-bottom:64px;}
 .note-tag{
@@ -226,8 +255,25 @@ footer a:hover{color:var(--gold);}
     </div>
   </div>
 
+  <div class="gallery-section">
+    <span class="note-tag">01 / See it in the app</span>
+    <h2 class="gallery-heading">A quick look before you install.</h2>
+  </div>
+  <div class="gallery">
+    <div class="gallery-track">
+      <img src="screenshot-1-accounts.png" alt="Wick accounts screen" loading="lazy">
+      <img src="screenshot-2-dashboard.png" alt="Wick dashboard screen" loading="lazy">
+      <img src="screenshot-3-trades.png" alt="Wick trades list screen" loading="lazy">
+      <img src="screenshot-4-share.png" alt="Wick share card screen" loading="lazy">
+      <img src="screenshot-1-accounts.png" alt="" aria-hidden="true" loading="lazy">
+      <img src="screenshot-2-dashboard.png" alt="" aria-hidden="true" loading="lazy">
+      <img src="screenshot-3-trades.png" alt="" aria-hidden="true" loading="lazy">
+      <img src="screenshot-4-share.png" alt="" aria-hidden="true" loading="lazy">
+    </div>
+  </div>
+
   <div class="note">
-    <span class="note-tag">01 / What is Wick</span>
+    <span class="note-tag">02 / What is Wick</span>
     <h2>A place to write down every trade, honestly.</h2>
     <div class="note-body">
       <p><strong>Wick</strong> is a simple, clean trade journal for individual traders. The app does not connect to any broker or exchange and does not carry out any financial transactions. It is used purely to manually log your own trades and automatically calculate stats from them (win rate, average win, average loss, equity curve and more).</p>
@@ -236,7 +282,7 @@ footer a:hover{color:var(--gold);}
   </div>
 
   <div class="note">
-    <span class="note-tag">02 / Google sign-in</span>
+    <span class="note-tag">03 / Google sign-in</span>
     <h2>Why does Wick ask for your Google account?</h2>
     <div class="note-body">
       <p>Signing in with Google is an optional way to create a Wick account, as an alternative to registering with an email and password. The app only asks for your <strong>email address and basic profile info</strong> (name, profile picture), the same minimal data requested by any app that offers Google sign-in.</p>
