@@ -1254,15 +1254,17 @@ table.tradelist tr:hover td{background:var(--surface2);}
 .account-tile-add:hover{border-color:var(--gold);color:var(--gold);}
 
 .profile-row{
-  display:flex;align-items:center;justify-content:space-between;gap:14px;
+  display:flex;align-items:center;justify-content:space-between;gap:10px 14px;
   padding:16px 0;border-bottom:1px solid var(--border);
+  flex-wrap:wrap;
 }
 .profile-row:last-child{border-bottom:none;}
 .profile-row-label{font-size:13.5px;color:var(--muted);font-weight:600;}
 .profile-row-value{font-size:13.5px;color:var(--text);}
 .profile-input{
   background:var(--surface2);border:1px solid var(--border);color:var(--text);
-  padding:9px 12px;border-radius:8px;font-size:13.5px;font-family:'Inter';width:180px;
+  padding:9px 12px;border-radius:8px;font-size:13.5px;font-family:'Inter';
+  width:100%;max-width:180px;min-width:0;flex:1 1 120px;
   transition:border-color .18s var(--ease),box-shadow .18s var(--ease);
 }
 .profile-input:focus{outline:none;border-color:var(--gold);box-shadow:0 0 0 3px rgba(232,184,75,.12);}
@@ -1362,13 +1364,15 @@ table.tradelist tr:hover td{background:var(--surface2);}
 .danger-zone{border-color:rgba(255,107,107,0.28) !important;}
 
 .settings-row{
-  display:flex;align-items:center;justify-content:space-between;gap:14px;
+  display:flex;align-items:center;justify-content:space-between;gap:10px 14px;
   padding:16px 0;border-bottom:1px solid var(--border);
+  flex-wrap:wrap;
 }
+.settings-row > div:first-child{flex:1 1 190px;min-width:0;}
 .settings-row:last-child{border-bottom:none;}
 .settings-row-title{font-size:14px;font-weight:600;}
 .settings-row-sub{font-size:12px;color:var(--muted);margin-top:2px;}
-.settings-lang-options{display:flex;gap:6px;}
+.settings-lang-options{display:flex;gap:6px;flex-wrap:wrap;}
 .settings-lang-options button{
   background:var(--surface2);border:1px solid var(--border);color:var(--muted);
   padding:7px 12px;border-radius:8px;font-size:12.5px;font-weight:700;cursor:pointer;
@@ -1921,9 +1925,9 @@ table.tradelist tr:hover td{background:var(--surface2);}
     <div class="panel-subtitle" id="profileInfoTitle">Informacje o koncie</div>
     <div class="profile-row">
       <span class="profile-row-label" id="profileUsernameLabel">Nazwa użytkownika</span>
-      <div style="display:flex;gap:8px;align-items:center;">
+      <div style="display:flex;gap:8px;align-items:center;flex:1 1 220px;min-width:0;justify-content:flex-end;">
         <input type="text" id="profileUsernameInput" class="profile-input">
-        <button class="btn primary" id="profileUsernameSaveBtn" style="padding:9px 14px;">✓</button>
+        <button class="btn primary" id="profileUsernameSaveBtn" style="padding:9px 14px;flex:none;">✓</button>
       </div>
     </div>
     <div class="profile-row">
