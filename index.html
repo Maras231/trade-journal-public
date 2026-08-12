@@ -6111,13 +6111,16 @@ function updateDrawerAccountInfo(){
   }
 }
 
-/* swipe-from-edge to open, swipe-left inside drawer to close */
+/* swipe z DOWOLNEGO miejsca na ekranie otwiera szufladę (jak w Discordzie), nie tylko
+   z wąskiej krawędzi - wyjątek: tabela transakcji ma WŁASNE przewijanie w poziomie,
+   więc zaczynanie swipe'a stamtąd by z nim kolidowało */
 let touchStartX = null, touchStartY = null;
 document.addEventListener('touchstart', (e)=>{
   if(document.getElementById('appRoot').style.display === 'none'){ touchStartX = null; return; }
   const p = e.touches[0];
   const drawerOpen = document.getElementById('sideDrawer').classList.contains('open');
-  if(drawerOpen || p.clientX < 24){
+  const startedOnHorizontalScroll = e.target.closest('#tradesTableWrap');
+  if(drawerOpen || !startedOnHorizontalScroll){
     touchStartX = p.clientX; touchStartY = p.clientY;
   } else {
     touchStartX = null;
