@@ -86,7 +86,7 @@ html{
      świadome przewijanie w poziomie (patrz #tradesTableWrap) i działa niezależnie od tego. */
   overflow-x:hidden;
 }
-body{overflow-x:hidden;}
+body{overflow-x:hidden;overflow-x:clip;}
 
 /* Wyłącz zaznaczanie tekstu / menu "Kopiuj" po długim przytrzymaniu na interfejsie appki,
    żeby czuło się jak natywna appka, a nie strona w przeglądarce. Pola do wpisywania danych
@@ -117,7 +117,6 @@ body{
   -webkit-font-smoothing:antialiased;
   animation:pageIn .5s var(--ease);
   transition:background .25s var(--ease),color .25s var(--ease);
-  overscroll-behavior-y:contain;
 }
 @keyframes pageIn{from{opacity:0;}to{opacity:1;}}
 /* delikatna animacja "wjazdu" dla elementów siatek (kafelki miesięcy, kont, wiersze
