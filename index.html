@@ -6831,13 +6831,13 @@ function maybeHideSplash(){
 // zdążyło się odpalić) - jeśli appka nie jest odpalona jako zainstalowana (PWA/Google Play),
 // wcale się nie inicjalizuje, bez żadnego obejścia - dotyczy zarówno komputera,
 // jak i telefonu w gołej przeglądarce
-if(window.__wickAppBlock){
-  document.getElementById('splashScreen').style.display = 'none';
-  document.getElementById('desktopLandingScreen').style.display = 'flex';
-} else {
-  applyStaticTexts();
-  renderDrawerQuote();
-  initAuth();
+//if(window.__wickAppBlock){
+ // document.getElementById('splashScreen').style.display = 'none';
+ // document.getElementById('desktopLandingScreen').style.display = 'flex';
+//} else {
+//  applyStaticTexts();
+ // renderDrawerQuote();
+//  initAuth();
 }
 
 /* ============ PWA: rejestracja service workera ============ */
