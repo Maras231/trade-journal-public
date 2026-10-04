@@ -80,13 +80,13 @@ html{
      co psuło układ stronom z ustaloną, projektowaną siatką jak ta appka */
   -webkit-text-size-adjust:100%;
   text-size-adjust:100%;
+  /* siatka bezpieczeństwa na poziomie całej strony - gdyby mimo wszystko coś (nawet
+     coś, czego jeszcze nie znaleźliśmy) próbowało "wypchnąć" stronę w bok, po prostu
+     się utnie zamiast przewijać cały ekran poziomo. Tabela transakcji ma WŁASNE,
+     świadome przewijanie w poziomie (patrz #tradesTableWrap) i działa niezależnie od tego. */
+  overflow-x:hidden;
 }
-/* UWAGA: było tu wcześniej też overflow-x:hidden na html/body jako siatka bezpieczeństwa
-   przed poziomym "wypychaniem" strony - USUNIĘTE NA STAŁE, bo część mobilnych silników
-   (zwłaszcza w TWA) błędnie traktuje to jako wyłączenie przewijania w OGÓLE, nie tylko
-   w poziomie, i blokowało to normalne przewijanie appki palcem. Jeśli kiedyś w przyszłości
-   ktoś (człowiek albo AI) będzie kuszony, żeby to tu z powrotem dopisać jako "zabezpieczenie" -
-   NIE RÓB TEGO, to jest świadomie wykluczone, nie przeoczenie. */
+body{overflow-x:hidden;}
 
 /* Wyłącz zaznaczanie tekstu / menu "Kopiuj" po długim przytrzymaniu na interfejsie appki,
    żeby czuło się jak natywna appka, a nie strona w przeglądarce. Pola do wpisywania danych
@@ -245,13 +245,12 @@ header.top{
 nav.tabs{
   display:flex;gap:4px;background:var(--surface);border:1px solid var(--border);
   border-radius:12px;padding:6px;margin-bottom:22px;width:fit-content;max-width:100%;
-  box-shadow:var(--shadow-sm);
+  flex-wrap:wrap;box-shadow:var(--shadow-sm);
 }
 nav.tabs button{
-  background:transparent;border:none;color:var(--muted);padding:9px 14px;
+  background:transparent;border:none;color:var(--muted);padding:9px 18px;
   border-radius:8px;font-size:13.5px;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif;
   transition:background .18s var(--ease),color .18s var(--ease);position:relative;
-  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0;
 }
 nav.tabs button.active{background:var(--gold-dim);color:var(--gold);box-shadow:inset 0 0 0 1px rgba(232,184,75,.25);}
 nav.tabs button:hover:not(.active){color:var(--text);}
@@ -378,12 +377,7 @@ table.calendar td.other-month .mo-abbr{font-size:9px;text-transform:uppercase;co
 th.week-col{color:var(--gold);text-align:center;}
 table.calendar td.week-col{
   background:var(--surface2);cursor:default;text-align:center;
-  /* CELOWO bez display:flex na samej komórce <td> - to potrafi zerwać dopasowanie
-     wysokości komórek w wierszu tabeli na części przeglądarek/telefonów (komórka
-     "SUMA" nie rozciągała się razem z resztą wiersza, gdy któryś dzień miał więcej
-     treści). vertical-align:middle robi to samo (wyśrodkowanie), ale bezpiecznie,
-     standardowym mechanizmem tabel, gwarantowanym na każdym urządzeniu. */
-  vertical-align:middle;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
   border-color:var(--border);box-shadow:inset 0 0 0 1px rgba(232,184,75,.08);
 }
 table.calendar td.week-col:hover{transform:none;box-shadow:inset 0 0 0 1px rgba(232,184,75,.08);}
@@ -1293,18 +1287,15 @@ table.tradelist tr:hover td{background:var(--surface2);}
 .profile-row{
   display:flex;align-items:center;justify-content:space-between;gap:10px 14px;
   padding:16px 0;border-bottom:1px solid var(--border);
-  /* BEZ flex-wrap: wiersz ma zawsze wyglądać identycznie (jedna linia) na KAŻDYM
-     telefonie, niezależnie od szerokości ekranu czy skali czcionki systemowej.
-     Zamiast łamać się na dwie linie gdy ciasno (co dawało różny wygląd na różnych
-     urządzeniach), pole tekstowe obok (patrz .profile-input niżej) samo się kurczy. */
+  flex-wrap:wrap;
 }
 .profile-row:last-child{border-bottom:none;}
-.profile-row-label{font-size:13.5px;color:var(--muted);font-weight:600;flex:none;white-space:nowrap;}
+.profile-row-label{font-size:13.5px;color:var(--muted);font-weight:600;}
 .profile-row-value{font-size:13.5px;color:var(--text);}
 .profile-input{
   background:var(--surface2);border:1px solid var(--border);color:var(--text);
   padding:9px 12px;border-radius:8px;font-size:13.5px;font-family:'Inter';
-  width:100%;max-width:180px;min-width:60px;flex:1 1 60px;
+  width:100%;max-width:180px;min-width:0;flex:1 1 120px;
   transition:border-color .18s var(--ease),box-shadow .18s var(--ease);
 }
 .profile-input:focus{outline:none;border-color:var(--gold);box-shadow:0 0 0 3px rgba(232,184,75,.12);}
@@ -1404,21 +1395,16 @@ table.tradelist tr:hover td{background:var(--surface2);}
 .danger-zone{border-color:rgba(255,107,107,0.28) !important;}
 
 .settings-row{
-  display:flex;align-items:flex-start;justify-content:space-between;gap:6px 14px;
+  display:flex;align-items:center;justify-content:space-between;gap:10px 14px;
   padding:16px 0;border-bottom:1px solid var(--border);
-  /* ZAWSZE stackuje się na dwie linie (tytuł, potem przyciski pod spodem) - świadomie
-     bez zależności od szerokości ekranu, żeby wyglądało IDENTYCZNIE na każdym telefonie,
-     zamiast czasem mieścić się w jednej linii, a czasem się łamać (co dawało różny
-     wygląd zależnie od urządzenia/skali czcionki systemowej) */
-  flex-direction:column;
+  flex-wrap:wrap;
 }
-.settings-row > div:first-child{width:100%;}
+.settings-row > div:first-child{flex:1 1 190px;min-width:0;}
 .settings-row:last-child{border-bottom:none;}
 .settings-row-title{font-size:14px;font-weight:600;}
 .settings-row-sub{font-size:12px;color:var(--muted);margin-top:2px;}
-.settings-lang-options{display:flex;gap:6px;flex-wrap:wrap;width:100%;}
+.settings-lang-options{display:flex;gap:6px;flex-wrap:wrap;}
 .settings-lang-options button{
-  flex:1 1 0;min-width:0;
   background:var(--surface2);border:1px solid var(--border);color:var(--muted);
   padding:7px 12px;border-radius:8px;font-size:12.5px;font-weight:700;cursor:pointer;
   transition:border-color .18s var(--ease),color .18s var(--ease),background .18s var(--ease);
@@ -1556,43 +1542,6 @@ table.tradelist tr:hover td{background:var(--surface2);}
 </style>
 </head>
 <body>
-
-<!-- Wykrywanie czy appka jest ODPALONA JAKO ZAINSTALOWANA (PWA/przez Google Play - obie
-     metody wyglądają dla appki identycznie w "standalone mode"). Jeśli NIE - czy to telefon
-     w gołej przeglądarce, czy komputer - appka wcale się nie odpala, tylko strona z linkiem
-     do Google Play. Świadomie umieszczone jako pierwsza rzecz w <body>, zanim cokolwiek
-     innego (splash, appka) zdąży wystartować. -->
-<script>
-(function(){
-  var isStandalone = window.matchMedia('(display-mode: standalone)').matches
-    || window.matchMedia('(display-mode: fullscreen)').matches
-    || window.navigator.standalone === true; // starsze Safari/iOS
-  window.__wickAppBlock = !isStandalone;
-})();
-</script>
-
-<div id="desktopLandingScreen" style="display:none;">
-  <div class="dl-glow"></div>
-  <div class="dl-card">
-    <div class="dl-logo"><img src="icon-192.png" alt="Wick"></div>
-    <div class="dl-name">Wick</div>
-    <span class="dl-eyebrow">Mobile app only</span>
-    <h1 class="dl-headline">Wick lives on your phone</h1>
-    <p class="dl-sub">Wick is a trade journal built for phones. Log a trade in seconds right after you close it. Get the app on Google Play to get started.</p>
-    <ul class="dl-features">
-      <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>Log a trade in under 10 seconds</li>
-      <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>Watch your stats update instantly</li>
-      <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>Share your results with one tap</li>
-    </ul>
-    <a class="dl-play-badge" href="https://play.google.com/store/apps/details?id=REPLACE_WITH_YOUR_PACKAGE_ID" target="_blank" rel="noopener">
-      <img src="https://play.google.com/intl/en_us/badges/static/images/badges/en_badge_web_generic.png" alt="Get it on Google Play">
-    </a>
-    <div class="dl-links">
-      <a href="/about.html">About Wick</a>
-    </div>
-  </div>
-</div>
-
 
 <div id="splashScreen">
   <div class="splash-mark"><img src="logo-glyph.png" alt="Wick"></div>
@@ -6111,16 +6060,13 @@ function updateDrawerAccountInfo(){
   }
 }
 
-/* swipe z DOWOLNEGO miejsca na ekranie otwiera szufladę (jak w Discordzie), nie tylko
-   z wąskiej krawędzi - wyjątek: tabela transakcji ma WŁASNE przewijanie w poziomie,
-   więc zaczynanie swipe'a stamtąd by z nim kolidowało */
+/* swipe-from-edge to open, swipe-left inside drawer to close */
 let touchStartX = null, touchStartY = null;
 document.addEventListener('touchstart', (e)=>{
   if(document.getElementById('appRoot').style.display === 'none'){ touchStartX = null; return; }
   const p = e.touches[0];
   const drawerOpen = document.getElementById('sideDrawer').classList.contains('open');
-  const startedOnHorizontalScroll = e.target.closest('#tradesTableWrap');
-  if(drawerOpen || !startedOnHorizontalScroll){
+  if(drawerOpen || p.clientX < 24){
     touchStartX = p.clientX; touchStartY = p.clientY;
   } else {
     touchStartX = null;
@@ -6826,19 +6772,10 @@ function maybeHideSplash(){
   }
 }
 
-/* ============ BLOKADA: appka działa TYLKO po zainstalowaniu (standalone) ============ */
-// flaga ustawiona w małym inline <script> na samej górze <body> (zanim cokolwiek innego
-// zdążyło się odpalić) - jeśli appka nie jest odpalona jako zainstalowana (PWA/Google Play),
-// wcale się nie inicjalizuje, bez żadnego obejścia - dotyczy zarówno komputera,
-// jak i telefonu w gołej przeglądarce
-if(window.__wickAppBlock){
-  document.getElementById('splashScreen').style.display = 'none';
-  document.getElementById('desktopLandingScreen').style.display = 'flex';
-} else {
-  applyStaticTexts();
-  renderDrawerQuote();
-  initAuth();
-}
+/* ============ START APPKI ============ */
+applyStaticTexts();
+renderDrawerQuote();
+initAuth();
 
 /* ============ PWA: rejestracja service workera ============ */
 if('serviceWorker' in navigator){
